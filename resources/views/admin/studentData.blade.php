@@ -28,7 +28,7 @@
             else{
                 return "Null";
             }
-        } 
+        }
 
         if($classId>4){
             function finalStatus($average){
@@ -66,7 +66,7 @@
         <div class="flex justify-end">
             <form action="{{ url('/downloadStudentData') }}" method="post">
                 @csrf
-                
+
                 <input type="hidden" name="rClass" id="rClass" value="{{ $classId }}">
                 <input type="hidden" name="rExam" id="rExam" value="{{ $examId }}">
                 <input type="hidden" name="rRegion" id="rRegion" value="{{ $regionId }}">
@@ -83,10 +83,10 @@
 
         <div class="my-3">
             <h2 class="text-2xl font-bold">Kichujio:</h2>
-            
-            <form action="{{ url('/filterStudentData') }}" method="post" id="filterForm">    
+
+            <form action="{{ url('/filterStudentData') }}" method="post" id="filterForm">
                 @csrf
-                   
+
                 <div class="grid lg:grid-cols-7 md:grid-cols-4 grid-cols-1 gap-2">
                     <div>
                         <label for="class">Darasa:<span class="text-red-500">*</span></label>
@@ -101,7 +101,7 @@
                             @endif
                         </select>
                     </div>
-        
+
                     <div>
                         <label for="exam">Mtihani:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="exam" id="exam">
@@ -129,7 +129,7 @@
                             @endif
                         </select>
                     </div>
-    
+
                     <div>
                         <label for="district">Wilaya:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="district" id="district">
@@ -157,7 +157,7 @@
                             @endif
                         </select>
                     </div>
-        
+
                     <div>
                         <label for="startDate">Tarehe ya Kuanza:</label>
                         <input type="date" class="block w-full block p-2 rounded-md border border-black" min="{{ date('Y-m-d', strtotime("2023-01-01")) }}" max="{{ date('Y-m-d') }}" name="startDate" id="startDate" placeholder="Enter Start Date" value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
@@ -202,7 +202,7 @@
                         <th rowspan="2" class="border border-black uppercase">Nafasi</th>
                         <th rowspan="2" class="border border-black uppercase">Ufaulu</th>
                     </tr>
-    
+
                     <tr>
                         <th class="border border-black">AL</th>
                         <th class="border border-black">DRJ</th>
@@ -218,7 +218,7 @@
                         <th class="border border-black">DRJ</th>
                     </tr>
                 </thead>
-    
+
                 <tbody>
                     @php
                         $i=1;
@@ -234,10 +234,10 @@
                                     $gradeData=\App\Models\Grades::select('gradeName')->where([
                                         ['gradeId','=',$mark['classId']]
                                     ])->first();
-    
+
                                     $gradeName=($gradeData)?$gradeData['gradeName']:'<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
-    
+
                                 <p>{!! $gradeName !!}</p>
                             </td>
                             <td class="capitalize border border-black">
@@ -245,10 +245,10 @@
                                     $examData=\App\Models\Exams::select('examName')->where([
                                         ['examId','=',$mark['examId']]
                                     ])->first();
-    
+
                                     $examName=($examData)?$examData['examName']:'<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
-    
+
                                 <p>{!! $examName !!}</p>
                             </td>
                             <td class="capitalize border border-black">
@@ -256,10 +256,10 @@
                                     $schoolData=\App\Models\Schools::select('schoolName')->where([
                                         ['schoolId','=',$mark['schoolId']]
                                     ])->first();
-    
+
                                     $schoolName=($schoolData)?$schoolData['schoolName']:'<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
-    
+
                                 <p>{!! $schoolName !!}</p>
                             </td>
                             <td class="capitalize border border-black">
@@ -267,10 +267,10 @@
                                     $regionData=\App\Models\Regions::select('regionName')->where([
                                         ['regionId','=',$mark['regionId']]
                                     ])->first();
-    
+
                                     $regionName=($regionData)?$regionData['regionName']:'<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
-    
+
                                 <p>{!! $regionName !!}</p>
                             </td>
                             <td class="capitalize border border-black">
@@ -278,10 +278,10 @@
                                     $districtData=\App\Models\Districts::select('districtName')->where([
                                         ['districtId','=',$mark['districtId']]
                                     ])->first();
-    
+
                                     $districtName=($districtData)?$districtData['districtName']:'<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
-    
+
                                 <p>{!! $districtName !!}</p>
                             </td>
                             <td class="capitalize border border-black">
@@ -289,10 +289,10 @@
                                     $wardData=\App\Models\Wards::select('wardName')->where([
                                         ['wardId','=',$mark['wardId']]
                                     ])->first();
-    
+
                                     $wardName=($wardData)?$wardData['wardName']:'<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
-    
+
                                 <p>{!! $wardName !!}</p>
                             </td>
                             <td class="border border-black text-right">{{ $mark['hisabati'] }}</td>
@@ -309,36 +309,36 @@
                             <td class="border border-black">{{ assignGrade($mark['maadili']) }}</td>
                             <td class="border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="border border-black text-right">{{ $mark['average'] }}</td>
-    
+
                             @if ($mark['average']>0)
-                                <td class="border border-black">{{ assignGrade($mark['average']) }}</td> 
+                                <td class="border border-black">{{ assignGrade($mark['average']) }}</td>
                             @else
-                                <td class="border border-black">ABS</td> 
+                                <td class="border border-black">ABS</td>
                             @endif
-    
+
                             @if ($storedAvg==$mark['average'])
                                 @php
                                     $j++;
                                     $storedAvg=$mark['average'];
                                 @endphp
 
-                                <td class="border border-black text-right">{{ ($i-$j) }}</td>  
+                                <td class="border border-black text-right">{{ ($i-$j) }}</td>
                             @else
                                 @php
-                                    $j=0; 
-                                    $storedAvg=$mark['average'];   
+                                    $j=0;
+                                    $storedAvg=$mark['average'];
                                 @endphp
 
-                                <td class="border border-black text-right">{{ $i }}</td>    
+                                <td class="border border-black text-right">{{ $i }}</td>
                             @endif
-    
+
                             @if ($mark['average']>0)
-                                <td class="border border-black">{{ finalStatus($mark['average']) }}</td>  
+                                <td class="border border-black">{{ finalStatus($mark['average']) }}</td>
                             @else
-                                <td class="border border-black"></td> 
+                                <td class="border border-black"></td>
                             @endif
-                        </tr> 
-    
+                        </tr>
+
                         @php
                             $i++;
                         @endphp
@@ -346,7 +346,7 @@
                 </tbody>
             </table>
         </div>
-    
+
         <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
             <div>
                 {{-- <h2 class="text-2xl font-bold mb-2">School Average Grade</h2> --}}
@@ -357,7 +357,7 @@
                             <th class="border border-black p-1 uppercase">Daraja</th>
                         </tr>
                     </thead>
-    
+
                     <tbody>
                         <tr class="bg-white">
                             <td class="border border-black p-1 text-center">
@@ -366,11 +366,11 @@
                                     foreach ($gAverage as $gA) {
                                         $gATotal=$gATotal+$gA;
                                     }
-    
+
                                     $gAver=(count($marks)>0)?($gATotal/(6*(count($marks)-$gradeArray[10]-$gradeArray[11]))):0;
                                     $schoolGrade=assignGrade($gAver);
                                 @endphp
-    
+
                                 {{ number_format($gAver, 2) }}
                             </td>
                             <td class="border border-black p-1 text-center">{{ $schoolGrade }}</td>
@@ -378,7 +378,7 @@
                     </tbody>
                 </table>
             </div>
-    
+
             <div>
                 {{-- <h2 class="text-2xl font-bold mb-2">School Average Passing</h2> --}}
                 <table class="w-full">
@@ -388,7 +388,7 @@
                             <th class="border border-black p-1 uppercase">Daraja</th>
                         </tr>
                     </thead>
-    
+
                     <tbody>
                         <tr class="bg-white">
                             <td class="border border-black p-1 text-center">
@@ -397,10 +397,10 @@
                                     foreach ($gAverage as $gA) {
                                         $gATotal=$gATotal+$gA;
                                     }
-    
+
                                     $gAver=(count($marks)>0)?($gATotal/(count($marks)-$gradeArray[10]-$gradeArray[11])):0;
                                 @endphp
-    
+
                                 {{ number_format($gAver, 2) }}
                             </td>
                             <td class="border border-black p-1 text-center">{{ $schoolGrade }}</td>
@@ -409,7 +409,7 @@
                 </table>
             </div>
         </div>
-    
+
         <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
             <div>
                 {{-- <h2 class="text-2xl font-bold mb-2">Average Grade Distribution</h2> --}}
@@ -418,7 +418,7 @@
                         <th rowspan="2" class="text-center border border-black">TATHIMINI YA UFAULU</th>
                         <th colspan="7" class="text-center border border-black uppercase">Daraja</th>
                     </tr>
-    
+
                     <tr>
                         <th class="border border-black">A</th>
                         <th class="border border-black">B</th>
@@ -428,7 +428,7 @@
                         <th class="border border-black">ABS</th>
                         <th class="border border-black uppercase">Jumla</th>
                     </tr>
-    
+
                     @php
                         if($classId>4){
                             $failCount=$gradeArray[3]+$gradeArray[4]+$gradeArray[8]+$gradeArray[9];
@@ -445,7 +445,7 @@
                         $gradeMaleCount=$gradeArray[0]+$gradeArray[1]+$gradeArray[2]+$gradeArray[3]+$gradeArray[4];
                         $gradeFemaleCount=$gradeArray[5]+$gradeArray[6]+$gradeArray[7]+$gradeArray[8]+$gradeArray[9];
                     @endphp
-    
+
                     <tr class="bg-white">
                         <td class="border border-black text-center">1</td>
                         <td class="border border-black text-center">{{ $gradeArray[0] }}</td>
@@ -456,7 +456,7 @@
                         <td class="border border-black text-center">{{ $gradeArray[10] }}</td>
                         <td class="border border-black text-center">{{ $gradeMaleCount+$gradeArray[10] }}</td>
                     </tr>
-    
+
                     <tr class="bg-gray-200">
                         <td class="border border-black text-center">2</td>
                         <td class="border border-black text-center">{{ $gradeArray[5] }}</td>
@@ -467,7 +467,7 @@
                         <td class="border border-black text-center">{{ $gradeArray[11] }}</td>
                         <td class="border border-black text-center">{{ $gradeFemaleCount+$gradeArray[11] }}</td>
                     </tr>
-    
+
                     <tr class="bg-white">
                         <td class="border border-black text-center">Jumla</td>
                         <td class="border border-black text-center">{{ ($gradeArray[0]+$gradeArray[5]) }}</td>
@@ -480,7 +480,7 @@
                     </tr>
                 </table>
             </div>
-    
+
             <div>
                 {{-- <h2 class="text-2xl font-bold mb-2">Exam Participation & Results</h2> --}}
                 <table class="w-full">
@@ -491,7 +491,7 @@
                             <th class="border border-black px-2 text-center uppercase">Fail</th>
                         </tr>
                     </thead>
-    
+
                     <tbody>
                         <tr class="bg-white text-center">
                             <td class="border border-black px-2">1</td>
@@ -499,21 +499,21 @@
                             <td class="border border-black px-2">{{ ($gradeMaleCount-$failMaleCount) }}</td>
                             <td class="border border-black px-2">{{ $failMaleCount }}</td>
                         </tr>
-    
+
                         <tr class="bg-gray-200 text-center">
                             <td class="border border-black px-2">2</td>
                             <td class="border border-black px-2">{{ $gradeFemaleCount }}</td>
                             <td class="border border-black px-2">{{ ($gradeFemaleCount-$failFemaleCount) }}</td>
                             <td class="border border-black px-2">{{ $failFemaleCount }}</td>
                         </tr>
-    
+
                         <tr class="bg-white text-center">
                             <td class="border border-black px-2" rowspan="2">Jumla</td>
                             <td class="border border-black px-2" rowspan="2">{{ $gradeCount }}</td>
                             <td class="border border-black px-2">{{ ($gradeCount-$failCount) }}</td>
                             <td class="border border-black px-2">{{ $failCount }}</td>
                         </tr>
-    
+
                         <tr class="bg-gray-200 text-center">
                             <td class="border border-black px-2">
                                 @php
@@ -521,12 +521,12 @@
                                 @endphp
 
                                 @if ($gradeCount>0)
-                                    <span>{{ $passTitle }}:</span> {{ number_format(((($gradeCount-$failCount)*100)/$gradeCount), 2)  }} 
+                                    <span>{{ $passTitle }}:</span> {{ number_format(((($gradeCount-$failCount)*100)/$gradeCount), 2)  }}
                                 @else
-                                    <p>{{ $passTitle }}: 0</p>  
+                                    <p>{{ $passTitle }}: 0</p>
                                 @endif
                             </td>
-                           
+
                             <td class="border border-black px-2">
                                 @php
                                     $failTitle=($classId>4)?"% Fail(D-E)":"% Fail(E)";
@@ -543,15 +543,15 @@
                 </table>
             </div>
         </div>
-    
+
         <div class="mt-5">
             @php
                 $failedCount=0;
                 $subList=['hisabati','kiswahili','sayansi','english','jamii','maadili'];
             @endphp
-    
+
             <h2 class="text-2xl font-bold mb-2 text-center">TATHIMINI YA MADARAJA YA KILA SOMO</h2>
-    
+
             <table class="w-full">
                 <thead>
                     <tr>
@@ -567,7 +567,7 @@
                         <th rowspan="2" class="text-center border border-black uppercase">Wasio Faulu</th>
                         <th rowspan="2" class="text-center border border-black">%</th>
                     </tr>
-    
+
                     <tr>
                         <th class="text-center border border-black">1</th>
                         <th class="text-center border border-black">2</th>
@@ -586,7 +586,7 @@
                         <th class="text-center border border-black">JML</th>
                     </tr>
                 </thead>
-    
+
                 <tbody>
                     @if (count($subList)>0)
                         @php
@@ -596,7 +596,7 @@
                         @endphp
                         @foreach ($subList as $name)
                             @php
-                                $totalGradeCount=$aMaleGrade[$i]+$bMaleGrade[$i]+$cMaleGrade[$i]+$dMaleGrade[$i]+$eMaleGrade[$i]+$aFemaleGrade[$i]+$bFemaleGrade[$i]+$cFemaleGrade[$i]+$dFemaleGrade[$i]+$eFemaleGrade[$i];    
+                                $totalGradeCount=$aMaleGrade[$i]+$bMaleGrade[$i]+$cMaleGrade[$i]+$dMaleGrade[$i]+$eMaleGrade[$i]+$aFemaleGrade[$i]+$bFemaleGrade[$i]+$cFemaleGrade[$i]+$dFemaleGrade[$i]+$eFemaleGrade[$i];
                             @endphp
 
                             <tr class="{{ $rowColor }}">
@@ -616,11 +616,11 @@
                                 <td class="text-center border border-black px-2">{{ $eMaleGrade[$i] }}</td>
                                 <td class="text-center border border-black px-2">{{ $eFemaleGrade[$i] }}</td>
                                 <td class="text-center border border-black px-2">{{ ($eMaleGrade[$i]+$eFemaleGrade[$i]) }}</td>
-                                
+
                                 @if (count($marks)>0)
-                                    <td class="text-center border border-black">{{ number_format(($gAverage[$i]/(count($marks)-$gradeArray[10]-$gradeArray[11])), 2) }}</td>  
+                                    <td class="text-center border border-black">{{ number_format(($gAverage[$i]/(count($marks)-$gradeArray[10]-$gradeArray[11])), 2) }}</td>
                                 @else
-                                    <td class="text-center border border-black">0</td>  
+                                    <td class="text-center border border-black">0</td>
                                 @endif
 
                                 <td class="text-center border border-black">{{ ($totalGradeCount-$failedCount) }}</td>
@@ -628,7 +628,7 @@
                                     @if ($totalGradeCount>0)
                                         {{ number_format(((($totalGradeCount-$failedCount)*100)/$totalGradeCount), 2) }}
                                     @else
-                                        <p>0</p> 
+                                        <p>0</p>
                                     @endif
                                 </td>
                                 <td class="text-center border border-black">{{ $failedCount }}</td>
@@ -639,7 +639,7 @@
                                         <p>0</p>
                                     @endif
                                 </td>
-                            </tr> 
+                            </tr>
 
                             @php
                                 $i++;
