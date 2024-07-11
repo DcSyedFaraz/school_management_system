@@ -22,21 +22,51 @@ class ReportController extends Controller
     public function reports()
     {
         if (Session::get('adminLoggedin') == true) {
-            $classId = 1;
-            $examId = 1;
+            $classId = 1; // Default class
+            $examId = 1; // Default exam
             $regionId = '';
             $districtId = '';
             $startDate = date('Y-m-d', strtotime('' . date('Y') . '-' . date('m') . '-01'));
             $endDate = date('Y-m-d');
 
-            $marks = Marks::selectRaw('schoolId,
+            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks';
+
+            if ($classId == 1) {
+                $selectFields .= ',
+                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
+                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
+                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
+                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
+                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
+                ROUND(AVG(CASE WHEN michezo > 0 THEN michezo END), 2) as michezo';
+            } elseif ($classId == 2) {
+                $selectFields .= ',
+                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
+                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
+                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
+                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
+                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
+                ROUND(AVG(CASE WHEN utamaduni > 0 THEN utamaduni END), 2) as utamaduni';
+            } elseif ($classId == 3) {
+                $selectFields .= ',
+                ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
+                ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
+                ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
+                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
+                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili,
+                ROUND(AVG(CASE WHEN jiographia > 0 THEN jiographia END), 2) as jiographia,
+                ROUND(AVG(CASE WHEN smichezo > 0 THEN smichezo END), 2) as smichezo';
+            } else { // classes 4 to 7
+                $selectFields .= ',
                 ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
                 ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
                 ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
                 ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
                 ROUND(AVG(CASE WHEN jamii > 0 THEN jamii END), 2) as jamii,
-                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili,
-                ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks')
+                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili';
+            }
+
+            $marks = Marks::selectRaw($selectFields)
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],
@@ -44,7 +74,8 @@ class ReportController extends Controller
                     ['examId', '=', $examId]
                 ])
                 ->groupBy('schoolId')
-                ->whereBetween('examDate', [$startDate, $endDate])->orderBy('averageMarks', 'desc')
+                ->whereBetween('examDate', [$startDate, $endDate])
+                ->orderBy('averageMarks', 'desc')
                 ->get();
 
             $classes = Grades::select('gradeId', 'gradeName')->where([
@@ -81,6 +112,7 @@ class ReportController extends Controller
         }
     }
 
+
     public function filterReport(Request $req)
     {
         if (Session::get('adminLoggedin') == true) {
@@ -89,21 +121,51 @@ class ReportController extends Controller
             $districtId = $req['district'];
             $examId = $req['exam'];
 
-            $classCondition = ($req['class'] == '') ? ['classId', '!=', null] : ['classId', '=', $classId];
-            $examCondition = ($req['exam'] == '') ? ['examId', '!=', null] : ['examId', '=', $examId];
+            $classCondition = ($classId == '') ? ['classId', '!=', null] : ['classId', '=', $classId];
+            $examCondition = ($examId == '') ? ['examId', '!=', null] : ['examId', '=', $examId];
             $regionCondition = ($regionId == '') ? ['regionId', '!=', null] : ['regionId', '=', $regionId];
             $districtCondition = ($districtId == '') ? ['districtId', '!=', null] : ['districtId', '=', $districtId];
             $startDate = ($req['startDate'] == '') ? date('Y-m-d', strtotime("2023-01-01")) : $req['startDate'];
             $endDate = ($req['endDate'] == '') ? date('Y-m-d') : $req['endDate'];
+            // return $classId;
+            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks';
 
-            $marks = Marks::selectRaw('schoolId,
+            if ($classId == 1) {
+                $selectFields .= ',
+                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
+                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
+                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
+                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
+                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
+                ROUND(AVG(CASE WHEN michezo > 0 THEN michezo END), 2) as michezo';
+            } elseif ($classId == 2) {
+                $selectFields .= ',
+                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
+                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
+                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
+                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
+                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
+                ROUND(AVG(CASE WHEN utamaduni > 0 THEN utamaduni END), 2) as utamaduni';
+            } elseif ($classId == 3) {
+                $selectFields .= ',
+                ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
+                ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
+                ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
+                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
+                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili,
+                ROUND(AVG(CASE WHEN jiographia > 0 THEN jiographia END), 2) as jiographia,
+                ROUND(AVG(CASE WHEN smichezo > 0 THEN smichezo END), 2) as smichezo';
+            } else { // classes 4 to 7
+                $selectFields .= ',
                 ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
                 ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
                 ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
                 ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
                 ROUND(AVG(CASE WHEN jamii > 0 THEN jamii END), 2) as jamii,
-                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili,
-                ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks')
+                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili';
+            }
+
+            $marks = Marks::selectRaw($selectFields)
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],
@@ -116,7 +178,7 @@ class ReportController extends Controller
                 ->groupBy('schoolId')
                 ->orderBy('averageMarks', 'desc')
                 ->get();
-
+            // dd($marks);
             $classes = Grades::select('gradeId', 'gradeName')->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0']
@@ -141,17 +203,18 @@ class ReportController extends Controller
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0']
             ])->orderBy('examDate', 'desc')->distinct()->pluck('examDate');
-            ;
 
             session(['pageTitle' => "Ripoti"]);
             $url3 = url('/reports/delete');
 
             $data = compact('marks', 'classes', 'exams', 'regions', 'districts', 'dates', 'url3', 'classId', 'examId', 'regionId', 'districtId', 'startDate', 'endDate');
+            //    return $data;
             return view('admin.reports')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
     }
+
 
     public function downloadReport(Request $req)
     {
@@ -389,7 +452,7 @@ class ReportController extends Controller
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0']
                 ])
-                ->where(function($query) use ($conditions) {
+                ->where(function ($query) use ($conditions) {
                     foreach ($conditions as $key => $value) {
                         if ($value !== '') {
                             $query->where($key, '=', $value);
@@ -451,7 +514,7 @@ class ReportController extends Controller
             session(['pageTitle' => "Matokeo Kiwanafunzi"]);
 
             $data = compact('classes', 'marks', 'gradeArray', 'aMaleGrade', 'bMaleGrade', 'cMaleGrade', 'dMaleGrade', 'eMaleGrade', 'aFemaleGrade', 'bFemaleGrade', 'cFemaleGrade', 'dFemaleGrade', 'eFemaleGrade', 'gAverage', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate');
-// return $data;
+            // return $data;
             return view('admin.studentData')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
