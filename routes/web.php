@@ -78,7 +78,7 @@ Route::get('/admin-dashboard/reports', [ReportController::class, 'reports']);
 Route::post('/filterReport', [ReportController::class, 'filterReport']);
 Route::post('/downloadReport', [ReportController::class, 'downloadReport']);
 Route::get('/admin-dashboard/student-data', [ReportController::class, 'studentData']);
-Route::post('/filterStudentData', [ReportController::class, 'studentDataFilter']);
+Route::get('/filterStudentData', [ReportController::class, 'studentDataFilter']);
 Route::post('/downloadStudentData', [ReportController::class, 'downloadStudentData']);
 
 Route::get('/dashboard', [UserDashboardController::class, 'adminDashboard']);

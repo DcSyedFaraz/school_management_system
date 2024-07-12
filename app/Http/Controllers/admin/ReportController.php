@@ -275,7 +275,7 @@ class ReportController extends Controller
                     ['isDeleted', '=', '0'],
                     ['classId', '=', $classId],
                     ['examId', '=', $examId]
-                ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->get();
+                ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->paginate(10);
 
             $classes = Grades::select('gradeId', 'gradeName')->where([
                 ['isActive', '=', '1'],
@@ -419,107 +419,176 @@ class ReportController extends Controller
 
             session(['pageTitle' => "Matokeo Kiwanafunzi"]);
             $data = compact('classes', 'marks', 'gradeArray', 'aMaleGrade', 'bMaleGrade', 'cMaleGrade', 'dMaleGrade', 'eMaleGrade', 'aFemaleGrade', 'bFemaleGrade', 'cFemaleGrade', 'dFemaleGrade', 'eFemaleGrade', 'gAverage', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate');
+            dd($data);
             return view('admin.studentData')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
     }
 
-    public function studentDataFilter(Request $req)
+    public function studentDataFilter(Request $request)
     {
-        // dd($req->all());
         set_time_limit(300);
 
-        if (Session::get('adminLoggedin') == true) {
-            $classId = $req['class'];
-            $examId = $req['exam'];
-            $regionId = $req['region'];
-            $districtId = $req['district'];
-            $wardId = $req['ward'];
-            $startDate = $req['startDate'] ?? date('Y-m-d', strtotime("2023-01-01"));
-            $endDate = $req['endDate'] ?? date('Y-m-d');
+        if (!Session::get('adminLoggedin')) {
+            return redirect('/')->with('accessDenied', 'Session Expired!');
+        }
 
-            $conditions = [
-                'classId' => $classId,
-                'examId' => $examId,
-                'regionId' => $regionId,
-                'districtId' => $districtId,
-                'wardId' => $wardId
-            ];
+        $classId = $request->input('class');
+        $examId = $request->input('exam');
+        $regionId = $request->input('region');
+        $districtId = $request->input('district');
+        $wardId = $request->input('ward');
+        $startDate = $request->input('startDate', date('Y-m-d', strtotime("2023-01-01")));
+        $endDate = $request->input('endDate', date('Y-m-d'));
 
-            $marks = Marks::select('markId', 'gender', 'studentName', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId', 'hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili', 'total', 'average')
-                ->where([
-                    ['isActive', '=', '1'],
-                    ['isDeleted', '=', '0']
-                ])
-                ->where(function ($query) use ($conditions) {
-                    foreach ($conditions as $key => $value) {
-                        if ($value !== '') {
-                            $query->where($key, '=', $value);
-                        }
-                    }
-                })
-                ->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('average', 'desc')
-                ->get();
+        $conditions = [
+            ['isActive', '=', 1],
+            ['isDeleted', '=', 0],
+        ];
 
-            $commonConditions = [
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ];
+        if ($classId) {
+            $conditions[] = ['classId', '=', $classId];
+        }
 
-            $classes = Grades::select('gradeId', 'gradeName')->where($commonConditions)->get();
-            $exams = Exams::select('examId', 'examName')->where($commonConditions)->get();
-            $regions = Regions::select('regionId', 'regionName', 'regionCode')->where($commonConditions)->orderBy('regionName', 'asc')->get();
-            $districts = Districts::select('districtId', 'districtName', 'districtCode')->where($commonConditions)->orderBy('districtName', 'asc')->get();
-            $wards = Wards::select('wardId', 'wardName', 'wardCode')->where($commonConditions)->orderBy('wardName', 'asc')->get();
+        if ($examId) {
+            $conditions[] = ['examId', '=', $examId];
+        }
 
-            $gradeArray = array_fill(0, 12, 0);
+        if ($regionId) {
+            $conditions[] = ['regionId', '=', $regionId];
+        }
 
-            $aMaleGrade = array_fill(0, 6, 0);
-            $bMaleGrade = array_fill(0, 6, 0);
-            $cMaleGrade = array_fill(0, 6, 0);
-            $dMaleGrade = array_fill(0, 6, 0);
-            $eMaleGrade = array_fill(0, 6, 0);
-            $aFemaleGrade = array_fill(0, 6, 0);
-            $bFemaleGrade = array_fill(0, 6, 0);
-            $cFemaleGrade = array_fill(0, 6, 0);
-            $dFemaleGrade = array_fill(0, 6, 0);
-            $eFemaleGrade = array_fill(0, 6, 0);
+        if ($districtId) {
+            $conditions[] = ['districtId', '=', $districtId];
+        }
 
-            $gAverage = array_fill(0, 6, 0);
-            $subList = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
+        if ($wardId) {
+            $conditions[] = ['wardId', '=', $wardId];
+        }
 
-            foreach ($marks as $mark) {
-                if ($mark['average'] == 0) {
-                    $gradeArray[$mark['gender'] == 'M' ? 10 : 11]++;
+        $subjects = $this->getSubjectsByClassId($classId);
+        $subjectColumns = array_merge(['markId', 'gender', 'studentName', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId'], $subjects, ['total', 'average']);
+
+        $marks = Marks::select($subjectColumns)
+            ->where($conditions)
+            ->whereBetween('examDate', [$startDate, $endDate])
+            ->orderBy('average', 'desc')
+            ->paginate(10); // Add pagination
+
+        $classes = Grades::select('gradeId', 'gradeName')
+            ->where(['isActive' => 1, 'isDeleted' => 0])
+            ->get();
+
+        $exams = Exams::select('examId', 'examName')
+            ->where(['isActive' => 1, 'isDeleted' => 0])
+            ->get();
+
+        $regions = Regions::select('regionId', 'regionName', 'regionCode')
+            ->where(['isActive' => 1, 'isDeleted' => 0])
+            ->orderBy('regionName', 'asc')
+            ->get();
+
+        $districts = Districts::select('districtId', 'districtName', 'districtCode')
+            ->where(['isActive' => 1, 'isDeleted' => 0])
+            ->orderBy('districtName', 'asc')
+            ->get();
+
+        $wards = Wards::select('wardId', 'wardName', 'wardCode')
+            ->where(['isActive' => 1, 'isDeleted' => 0])
+            ->orderBy('wardName', 'asc')
+            ->get();
+
+        $gradeArray = array_fill(0, 12, 0);
+        $aMaleGrade = $aFemaleGrade = $bMaleGrade = $bFemaleGrade = $cMaleGrade = $cFemaleGrade = $dMaleGrade = $dFemaleGrade = $eMaleGrade = $eFemaleGrade = array_fill(0, 6, 0);
+        $gAverage = array_fill(0, count($subjects), 0);
+
+        foreach ($marks as $mark) {
+            if ($mark->average == 0) {
+                $mark->gender == 'M' ? $gradeArray[10]++ : $gradeArray[11]++;
+            } else {
+                foreach ($subjects as $index => $subject) {
+                    $gAverage[$index] += $mark->$subject;
+                }
+
+                $grade = $this->assignGrade($mark->average);
+                if ($grade == 'A') {
+                    $mark->gender == 'M' ? $gradeArray[0]++ : $gradeArray[5]++;
+                } elseif ($grade == 'B') {
+                    $mark->gender == 'M' ? $gradeArray[1]++ : $gradeArray[6]++;
+                } elseif ($grade == 'C') {
+                    $mark->gender == 'M' ? $gradeArray[2]++ : $gradeArray[7]++;
+                } elseif ($grade == 'D') {
+                    $mark->gender == 'M' ? $gradeArray[3]++ : $gradeArray[8]++;
                 } else {
-                    foreach ($subList as $index => $subject) {
-                        $gAverage[$index] += $mark[$subject];
-                    }
+                    $mark->gender == 'M' ? $gradeArray[4]++ : $gradeArray[9]++;
+                }
 
-                    $grade = $this->assignGrade($mark['average']);
-                    $gradeIndex = ['A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4][$grade];
-                    $gradeArray[$gradeIndex + ($mark['gender'] == 'M' ? 0 : 5)]++;
-
-                    foreach ($subList as $index => $subject) {
-                        $subjectGrade = $this->assignGrade($mark[$subject]);
-                        $genderKey = $mark['gender'] == 'M' ? 'male' : 'female';
-                        $gradeVar = "{$subjectGrade}{$genderKey}Grade";
-                        ${$gradeVar}[$index]++;
+                foreach ($subjects as $index => $subject) {
+                    $subGrade = $this->assignGrade($mark->$subject);
+                    if ($subGrade == 'A') {
+                        $mark->gender == 'M' ? $aMaleGrade[$index]++ : $aFemaleGrade[$index]++;
+                    } elseif ($subGrade == 'B') {
+                        $mark->gender == 'M' ? $bMaleGrade[$index]++ : $bFemaleGrade[$index]++;
+                    } elseif ($subGrade == 'C') {
+                        $mark->gender == 'M' ? $cMaleGrade[$index]++ : $cFemaleGrade[$index]++;
+                    } elseif ($subGrade == 'D') {
+                        $mark->gender == 'M' ? $dMaleGrade[$index]++ : $dFemaleGrade[$index]++;
+                    } else {
+                        $mark->gender == 'M' ? $eMaleGrade[$index]++ : $eFemaleGrade[$index]++;
                     }
                 }
             }
+        }
 
-            session(['pageTitle' => "Matokeo Kiwanafunzi"]);
+        session(['pageTitle' => "Matokeo Kiwanafunzi"]);
 
-            $data = compact('classes', 'marks', 'gradeArray', 'aMaleGrade', 'bMaleGrade', 'cMaleGrade', 'dMaleGrade', 'eMaleGrade', 'aFemaleGrade', 'bFemaleGrade', 'cFemaleGrade', 'dFemaleGrade', 'eFemaleGrade', 'gAverage', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate');
-            // return $data;
-            return view('admin.studentData')->with($data);
-        } else {
-            return redirect('/')->with('accessDenied', 'Session Expired!');
+        $data = compact(
+            'classes',
+            'marks',
+            'gradeArray',
+            'aMaleGrade',
+            'bMaleGrade',
+            'cMaleGrade',
+            'dMaleGrade',
+            'eMaleGrade',
+            'aFemaleGrade',
+            'bFemaleGrade',
+            'cFemaleGrade',
+            'dFemaleGrade',
+            'eFemaleGrade',
+            'gAverage',
+            'exams',
+            'regions',
+            'districts',
+            'wards',
+            'classId',
+            'examId',
+            'regionId',
+            'districtId',
+            'wardId',
+            'startDate',
+            'endDate',
+            'subjects' // Include subjects in the data
+        );
+
+        return view('admin.studentData')->with($data);
+    }
+
+    private function getSubjectsByClassId($classId)
+    {
+        switch ($classId) {
+            case 1:
+                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
+            case 2:
+                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
+            case 3:
+                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'michezo'];
+            default: // classes 4 to 7
+                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
         }
     }
+
 
     public function downloadStudentData(Request $req)
     {

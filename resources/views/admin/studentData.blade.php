@@ -2,61 +2,56 @@
 
 @section('content')
     @php
-        function assignGrade($marks){
-            $rank=\App\Models\Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-                ['isActive','=','1'],
-                ['isDeleted','=','0']
-            ])->orderBy('rankName','asc')->get();
+        function assignGrade($marks)
+        {
+            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+                ->orderBy('rankName', 'asc')
+                ->get();
 
-            if($rank){
-                if($rank[0]['rankRangeMin']<$marks && $rank[0]['rankRangeMax']>=$marks){
+            if ($rank) {
+                if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
                     return $rank[0]['rankName'];
-                }
-                else if($rank[1]['rankRangeMin']<$marks && $rank[1]['rankRangeMax']>=$marks){
+                } elseif ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
                     return $rank[1]['rankName'];
-                }
-                else if($rank[2]['rankRangeMin']<$marks && $rank[2]['rankRangeMax']>=$marks){
+                } elseif ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
                     return $rank[2]['rankName'];
-                }
-                else if($rank[3]['rankRangeMin']<$marks && $rank[3]['rankRangeMax']>=$marks){
+                } elseif ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
                     return $rank[3]['rankName'];
-                }
-                else{
+                } else {
                     return $rank[4]['rankName'];
                 }
-            }
-            else{
-                return "Null";
-            }
-        }
-
-        if($classId>4){
-            function finalStatus($average){
-                $rank=\App\Models\Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-                    ['isActive','=','1'],
-                    ['isDeleted','=','0']
-                ])->orderBy('rankName','asc')->get();
-
-                if($average<=$rank[3]['rankRangeMax']){
-                    return "FAIL";
-                }
-                else{
-                    return "PASS";
-                }
+            } else {
+                return 'Null';
             }
         }
-        else{
-            function finalStatus($average){
-                $rank=\App\Models\Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-                    ['isActive','=','1'],
-                    ['isDeleted','=','0']
-                ])->orderBy('rankName','asc')->get();
 
-                if($average<=$rank[4]['rankRangeMax']){
-                    return "FAIL";
+        if ($classId > 4) {
+            function finalStatus($average)
+            {
+                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+                    ->orderBy('rankName', 'asc')
+                    ->get();
+
+                if ($average <= $rank[3]['rankRangeMax']) {
+                    return 'FAIL';
+                } else {
+                    return 'PASS';
                 }
-                else{
-                    return "PASS";
+            }
+        } else {
+            function finalStatus($average)
+            {
+                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+                    ->orderBy('rankName', 'asc')
+                    ->get();
+
+                if ($average <= $rank[4]['rankRangeMax']) {
+                    return 'FAIL';
+                } else {
+                    return 'PASS';
                 }
             }
         }
@@ -84,17 +79,19 @@
         <div class="my-3">
             <h2 class="text-2xl font-bold">Kichujio:</h2>
 
-            <form action="{{ url('/filterStudentData') }}" method="post" id="filterForm">
+            <form action="{{ url('/filterStudentData') }}" id="filterForm">
                 @csrf
 
                 <div class="grid lg:grid-cols-7 md:grid-cols-4 grid-cols-1 gap-2">
                     <div>
                         <label for="class">Darasa:<span class="text-red-500">*</span></label>
-                        <select class="block w-full block p-2 rounded-md border border-black" name="class" id="class" required>
+                        <select class="block w-full block p-2 rounded-md border border-black" name="class" id="class"
+                            required>
                             <option value="">-- SELECT CLASS --</option>
-                            @if (count($classes)>0)
+                            @if (count($classes) > 0)
                                 @foreach ($classes as $class)
-                                    <option value="{{ $class['gradeId'] }}" @selected($classId==$class['gradeId'])>{{ $class['gradeName'] }}</option>
+                                    <option value="{{ $class['gradeId'] }}" @selected($classId == $class['gradeId'])>
+                                        {{ $class['gradeName'] }}</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -106,9 +103,10 @@
                         <label for="exam">Mtihani:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="exam" id="exam">
                             <option value="">-- SELECT EXAM --</option>
-                            @if (count($exams)>0)
+                            @if (count($exams) > 0)
                                 @foreach ($exams as $exam)
-                                    <option value="{{ $exam['examId'] }}" @selected($examId==$exam['examId'])>{{ $exam['examName'] }}</option>
+                                    <option value="{{ $exam['examId'] }}" @selected($examId == $exam['examId'])>
+                                        {{ $exam['examName'] }}</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -120,9 +118,10 @@
                         <label for="region">Mkoa:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="region" id="region">
                             <option value="">-- SELECT REGION --</option>
-                            @if (count($regions)>0)
+                            @if (count($regions) > 0)
                                 @foreach ($regions as $region)
-                                    <option value="{{ $region['regionId'] }}" @selected($regionId==$region['regionId'])>{{ $region['regionName'] }} ({{ $region['regionCode'] }})</option>
+                                    <option value="{{ $region['regionId'] }}" @selected($regionId == $region['regionId'])>
+                                        {{ $region['regionName'] }} ({{ $region['regionCode'] }})</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -132,11 +131,13 @@
 
                     <div>
                         <label for="district">Wilaya:</label>
-                        <select class="block w-full block p-2 rounded-md border border-black" name="district" id="district">
+                        <select class="block w-full block p-2 rounded-md border border-black" name="district"
+                            id="district">
                             <option value="">-- SELECT DISTRICT --</option>
-                            @if (count($districts)>0)
+                            @if (count($districts) > 0)
                                 @foreach ($districts as $district)
-                                    <option value="{{ $district['districtId'] }}" @selected($districtId==$district['districtId'])>{{ $district['districtName'] }} ({{ $district['districtCode'] }})</option>
+                                    <option value="{{ $district['districtId'] }}" @selected($districtId == $district['districtId'])>
+                                        {{ $district['districtName'] }} ({{ $district['districtCode'] }})</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -148,9 +149,10 @@
                         <label for="ward">Kata:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="ward" id="ward">
                             <option value="">-- SELECT WARD --</option>
-                            @if (count($wards)>0)
+                            @if (count($wards) > 0)
                                 @foreach ($wards as $ward)
-                                    <option value="{{ $ward['wardId'] }}" @selected($wardId==$ward['wardId'])>{{ $ward['wardName'] }} ({{ $ward['wardCode'] }})</option>
+                                    <option value="{{ $ward['wardId'] }}" @selected($wardId == $ward['wardId'])>
+                                        {{ $ward['wardName'] }} ({{ $ward['wardCode'] }})</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -160,182 +162,202 @@
 
                     <div>
                         <label for="startDate">Tarehe ya Kuanza:</label>
-                        <input type="date" class="block w-full block p-2 rounded-md border border-black" min="{{ date('Y-m-d', strtotime("2023-01-01")) }}" max="{{ date('Y-m-d') }}" name="startDate" id="startDate" placeholder="Enter Start Date" value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
+                        <input type="date" class="block w-full block p-2 rounded-md border border-black"
+                            min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="startDate"
+                            id="startDate" placeholder="Enter Start Date"
+                            value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
                     </div>
 
                     <div>
                         <label for="endDate">Tarehe ya Mwisho:</label>
-                        <input type="date" class="block w-full block p-2 rounded-md border border-black" min="{{ date('Y-m-d', strtotime("2023-01-01")) }}" max="{{ date('Y-m-d') }}" name="endDate" id="endDate" placeholder="Enter End Date" value="{{ date('Y-m-d', strtotime($endDate)) }}">
+                        <input type="date" class="block w-full block p-2 rounded-md border border-black"
+                            min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="endDate"
+                            id="endDate" placeholder="Enter End Date" value="{{ date('Y-m-d', strtotime($endDate)) }}">
                     </div>
                 </div>
             </form>
 
             <div class="flex justify-end">
-                <a href="{{ url('/admin-dashboard/student-data') }}"><button type="button" form="filterForm" class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha Upya</button></a>
-                <button type="submit" form="filterForm" class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
+                <a href="{{ url('/admin-dashboard/student-data') }}"><button type="button" form="filterForm"
+                        class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha
+                        Upya</button></a>
+                <button type="submit" form="filterForm"
+                    class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO KWA WANAFUNZI WOTE:</h2>
 
-            <table class="myTable bg-white">
+            <table class=" bg-white">
                 <thead>
                     <tr>
-                        <th rowspan="2" class="border border-black">S/N</th>
-                        <th rowspan="2" class="border border-black uppercase">Jinala Mwanafunzi</th>
-                        <th rowspan="2" class="border border-black uppercase">Darasa</th>
-                        <th rowspan="2" class="border border-black uppercase">Mtihani</th>
-                        <th rowspan="2" class="border border-black uppercase">Shule</th>
-                        <th rowspan="2" class="border border-black uppercase">Mkoa</th>
-                        <th rowspan="2" class="border border-black uppercase">Wilaya</th>
-                        <th rowspan="2" class="border border-black uppercase">Kata</th>
-                        <th colspan="2" class="border border-black uppercase">Hisabati</th>
-                        <th colspan="2" class="border border-black uppercase">Kiswahili</th>
-                        <th colspan="2" class="border border-black uppercase">Sayansi</th>
-                        <th colspan="2" class="border border-black uppercase">English</th>
-                        <th colspan="2" class="border border-black uppercase">M/JAMII & S/KAZI</th>
-                        <th colspan="2" class="border border-black uppercase">U/MAADILI</th>
-                        <th rowspan="2" class="border border-black uppercase">Jumla</th>
-                        <th rowspan="2" class="border border-black uppercase">Wastani</th>
-                        <th rowspan="2" class="border border-black uppercase">Daraja</th>
-                        <th rowspan="2" class="border border-black uppercase">Nafasi</th>
-                        <th rowspan="2" class="border border-black uppercase">Ufaulu</th>
+                        <th rowspan="2" class="border border-black p-[15px]">S/N</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Jinala Mwanafunzi</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Darasa</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Mtihani</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Shule</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Mkoa</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Wilaya</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Kata</th>
+                        <th colspan="2" class="border border-black p-[15px] uppercase">Hisabati</th>
+                        <th colspan="2" class="border border-black p-[15px] uppercase">Kiswahili</th>
+                        <th colspan="2" class="border border-black p-[15px] uppercase">Sayansi</th>
+                        <th colspan="2" class="border border-black p-[15px] uppercase">English</th>
+                        <th colspan="2" class="border border-black p-[15px] uppercase">M/JAMII & S/KAZI</th>
+                        <th colspan="2" class="border border-black p-[15px] uppercase">U/MAADILI</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Jumla</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Wastani</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Daraja</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Nafasi</th>
+                        <th rowspan="2" class="border border-black p-[15px] uppercase">Ufaulu</th>
                     </tr>
 
                     <tr>
-                        <th class="border border-black">AL</th>
-                        <th class="border border-black">DRJ</th>
-                        <th class="border border-black">AL</th>
-                        <th class="border border-black">DRJ</th>
-                        <th class="border border-black">AL</th>
-                        <th class="border border-black">DRJ</th>
-                        <th class="border border-black">AL</th>
-                        <th class="border border-black">DRJ</th>
-                        <th class="border border-black">AL</th>
-                        <th class="border border-black">DRJ</th>
-                        <th class="border border-black">AL</th>
-                        <th class="border border-black">DRJ</th>
+                        <th class="border border-black p-[15px]">AL</th>
+                        <th class="border border-black p-[15px]">DRJ</th>
+                        <th class="border border-black p-[15px]">AL</th>
+                        <th class="border border-black p-[15px]">DRJ</th>
+                        <th class="border border-black p-[15px]">AL</th>
+                        <th class="border border-black p-[15px]">DRJ</th>
+                        <th class="border border-black p-[15px]">AL</th>
+                        <th class="border border-black p-[15px]">DRJ</th>
+                        <th class="border border-black p-[15px]">AL</th>
+                        <th class="border border-black p-[15px]">DRJ</th>
+                        <th class="border border-black p-[15px]">AL</th>
+                        <th class="border border-black p-[15px]">DRJ</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @php
-                        $i=1;
-                        $j=0;
-                        $storedAvg='';
+                        $i = 1;
+                        $j = 0;
+                        $storedAvg = '';
                     @endphp
                     @foreach ($marks as $mark)
                         <tr class="odd:bg-gray-200">
-                            <td class="border border-black text-right">{{ $i }}</td>
-                            <td class="capitalize border border-black">{{ $mark['studentName'] }}</td>
-                            <td class="capitalize border border-black">
+                            <td class="p-[15px] border border-black text-right">{{ $i }}</td>
+                            <td class="p-[15px] capitalize border border-black">{{ $mark['studentName'] }}</td>
+                            <td class="p-[15px] capitalize border border-black">
                                 @php
-                                    $gradeData=\App\Models\Grades::select('gradeName')->where([
-                                        ['gradeId','=',$mark['classId']]
-                                    ])->first();
+                                    $gradeData = \App\Models\Grades::select('gradeName')
+                                        ->where([['gradeId', '=', $mark['classId']]])
+                                        ->first();
 
-                                    $gradeName=($gradeData)?$gradeData['gradeName']:'<p class="text-red-500 italic">Not Found!</p>';
+                                    $gradeName = $gradeData
+                                        ? $gradeData['gradeName']
+                                        : '<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
 
                                 <p>{!! $gradeName !!}</p>
                             </td>
-                            <td class="capitalize border border-black">
+                            <td class="p-[15px] capitalize border border-black">
                                 @php
-                                    $examData=\App\Models\Exams::select('examName')->where([
-                                        ['examId','=',$mark['examId']]
-                                    ])->first();
+                                    $examData = \App\Models\Exams::select('examName')
+                                        ->where([['examId', '=', $mark['examId']]])
+                                        ->first();
 
-                                    $examName=($examData)?$examData['examName']:'<p class="text-red-500 italic">Not Found!</p>';
+                                    $examName = $examData
+                                        ? $examData['examName']
+                                        : '<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
 
                                 <p>{!! $examName !!}</p>
                             </td>
-                            <td class="capitalize border border-black">
+                            <td class="p-[15px] capitalize border border-black">
                                 @php
-                                    $schoolData=\App\Models\Schools::select('schoolName')->where([
-                                        ['schoolId','=',$mark['schoolId']]
-                                    ])->first();
+                                    $schoolData = \App\Models\Schools::select('schoolName')
+                                        ->where([['schoolId', '=', $mark['schoolId']]])
+                                        ->first();
 
-                                    $schoolName=($schoolData)?$schoolData['schoolName']:'<p class="text-red-500 italic">Not Found!</p>';
+                                    $schoolName = $schoolData
+                                        ? $schoolData['schoolName']
+                                        : '<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
 
                                 <p>{!! $schoolName !!}</p>
                             </td>
-                            <td class="capitalize border border-black">
+                            <td class="p-[15px] capitalize border border-black">
                                 @php
-                                    $regionData=\App\Models\Regions::select('regionName')->where([
-                                        ['regionId','=',$mark['regionId']]
-                                    ])->first();
+                                    $regionData = \App\Models\Regions::select('regionName')
+                                        ->where([['regionId', '=', $mark['regionId']]])
+                                        ->first();
 
-                                    $regionName=($regionData)?$regionData['regionName']:'<p class="text-red-500 italic">Not Found!</p>';
+                                    $regionName = $regionData
+                                        ? $regionData['regionName']
+                                        : '<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
 
                                 <p>{!! $regionName !!}</p>
                             </td>
-                            <td class="capitalize border border-black">
+                            <td class="p-[15px] capitalize border border-black">
                                 @php
-                                    $districtData=\App\Models\Districts::select('districtName')->where([
-                                        ['districtId','=',$mark['districtId']]
-                                    ])->first();
+                                    $districtData = \App\Models\Districts::select('districtName')
+                                        ->where([['districtId', '=', $mark['districtId']]])
+                                        ->first();
 
-                                    $districtName=($districtData)?$districtData['districtName']:'<p class="text-red-500 italic">Not Found!</p>';
+                                    $districtName = $districtData
+                                        ? $districtData['districtName']
+                                        : '<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
 
                                 <p>{!! $districtName !!}</p>
                             </td>
-                            <td class="capitalize border border-black">
+                            <td class="p-[15px] capitalize border border-black">
                                 @php
-                                    $wardData=\App\Models\Wards::select('wardName')->where([
-                                        ['wardId','=',$mark['wardId']]
-                                    ])->first();
+                                    $wardData = \App\Models\Wards::select('wardName')
+                                        ->where([['wardId', '=', $mark['wardId']]])
+                                        ->first();
 
-                                    $wardName=($wardData)?$wardData['wardName']:'<p class="text-red-500 italic">Not Found!</p>';
+                                    $wardName = $wardData
+                                        ? $wardData['wardName']
+                                        : '<p class="text-red-500 italic">Not Found!</p>';
                                 @endphp
 
                                 <p>{!! $wardName !!}</p>
                             </td>
-                            <td class="border border-black text-right">{{ $mark['hisabati'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['hisabati']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['kiswahili'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['kiswahili']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['sayansi'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['sayansi']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['english'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['english']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['jamii'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['jamii']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['maadili'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['maadili']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['total'] }}</td>
-                            <td class="border border-black text-right">{{ $mark['average'] }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['hisabati'] }}</td>
+                            <td class="p-[15px] border border-black">{{ assignGrade($mark['hisabati']) }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['kiswahili'] }}</td>
+                            <td class="p-[15px] border border-black">{{ assignGrade($mark['kiswahili']) }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['sayansi'] }}</td>
+                            <td class="p-[15px] border border-black">{{ assignGrade($mark['sayansi']) }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['english'] }}</td>
+                            <td class="p-[15px] border border-black">{{ assignGrade($mark['english']) }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['jamii'] }}</td>
+                            <td class="p-[15px] border border-black">{{ assignGrade($mark['jamii']) }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['maadili'] }}</td>
+                            <td class="p-[15px] border border-black">{{ assignGrade($mark['maadili']) }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['total'] }}</td>
+                            <td class="p-[15px] border border-black text-right">{{ $mark['average'] }}</td>
 
-                            @if ($mark['average']>0)
-                                <td class="border border-black">{{ assignGrade($mark['average']) }}</td>
+                            @if ($mark['average'] > 0)
+                                <td class="p-[15px] border border-black">{{ assignGrade($mark['average']) }}</td>
                             @else
-                                <td class="border border-black">ABS</td>
+                                <td class="p-[15px] border border-black">ABS</td>
                             @endif
 
-                            @if ($storedAvg==$mark['average'])
+                            @if ($storedAvg == $mark['average'])
                                 @php
                                     $j++;
-                                    $storedAvg=$mark['average'];
+                                    $storedAvg = $mark['average'];
                                 @endphp
 
-                                <td class="border border-black text-right">{{ ($i-$j) }}</td>
+                                <td class="p-[15px] border border-black text-right">{{ $i - $j }}</td>
                             @else
                                 @php
-                                    $j=0;
-                                    $storedAvg=$mark['average'];
+                                    $j = 0;
+                                    $storedAvg = $mark['average'];
                                 @endphp
 
-                                <td class="border border-black text-right">{{ $i }}</td>
+                                <td class="p-[15px] border border-black text-right">{{ $i }}</td>
                             @endif
 
-                            @if ($mark['average']>0)
-                                <td class="border border-black">{{ finalStatus($mark['average']) }}</td>
+                            @if ($mark['average'] > 0)
+                                <td class="p-[15px] border border-black">{{ finalStatus($mark['average']) }}</td>
                             @else
-                                <td class="border border-black"></td>
+                                <td class="p-[15px] border border-black"></td>
                             @endif
                         </tr>
 
@@ -345,6 +367,10 @@
                     @endforeach
                 </tbody>
             </table>
+            <div class="my-[5px]">
+
+                {{ $marks->links() }}
+            </div>
         </div>
 
         <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
@@ -360,20 +386,23 @@
 
                     <tbody>
                         <tr class="bg-white">
-                            <td class="border border-black p-1 text-center">
+                            <td class="p-[15px] border border-black p-1 text-center">
                                 @php
-                                    $gATotal=0;
+                                    $gATotal = 0;
                                     foreach ($gAverage as $gA) {
-                                        $gATotal=$gATotal+$gA;
+                                        $gATotal = $gATotal + $gA;
                                     }
 
-                                    $gAver=(count($marks)>0)?($gATotal/(6*(count($marks)-$gradeArray[10]-$gradeArray[11]))):0;
-                                    $schoolGrade=assignGrade($gAver);
+                                    $gAver =
+                                        count($marks) > 0
+                                            ? $gATotal / (6 * (count($marks) - $gradeArray[10] - $gradeArray[11]))
+                                            : 0;
+                                    $schoolGrade = assignGrade($gAver);
                                 @endphp
 
                                 {{ number_format($gAver, 2) }}
                             </td>
-                            <td class="border border-black p-1 text-center">{{ $schoolGrade }}</td>
+                            <td class="p-[15px] border border-black p-1 text-center">{{ $schoolGrade }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -391,19 +420,22 @@
 
                     <tbody>
                         <tr class="bg-white">
-                            <td class="border border-black p-1 text-center">
+                            <td class="p-[15px] border border-black p-1 text-center">
                                 @php
-                                    $gATotal=0;
+                                    $gATotal = 0;
                                     foreach ($gAverage as $gA) {
-                                        $gATotal=$gATotal+$gA;
+                                        $gATotal = $gATotal + $gA;
                                     }
 
-                                    $gAver=(count($marks)>0)?($gATotal/(count($marks)-$gradeArray[10]-$gradeArray[11])):0;
+                                    $gAver =
+                                        count($marks) > 0
+                                            ? $gATotal / (count($marks) - $gradeArray[10] - $gradeArray[11])
+                                            : 0;
                                 @endphp
 
                                 {{ number_format($gAver, 2) }}
                             </td>
-                            <td class="border border-black p-1 text-center">{{ $schoolGrade }}</td>
+                            <td class="p-[15px] border border-black p-1 text-center">{{ $schoolGrade }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -430,53 +462,55 @@
                     </tr>
 
                     @php
-                        if($classId>4){
-                            $failCount=$gradeArray[3]+$gradeArray[4]+$gradeArray[8]+$gradeArray[9];
-                            $failMaleCount=$gradeArray[3]+$gradeArray[4];
-                            $failFemaleCount=$gradeArray[8]+$gradeArray[9];
-                        }
-                        else{
-                            $failCount=$gradeArray[4]+$gradeArray[9];
-                            $failMaleCount=$gradeArray[4];
-                            $failFemaleCount=$gradeArray[9];
+                        if ($classId > 4) {
+                            $failCount = $gradeArray[3] + $gradeArray[4] + $gradeArray[8] + $gradeArray[9];
+                            $failMaleCount = $gradeArray[3] + $gradeArray[4];
+                            $failFemaleCount = $gradeArray[8] + $gradeArray[9];
+                        } else {
+                            $failCount = $gradeArray[4] + $gradeArray[9];
+                            $failMaleCount = $gradeArray[4];
+                            $failFemaleCount = $gradeArray[9];
                         }
 
-                        $gradeCount=array_sum($gradeArray)-$gradeArray[10]-$gradeArray[11];
-                        $gradeMaleCount=$gradeArray[0]+$gradeArray[1]+$gradeArray[2]+$gradeArray[3]+$gradeArray[4];
-                        $gradeFemaleCount=$gradeArray[5]+$gradeArray[6]+$gradeArray[7]+$gradeArray[8]+$gradeArray[9];
+                        $gradeCount = array_sum($gradeArray) - $gradeArray[10] - $gradeArray[11];
+                        $gradeMaleCount =
+                            $gradeArray[0] + $gradeArray[1] + $gradeArray[2] + $gradeArray[3] + $gradeArray[4];
+                        $gradeFemaleCount =
+                            $gradeArray[5] + $gradeArray[6] + $gradeArray[7] + $gradeArray[8] + $gradeArray[9];
                     @endphp
 
                     <tr class="bg-white">
-                        <td class="border border-black text-center">1</td>
-                        <td class="border border-black text-center">{{ $gradeArray[0] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[1] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[2] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[3] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[4] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[10] }}</td>
-                        <td class="border border-black text-center">{{ $gradeMaleCount+$gradeArray[10] }}</td>
+                        <td class="p-[15px] border border-black text-center">1</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[0] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[1] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[2] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[3] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[4] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[10] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeMaleCount + $gradeArray[10] }}</td>
                     </tr>
 
                     <tr class="bg-gray-200">
-                        <td class="border border-black text-center">2</td>
-                        <td class="border border-black text-center">{{ $gradeArray[5] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[6] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[7] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[8] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[9] }}</td>
-                        <td class="border border-black text-center">{{ $gradeArray[11] }}</td>
-                        <td class="border border-black text-center">{{ $gradeFemaleCount+$gradeArray[11] }}</td>
+                        <td class="p-[15px] border border-black text-center">2</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[5] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[6] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[7] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[8] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[9] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[11] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeFemaleCount + $gradeArray[11] }}</td>
                     </tr>
 
                     <tr class="bg-white">
-                        <td class="border border-black text-center">Jumla</td>
-                        <td class="border border-black text-center">{{ ($gradeArray[0]+$gradeArray[5]) }}</td>
-                        <td class="border border-black text-center">{{ ($gradeArray[1]+$gradeArray[6]) }}</td>
-                        <td class="border border-black text-center">{{ ($gradeArray[2]+$gradeArray[7]) }}</td>
-                        <td class="border border-black text-center">{{ ($gradeArray[3]+$gradeArray[8]) }}</td>
-                        <td class="border border-black text-center">{{ ($gradeArray[4]+$gradeArray[9]) }}</td>
-                        <td class="border border-black text-center">{{ ($gradeArray[10]+$gradeArray[11]) }}</td>
-                        <td class="border border-black text-center">{{ ($gradeMaleCount+$gradeFemaleCount+$gradeArray[10]+$gradeArray[11]) }}</td>
+                        <td class="p-[15px] border border-black text-center">Jumla</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[0] + $gradeArray[5] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[1] + $gradeArray[6] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[2] + $gradeArray[7] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[3] + $gradeArray[8] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[4] + $gradeArray[9] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[10] + $gradeArray[11] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ $gradeMaleCount + $gradeFemaleCount + $gradeArray[10] + $gradeArray[11] }}</td>
                     </tr>
                 </table>
             </div>
@@ -494,46 +528,48 @@
 
                     <tbody>
                         <tr class="bg-white text-center">
-                            <td class="border border-black px-2">1</td>
-                            <td class="border border-black px-2">{{ $gradeMaleCount }}</td>
-                            <td class="border border-black px-2">{{ ($gradeMaleCount-$failMaleCount) }}</td>
-                            <td class="border border-black px-2">{{ $failMaleCount }}</td>
+                            <td class="p-[15px] border border-black px-2">1</td>
+                            <td class="p-[15px] border border-black px-2">{{ $gradeMaleCount }}</td>
+                            <td class="p-[15px] border border-black px-2">{{ $gradeMaleCount - $failMaleCount }}</td>
+                            <td class="p-[15px] border border-black px-2">{{ $failMaleCount }}</td>
                         </tr>
 
                         <tr class="bg-gray-200 text-center">
-                            <td class="border border-black px-2">2</td>
-                            <td class="border border-black px-2">{{ $gradeFemaleCount }}</td>
-                            <td class="border border-black px-2">{{ ($gradeFemaleCount-$failFemaleCount) }}</td>
-                            <td class="border border-black px-2">{{ $failFemaleCount }}</td>
+                            <td class="p-[15px] border border-black px-2">2</td>
+                            <td class="p-[15px] border border-black px-2">{{ $gradeFemaleCount }}</td>
+                            <td class="p-[15px] border border-black px-2">{{ $gradeFemaleCount - $failFemaleCount }}</td>
+                            <td class="p-[15px] border border-black px-2">{{ $failFemaleCount }}</td>
                         </tr>
 
                         <tr class="bg-white text-center">
-                            <td class="border border-black px-2" rowspan="2">Jumla</td>
-                            <td class="border border-black px-2" rowspan="2">{{ $gradeCount }}</td>
-                            <td class="border border-black px-2">{{ ($gradeCount-$failCount) }}</td>
-                            <td class="border border-black px-2">{{ $failCount }}</td>
+                            <td class="p-[15px] border border-black px-2" rowspan="2">Jumla</td>
+                            <td class="p-[15px] border border-black px-2" rowspan="2">{{ $gradeCount }}</td>
+                            <td class="p-[15px] border border-black px-2">{{ $gradeCount - $failCount }}</td>
+                            <td class="p-[15px] border border-black px-2">{{ $failCount }}</td>
                         </tr>
 
                         <tr class="bg-gray-200 text-center">
-                            <td class="border border-black px-2">
+                            <td class="p-[15px] border border-black px-2">
                                 @php
-                                    $passTitle=($classId>4)?"% Pass(A-C)":"% Pass(A-D)";
+                                    $passTitle = $classId > 4 ? '% Pass(A-C)' : '% Pass(A-D)';
                                 @endphp
 
-                                @if ($gradeCount>0)
-                                    <span>{{ $passTitle }}:</span> {{ number_format(((($gradeCount-$failCount)*100)/$gradeCount), 2)  }}
+                                @if ($gradeCount > 0)
+                                    <span>{{ $passTitle }}:</span>
+                                    {{ number_format((($gradeCount - $failCount) * 100) / $gradeCount, 2) }}
                                 @else
                                     <p>{{ $passTitle }}: 0</p>
                                 @endif
                             </td>
 
-                            <td class="border border-black px-2">
+                            <td class="p-[15px] border border-black px-2">
                                 @php
-                                    $failTitle=($classId>4)?"% Fail(D-E)":"% Fail(E)";
+                                    $failTitle = $classId > 4 ? '% Fail(D-E)' : '% Fail(E)';
                                 @endphp
 
-                                @if ($gradeCount>0)
-                                    <span>{{ $failTitle }}:</span> {{ number_format((($failCount*100)/$gradeCount), 2) }}
+                                @if ($gradeCount > 0)
+                                    <span>{{ $failTitle }}:</span>
+                                    {{ number_format(($failCount * 100) / $gradeCount, 2) }}
                                 @else
                                     <p>{{ $failTitle }}: 0</p>
                                 @endif
@@ -546,8 +582,8 @@
 
         <div class="mt-5">
             @php
-                $failedCount=0;
-                $subList=['hisabati','kiswahili','sayansi','english','jamii','maadili'];
+                $failedCount = 0;
+                $subList = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
             @endphp
 
             <h2 class="text-2xl font-bold mb-2 text-center">TATHIMINI YA MADARAJA YA KILA SOMO</h2>
@@ -588,53 +624,77 @@
                 </thead>
 
                 <tbody>
-                    @if (count($subList)>0)
+                    @if (count($subList) > 0)
                         @php
-                            $i=0;
-                            $rowColor=($i%2==0)?"bg-white":"bg-gray-200";
-                            $failCount=($classId>4)?(array_sum($dMaleGrade)+array_sum($eMaleGrade)+array_sum($dFemaleGrade)+array_sum($eFemaleGrade)):(array_sum($eMaleGrade)+array_sum($dMaleGrade));
+                            $i = 0;
+                            $rowColor = $i % 2 == 0 ? 'bg-white' : 'bg-gray-200';
+                            $failCount =
+                                $classId > 4
+                                    ? array_sum($dMaleGrade) +
+                                        array_sum($eMaleGrade) +
+                                        array_sum($dFemaleGrade) +
+                                        array_sum($eFemaleGrade)
+                                    : array_sum($eMaleGrade) + array_sum($dMaleGrade);
                         @endphp
                         @foreach ($subList as $name)
                             @php
-                                $totalGradeCount=$aMaleGrade[$i]+$bMaleGrade[$i]+$cMaleGrade[$i]+$dMaleGrade[$i]+$eMaleGrade[$i]+$aFemaleGrade[$i]+$bFemaleGrade[$i]+$cFemaleGrade[$i]+$dFemaleGrade[$i]+$eFemaleGrade[$i];
+                                $totalGradeCount =
+                                    $aMaleGrade[$i] +
+                                    $bMaleGrade[$i] +
+                                    $cMaleGrade[$i] +
+                                    $dMaleGrade[$i] +
+                                    $eMaleGrade[$i] +
+                                    $aFemaleGrade[$i] +
+                                    $bFemaleGrade[$i] +
+                                    $cFemaleGrade[$i] +
+                                    $dFemaleGrade[$i] +
+                                    $eFemaleGrade[$i];
                             @endphp
 
                             <tr class="{{ $rowColor }}">
-                                <td class="pl-2 border border-black capitalize">{{ $name }}</td>
-                                <td class="text-center border border-black px-2">{{ $aMaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ $aFemaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ ($aMaleGrade[$i]+$aFemaleGrade[$i]) }}</td>
-                                <td class="text-center border border-black px-2">{{ $bMaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ $bFemaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ ($bMaleGrade[$i]+$bFemaleGrade[$i]) }}</td>
-                                <td class="text-center border border-black px-2">{{ $cMaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ $cFemaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ ($cMaleGrade[$i]+$cFemaleGrade[$i]) }}</td>
-                                <td class="text-center border border-black px-2">{{ $dMaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ $dFemaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ ($dMaleGrade[$i]+$dFemaleGrade[$i]) }}</td>
-                                <td class="text-center border border-black px-2">{{ $eMaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ $eFemaleGrade[$i] }}</td>
-                                <td class="text-center border border-black px-2">{{ ($eMaleGrade[$i]+$eFemaleGrade[$i]) }}</td>
+                                <td class="p-[15px] pl-2 border border-black capitalize">{{ $name }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $aMaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $aFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">
+                                    {{ $aMaleGrade[$i] + $aFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $bMaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $bFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">
+                                    {{ $bMaleGrade[$i] + $bFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $cMaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $cFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">
+                                    {{ $cMaleGrade[$i] + $cFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $dMaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $dFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">
+                                    {{ $dMaleGrade[$i] + $dFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $eMaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">{{ $eFemaleGrade[$i] }}</td>
+                                <td class="p-[15px] text-center border border-black px-2">
+                                    {{ $eMaleGrade[$i] + $eFemaleGrade[$i] }}</td>
 
-                                @if (count($marks)>0)
-                                    <td class="text-center border border-black">{{ number_format(($gAverage[$i]/(count($marks)-$gradeArray[10]-$gradeArray[11])), 2) }}</td>
+                                @if (count($marks) > 0)
+                                    <td class="p-[15px] text-center border border-black">
+                                        {{ number_format($gAverage[$i] / (count($marks) - $gradeArray[10] - $gradeArray[11]), 2) }}
+                                    </td>
                                 @else
-                                    <td class="text-center border border-black">0</td>
+                                    <td class="p-[15px] text-center border border-black">0</td>
                                 @endif
 
-                                <td class="text-center border border-black">{{ ($totalGradeCount-$failedCount) }}</td>
-                                <td class="text-center border border-black">
-                                    @if ($totalGradeCount>0)
-                                        {{ number_format(((($totalGradeCount-$failedCount)*100)/$totalGradeCount), 2) }}
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $totalGradeCount - $failedCount }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    @if ($totalGradeCount > 0)
+                                        {{ number_format((($totalGradeCount - $failedCount) * 100) / $totalGradeCount, 2) }}
                                     @else
                                         <p>0</p>
                                     @endif
                                 </td>
-                                <td class="text-center border border-black">{{ $failedCount }}</td>
-                                <td class="text-center border border-black">
-                                    @if ($totalGradeCount>0)
-                                        {{ number_format(((($failedCount)*100)/$totalGradeCount), 2) }}
+                                <td class="p-[15px] text-center border border-black">{{ $failedCount }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    @if ($totalGradeCount > 0)
+                                        {{ number_format(($failedCount * 100) / $totalGradeCount, 2) }}
                                     @else
                                         <p>0</p>
                                     @endif
@@ -647,11 +707,12 @@
                         @endforeach
                     @else
                         <tr>
-                            <td class="text-red-500 text-center p-2" colspan="6">No Data Found!</td>
+                            <td class="p-[15px] text-red-500 text-center p-2" colspan="6">No Data Found!</td>
                         </tr>
                     @endif
                 </tbody>
             </table>
         </div>
     </div>
+
 @endsection
