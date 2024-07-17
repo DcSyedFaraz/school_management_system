@@ -2,61 +2,56 @@
 
 @section('content')
     @php
-        function assignGrade($marks){
-            $rank=\App\Models\Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-                ['isActive','=','1'],
-                ['isDeleted','=','0']
-            ])->orderBy('rankName','asc')->get();
+        function assignGrade($marks)
+        {
+            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+                ->orderBy('rankName', 'asc')
+                ->get();
 
-            if($rank){
-                if($rank[0]['rankRangeMin']<$marks && $rank[0]['rankRangeMax']>=$marks){
+            if ($rank) {
+                if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
                     return $rank[0]['rankName'];
-                }
-                else if($rank[1]['rankRangeMin']<$marks && $rank[1]['rankRangeMax']>=$marks){
+                } elseif ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
                     return $rank[1]['rankName'];
-                }
-                else if($rank[2]['rankRangeMin']<$marks && $rank[2]['rankRangeMax']>=$marks){
+                } elseif ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
                     return $rank[2]['rankName'];
-                }
-                else if($rank[3]['rankRangeMin']<$marks && $rank[3]['rankRangeMax']>=$marks){
+                } elseif ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
                     return $rank[3]['rankName'];
-                }
-                else{
+                } else {
                     return $rank[4]['rankName'];
                 }
-            }
-            else{
-                return "Null";
-            }
-        }
-
-        if($classId>4){
-            function finalStatus($average){
-                $rank=\App\Models\Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-                    ['isActive','=','1'],
-                    ['isDeleted','=','0']
-                ])->orderBy('rankName','asc')->get();
-
-                if($average<=$rank[3]['rankRangeMax']){
-                    return "FAIL";
-                }
-                else{
-                    return "PASS";
-                }
+            } else {
+                return 'Null';
             }
         }
-        else{
-            function finalStatus($average){
-                $rank=\App\Models\Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-                    ['isActive','=','1'],
-                    ['isDeleted','=','0']
-                ])->orderBy('rankName','asc')->get();
 
-                if($average<=$rank[4]['rankRangeMax']){
-                    return "FAIL";
+        if ($classId > 4) {
+            function finalStatus($average)
+            {
+                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+                    ->orderBy('rankName', 'asc')
+                    ->get();
+
+                if ($average <= $rank[3]['rankRangeMax']) {
+                    return 'FAIL';
+                } else {
+                    return 'PASS';
                 }
-                else{
-                    return "PASS";
+            }
+        } else {
+            function finalStatus($average)
+            {
+                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+                    ->orderBy('rankName', 'asc')
+                    ->get();
+
+                if ($average <= $rank[4]['rankRangeMax']) {
+                    return 'FAIL';
+                } else {
+                    return 'PASS';
                 }
             }
         }
@@ -75,22 +70,26 @@
 
         <div class="flex justify-between mb-1">
             <div>
-                <button type="button" data-modal-target="excelfile" data-modal-toggle="excelfile" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded-md mr-1">
+                <button type="button" data-modal-target="excelfile" data-modal-toggle="excelfile"
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded-md mr-1">
                     <i class="material-symbols-outlined text-sm">upload</i> <span>Pakua Kiolezo</span>
                 </button>
 
             </div>
 
             <div class="space-x-0.5">
-                <button type="button" data-modal-target="uploadModal" data-modal-toggle="uploadModal" class="bg-purple-500 hover:bg-purple-600 text-white py-1 px-2 rounded-md">
+                <button type="button" data-modal-target="uploadModal" data-modal-toggle="uploadModal"
+                    class="bg-purple-500 hover:bg-purple-600 text-white py-1 px-2 rounded-md">
                     <i class="material-symbols-outlined text-sm">upload</i> <span>Pakia Kiolezo</span>
                 </button>
 
-                <button type="button" data-modal-target="newEntryModal" data-modal-toggle="newEntryModal" class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md">
+                <button type="button" data-modal-target="newEntryModal" data-modal-toggle="newEntryModal"
+                    class="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded-md">
                     <i class="material-symbols-outlined text-sm">add</i>
                 </button>
 
-                <button type="button" data-modal-target="bulkDelModal" data-modal-toggle="bulkDelModal" class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md">
+                <button type="button" data-modal-target="bulkDelModal" data-modal-toggle="bulkDelModal"
+                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md">
                     <i class="material-symbols-outlined text-sm">delete</i>
                 </button>
             </div>
@@ -107,9 +106,10 @@
                         <label for="class">Chagua Darasa:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="class" id="class">
                             <option value="">--- CHAGUA DARASA ---</option>
-                            @if (count($classes)>0)
+                            @if (count($classes) > 0)
                                 @foreach ($classes as $class)
-                                    <option value="{{ $class['gradeId'] }}" @selected($classId==$class['gradeId'])>{{ $class['gradeName'] }}</option>
+                                    <option value="{{ $class['gradeId'] }}" @selected($classId == $class['gradeId'])>
+                                        {{ $class['gradeName'] }}</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -121,9 +121,10 @@
                         <label for="exam">Chagua Mtihani:</label>
                         <select class="block w-full block p-2 rounded-md border border-black" name="exam" id="exam">
                             <option value="">--- CHAGUA MTIHANI ---</option>
-                            @if (count($exams)>0)
+                            @if (count($exams) > 0)
                                 @foreach ($exams as $exam)
-                                    <option value="{{ $exam['examId'] }}" @selected($examId==$exam['examId'])>{{ $exam['examName'] }}</option>
+                                    <option value="{{ $exam['examId'] }}" @selected($examId == $exam['examId'])>
+                                        {{ $exam['examName'] }}</option>
                                 @endforeach
                             @else
                                 <option value="" class="text-red-500">No Data Found!</option>
@@ -133,19 +134,27 @@
 
                     <div>
                         <label for="startDate">Tarehe ya Kuanza:</label>
-                        <input type="date" class="block w-full block p-2 rounded-md border border-black" min="{{ date('Y-m-d', strtotime("2023-01-01")) }}" max="{{ date('Y-m-d') }}" name="startDate" id="startDate" placeholder="Enter Start Date" value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
+                        <input type="date" class="block w-full block p-2 rounded-md border border-black"
+                            min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="startDate"
+                            id="startDate" placeholder="Enter Start Date" value="{{ date('Y-m-d', strtotime($startDate)) }}"
+                            onchange="setEndDate()">
                     </div>
 
                     <div>
                         <label for="endDate">Tarehe ya Mwisho:</label>
-                        <input type="date" class="block w-full block p-2 rounded-md border border-black" min="{{ date('Y-m-d', strtotime("2023-01-01")) }}" max="{{ date('Y-m-d') }}" name="endDate" id="endDate" placeholder="Enter End Date" value="{{ date('Y-m-d', strtotime($endDate)) }}">
+                        <input type="date" class="block w-full block p-2 rounded-md border border-black"
+                            min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="endDate"
+                            id="endDate" placeholder="Enter End Date" value="{{ date('Y-m-d', strtotime($endDate)) }}">
                     </div>
                 </div>
             </form>
 
             <div class="flex justify-end">
-                <a href="{{ url('/dashboard/uploads') }}"><button type="button" form="filterForm" class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha Upya</button></a>
-                <button type="submit" form="filterForm" class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
+                <a href="{{ url('/dashboard/uploads') }}"><button type="button" form="filterForm"
+                        class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha
+                        Upya</button></a>
+                <button type="submit" form="filterForm"
+                    class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
             </div>
         </div>
 
@@ -155,30 +164,12 @@
                     <tr>
                         <th class="border border-black">S/N</th>
                         <th class="border border-black uppercase">Jina La Mwanafunzi</th>
-                        <th class="border border-black uppercase">
-                            <p>Hisabati</p>
-                            <p>(Grade)</p>
-                        </th>
-                        <th class="border border-black uppercase">
-                            <p>Kiswahili</p>
-                            <p>(Grade)</p>
-                        </th>
-                        <th class="border border-black uppercase">
-                            <p>Sayansi</p>
-                            <p>(Grade)</p>
-                        </th>
-                        <th class="border border-black uppercase">
-                            <p>English</p>
-                            <p>(Grade)</p>
-                        </th>
-                        <th class="border border-black uppercase">
-                            <p>M/JAMII & S/KAZI</p>
-                            <p>(Grade)</p>
-                        </th>
-                        <th class="border border-black uppercase">
-                            <p>U/MAADILI</p>
-                            <p>(Grade)</p>
-                        </th>
+                        @foreach ($subjects as $subject)
+                            <th class="border border-black uppercase">
+                                <p>{{ ucfirst($subject) }}</p>
+                                <p>(Grade)</p>
+                            </th>
+                        @endforeach
                         <th class="border border-black uppercase">Jumla</th>
                         <th class="border border-black uppercase">Wastani</th>
                         <th class="border border-black uppercase">Daraja</th>
@@ -189,7 +180,7 @@
 
                 <tbody>
                     @php
-                        $i=1;
+                        $i = 1;
                     @endphp
                     @foreach ($marks as $mark)
                         {{-- @php
@@ -205,7 +196,9 @@
                                     </div>
 
                                     <div class="flex items-center ml-1">
-                                        <input id="delRecord{{ $mark['markId'] }}" name="delRecord{{ $mark['markId'] }}" type="checkbox" onclick="addDelId({{ $mark['markId'] }})" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                        <input id="delRecord{{ $mark['markId'] }}" name="delRecord{{ $mark['markId'] }}"
+                                            type="checkbox" onclick="addDelId({{ $mark['markId'] }})"
+                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                                     </div>
                                 </div>
                             </td>
@@ -213,20 +206,24 @@
                                 <p>{{ $mark['studentName'] }}</p>
 
                                 @php
-                                    $examData=\App\Models\Exams::select('examName')->where([
-                                        ['examId','=',$mark['examId']]
-                                    ])->first();
+                                    $examData = \App\Models\Exams::select('examName')
+                                        ->where([['examId', '=', $mark['examId']]])
+                                        ->first();
 
-                                    $examName=($examData)?$examData['examName']:'<span class="text-red-500 italic">Not Found!</span>';
+                                    $examName = $examData
+                                        ? $examData['examName']
+                                        : '<span class="text-red-500 italic">Not Found!</span>';
 
-                                    $classData=\App\Models\Grades::select('gradeName')->where([
-                                        ['gradeId','=',$mark['classId']]
-                                    ])->first();
+                                    $classData = \App\Models\Grades::select('gradeName')
+                                        ->where([['gradeId', '=', $mark['classId']]])
+                                        ->first();
 
-                                    $className=($classData)?$classData['gradeName']:'<span class="text-red-500 italic">Not Found!</span>';
+                                    $className = $classData
+                                        ? $classData['gradeName']
+                                        : '<span class="text-red-500 italic">Not Found!</span>';
                                 @endphp
 
-                                @if ($mark['gender']=='M')
+                                @if ($mark['gender'] == 'M')
                                     <p class="italic text-sm"><b>Gender:</b> Male</p>
                                 @else
                                     <p class="italic text-sm"><b>Gender:</b> Female</p>
@@ -236,51 +233,39 @@
                                 <p class="text-sm italic"><b>Exam:</b> {!! $examName !!}</p>
                                 <p class="text-sm italic">{{ date('d-m-Y', strtotime($mark['examDate'])) }}</p>
                             </td>
-                            <td class="border border-black text-center">
-                                <p>{{ $mark['hisabati'] }}</p>
-                                <p>{{ assignGrade($mark['hisabati']) }}</p>
-                            </td>
-                            <td class="border border-black text-center">
-                                <p>{{ $mark['kiswahili'] }}</p>
-                                <p>{{ assignGrade($mark['kiswahili']) }}</p>
-                            </td>
-                            <td class="border border-black text-center">
-                                <p>{{ $mark['sayansi'] }}</p>
-                                <p>{{ assignGrade($mark['sayansi']) }}</p>
-                            </td>
-                            <td class="border border-black text-center">
-                                <p>{{ $mark['english'] }}</p>
-                                <p>{{ assignGrade($mark['english']) }}</p>
-                            </td>
-                            <td class="border border-black text-center">
-                                <p>{{ $mark['jamii'] }}</p>
-                                <p>{{ assignGrade($mark['jamii']) }}</p>
-                            </td>
-                            <td class="border border-black text-center">
-                                <p>{{ $mark['maadili'] }}</p>
-                                <p>{{ assignGrade($mark['maadili']) }}</p>
-                            </td>
+                            @foreach ($subjects as $subject)
+                                <td class="border border-black text-center">
+                                    <p>{{ $mark[$subject] }}</p>
+                                    <p>{{ assignGrade($mark[$subject]) }}</p>
+                                </td>
+                            @endforeach
                             <td class="border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="border border-black text-right">{{ $mark['average'] }}</td>
 
-                            @if ($mark['average']>0)
+                            @if ($mark['average'] > 0)
                                 <td class="border border-black">{{ assignGrade($mark['average']) }}</td>
                             @else
                                 <td class="border border-black">ABS</td>
                             @endif
 
-                            @if ($mark['average']>0)
+                            @if ($mark['average'] > 0)
                                 <td class="border border-black">{{ finalStatus($mark['average']) }}</td>
                             @else
                                 <td class="border border-black"></td>
                             @endif
 
                             <td class="border border-black">
-                                <button type="button" data-modal-target="editEntryModal" data-modal-toggle="editEntryModal" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md mr-0.5" onclick="editEntry({{ $mark['markId'] }})">
+                                <button type="button" data-modal-target="editEntryModal"
+                                    data-modal-toggle="editEntryModal"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md mr-0.5"
+                                    onclick="editEntry({{ $mark['markId'] }})">
                                     <i class="material-symbols-outlined text-sm">edit</i>
                                 </button>
 
-                                <button type="button" data-modal-target="delEntryModal" data-modal-toggle="delEntryModal" class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md" onclick="handleDel({{ $mark['markId'] }})">
+                                <button type="button" data-modal-target="delEntryModal"
+                                    data-modal-toggle="delEntryModal"
+                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded-md"
+                                    onclick="handleDel({{ $mark['markId'] }})">
                                     <i class="material-symbols-outlined text-sm">delete</i>
                                 </button>
                             </td>
@@ -303,47 +288,57 @@
     @include('modals.bulkDeleteModel')
 
     <script>
-        function setEndDate(){
-            var startDate=$("#startDate").val();
+        function setEndDate() {
+            var startDate = $("#startDate").val();
             $("#endDate").attr('min', startDate);
         }
 
-        function addDelId(id){
-            if($(`#delRecord${id}`).is(':checked')){
+        function addDelId(id) {
+            if ($(`#delRecord${id}`).is(':checked')) {
                 $("#bulkDelId").append(`<input type="hidden" name="delId[]" id="delId${id}" value="${id}">`);
-            }
-            else{
+            } else {
                 $(`#delId${id}`).remove();
             }
         }
 
-        function editEntry(id){
+        function editEntry(id) {
             $("#editEntryModal").removeClass('hidden');
 
             $.ajax({
-                type:"GET",
-                url:`{{ url('/uploadInfo') }}/${id}`,
-                success: function($response){
-                    if($response.status==200){
-                        $(`#updatedStudentName`).val($response.data.studentName);
-                        $('#updatedGender').val($response.data.gender);
-                        $('#updatedClass').val($response.data.classId);
-                        $('#updatedExam').val($response.data.examId);
-                        $('#updatedExamDate').val($response.data.examDate);
-                        $('#updatedHisabatiMarks').val($response.data.hisabati);
-                        $('#updatedKiswahiliMarks').val($response.data.kiswahili);
-                        $('#updatedSayansiMarks').val($response.data.sayansi);
-                        $('#updatedEnglishMarks').val($response.data.english);
-                        $('#updatedJamiiMarks').val($response.data.jamii);
-                        $('#updatedMaadiliMarks').val($response.data.maadili);
-                        $('#updatedFirstGrade').val($response.data.firstGrade);
-                        $("#entryId").val(id);
+                type: "GET",
+                url: `{{ url('/uploadInfo') }}/${id}`,
+                success: function($response) {
+                    if ($response.status == 200) {
+                        const data = $response.data;
+                        const subjects = $response.subjects;
+
+                        $('#updatedStudentName').val(data.studentName);
+                        $('#updatedGender').val(data.gender);
+                        $('#updatedClass').val(data.classId);
+                        $('#updatedExam').val(data.examId);
+                        $('#updatedExamDate').val(data.examDate);
+                        $('#entryId').val(id);
+
+                        // Clear existing subject marks inputs
+                        $('#subjectMarksContainer').empty();
+
+                        // Dynamically create inputs for each subject
+                        subjects.forEach(subject => {
+                            const subjectKey = subject.toLowerCase();
+                            $('#subjectMarksContainer').append(`
+                        <div>
+                            <label class="block" for="updated${subjectKey}Marks">${subject}:<span class="text-red-500">*</span></label>
+                            <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updated${subjectKey}Marks" id="updated${subjectKey}Marks" placeholder="Enter ${subject} Marks" value="${data[subjectKey] || 0}" required/>
+                        </div>
+                    `);
+                        });
                     }
                 }
             });
         }
 
-        function handleDel(id){
+
+        function handleDel(id) {
             $("#delEntryModal").removeClass('hidden');
             $("#delEntryId").val(id);
         }

@@ -13,13 +13,13 @@
                     <span class="sr-only">Close modal</span>
                 </button>
             </div>
-            
+
             <div class="p-6 space-y-6">
                 <div>
                     <form action="{{ $url2 }}" method="post" id="updateEntryForm">
                         @csrf
                         <input type="hidden" name="entryId" id="entryId">
-                        
+
                         <div>
                             <h2 class="font-bold text-2xl">Student Details:</h2>
 
@@ -30,7 +30,7 @@
                                     <span class="text-red-500 text-sm italic">{{ $message }}</span>
                                 @enderror
                             </div>
-    
+
                             <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2">
                                 <div>
                                     <label class="block" for="updatedGender">Gender:<span class="text-red-500">*</span></label>
@@ -43,7 +43,7 @@
                                         <span class="text-red-500 text-sm italic">{{ $message }}</span>
                                     @enderror
                                 </div>
-    
+
                                 <div>
                                     <label for="updatedClass">Class:</label>
                                     <select class="block w-full block p-2 rounded-md border border-black" name="updatedClass" id="updatedClass" required>
@@ -71,7 +71,7 @@
                                         @endif
                                     </select>
                                 </div>
-                                
+
                                 <div>
                                     <label for="updatedFirstGrade">Joined First Grade in 2017?</label>
                                     <select class="block w-full block p-2 rounded-md border border-black" name="updatedFirstGrade" id="updatedFirstGrade" required>
@@ -94,60 +94,15 @@
                                 @enderror
                             </div>
 
-                            <div class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
-                                <div>
-                                    <label class="block" for="updatedHisabatiMarks">Hisabati:<span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updatedHisabatiMarks" id="updatedHisabatiMarks" placeholder="Enter Hisabati Marks" required/>
-                                    @error('updatedHisabatiMarks')
-                                        <span class="text-red-500 text-sm italic">{{ $message }}</span>
-                                    @enderror
-                                </div>
-    
-                                <div>
-                                    <label class="block" for="updatedKiswahiliMarks">Kiswahili:<span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updatedKiswahiliMarks" id="updatedKiswahiliMarks" placeholder="Enter Kiswahili Marks" required/>
-                                    @error('updatedKiswahiliMarks')
-                                        <span class="text-red-500 text-sm italic">{{ $message }}</span>
-                                    @enderror
-                                </div>
-    
-                                <div>
-                                    <label class="block" for="updatedSayansiMarks">Sayansi:<span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updatedSayansiMarks" id="updatedSayansiMarks" placeholder="Enter Sayansi Marks" required/>
-                                    @error('updatedSayansiMarks')
-                                        <span class="text-red-500 text-sm italic">{{ $message }}</span>
-                                    @enderror
-                                </div>
-    
-                                <div>
-                                    <label class="block" for="updatedEnglishMarks">English:<span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updatedEnglishMarks" id="updatedEnglishMarks" placeholder="Enter English Marks" required/>
-                                    @error('updatedEnglishMarks')
-                                        <span class="text-red-500 text-sm italic">{{ $message }}</span>
-                                    @enderror
-                                </div>
-    
-                                <div>
-                                    <label class="block" for="updatedJamiiMarks">Jamii:<span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updatedJamiiMarks" id="updatedJamiiMarks" placeholder="Enter Jamii Marks" required/>
-                                    @error('updatedJamiiMarks')
-                                        <span class="text-red-500 text-sm italic">{{ $message }}</span>
-                                    @enderror
-                                </div>
-    
-                                <div>
-                                    <label class="block" for="updatedMaadiliMarks">Maadili:<span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" max="50" class="block border border-black rounded-md p-2 w-full" name="updatedMaadiliMarks" id="updatedMaadiliMarks" placeholder="Enter Maadili Marks" required/>
-                                    @error('updatedMaadiliMarks')
-                                        <span class="text-red-500 text-sm italic">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                            <div id="subjectMarksContainer" class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-2">
+                                <!-- Subject marks inputs will be dynamically inserted here -->
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-          
+
+
             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
                 <button type="submit" form="updateEntryForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
                 <button data-modal-hide="editEntryModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Close</button>

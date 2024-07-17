@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\Controller;
+use Config;
 use Illuminate\Http\Request;
 use App\Models\Marks;
 use App\Models\Grades;
@@ -14,6 +15,7 @@ use Excel;
 
 class UploadController extends Controller
 {
+
     public function uploads()
     {
         if (Session::get('loggedin') == true) {
@@ -22,7 +24,15 @@ class UploadController extends Controller
             $startDate = date('Y-m-d', strtotime('' . date('Y') . '-' . date('m') . '-01'));
             $endDate = date('Y-m-d');
 
-            $marks = Marks::select('markId', 'examId', 'classId', 'examDate', 'gender', 'studentName', 'hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili', 'total', 'average')->where([
+            $subjects = Config::get("subjects.$classId", Config::get("subjects.class_default"));
+
+            $columns = array_merge(
+                ['markId', 'gender', 'studentName', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId'],
+                $subjects,
+                ['total', 'average']
+            );
+
+            $marks = Marks::select($columns)->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
                 ['userId', '=', Session::get('userId')],
@@ -46,7 +56,7 @@ class UploadController extends Controller
             $url3 = url('/uploads/delete');
             $url4 = url('/uploads/file');
 
-            $data = compact('marks', 'classes', 'exams', 'url1', 'url2', 'url3', 'url4', 'classId', 'examId', 'startDate', 'endDate');
+            $data = compact('marks', 'classes', 'exams', 'url1', 'url2', 'url3', 'url4', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
             return view('user.uploads')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
@@ -64,7 +74,15 @@ class UploadController extends Controller
             $startDate = ($req['startDate'] == '') ? "2023-01-01" : $req['startDate'];
             $endDate = ($req['endDate'] == '') ? date('Y-m-d') : $req['endDate'];
 
-            $marks = Marks::select('markId', 'examId', 'classId', 'examDate', 'gender', 'studentName', 'hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili', 'total', 'average')->where([
+            $subjects = Config::get("subjects.$classId", Config::get("subjects.class_default"));
+
+            $columns = array_merge(
+                ['markId', 'gender', 'studentName', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId'],
+                $subjects,
+                ['total', 'average']
+            );
+
+            $marks = Marks::select($columns)->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
                 ['userId', '=', Session::get('userId')],
@@ -88,12 +106,13 @@ class UploadController extends Controller
             $url3 = url('/uploads/delete');
             $url4 = url('/uploads/file');
 
-            $data = compact('marks', 'classes', 'exams', 'url1', 'url2', 'url3', 'url4', 'classId', 'examId', 'startDate', 'endDate');
+            $data = compact('marks', 'classes', 'exams', 'url1', 'url2', 'url3', 'url4', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
             return view('user.uploads')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
     }
+
 
     public function saveUpload(Request $req)
     {
@@ -164,36 +183,41 @@ class UploadController extends Controller
             $validMark = Marks::find($id);
 
             if ($validMark) {
-                $req->validate(
-                    [
-                        'updatedStudentName' => 'required',
-                        'updatedGender' => 'required',
-                        'updatedExamDate' => 'required|date',
-                        'updatedClass' => 'required|integer',
-                        'updatedFirstGrade' => 'required|integer',
-                        'updatedHisabatiMarks' => 'required|numeric|min:0|max:50',
-                        'updatedKiswahiliMarks' => 'required|numeric|min:0|max:50',
-                        'updatedSayansiMarks' => 'required|numeric|min:0|max:50',
-                        'updatedEnglishMarks' => 'required|numeric|min:0|max:50',
-                        'updatedJamiiMarks' => 'required|numeric|min:0|max:50',
-                        'updatedMaadiliMarks' => 'required|numeric|min:0|max:50'
-                    ]
-                );
+                $classId = $req['updatedClass'];
+                $subjects = $this->getSubjectsForClass($classId);
+
+                $validationRules = [
+                    'updatedStudentName' => 'required',
+                    'updatedGender' => 'required',
+                    'updatedExamDate' => 'required|date',
+                    'updatedClass' => 'required|integer',
+                    'updatedFirstGrade' => 'required|integer',
+                    'updatedExam' => 'required|integer',
+                ];
+
+                foreach ($subjects as $subject) {
+                    $subjectKey = strtolower($subject);
+                    $validationRules["updated{$subjectKey}Marks"] = 'required|numeric|min:0|max:50';
+                }
+
+                $req->validate($validationRules);
 
                 $validMark['examDate'] = $req['updatedExamDate'];
                 $validMark['classId'] = $req['updatedClass'];
                 $validMark['studentName'] = $req['updatedStudentName'];
                 $validMark['gender'] = $req['updatedGender'];
                 $validMark['firstGrade'] = $req['updatedFirstGrade'];
-                $validMark['hisabati'] = $req['updatedHisabatiMarks'];
-                $validMark['kiswahili'] = $req['updatedKiswahiliMarks'];
-                $validMark['sayansi'] = $req['updatedSayansiMarks'];
-                $validMark['english'] = $req['updatedEnglishMarks'];
-                $validMark['jamii'] = $req['updatedJamiiMarks'];
-                $validMark['maadili'] = $req['updatedMaadiliMarks'];
-                $validMark['total'] = $req['updatedHisabatiMarks'] + $req['updatedKiswahiliMarks'] + $req['updatedSayansiMarks'] + $req['updatedEnglishMarks'] + $req['updatedJamiiMarks'] + $req['updatedMaadiliMarks'];
-                $validMark['average'] = number_format((($req['updatedHisabatiMarks'] + $req['updatedKiswahiliMarks'] + $req['updatedSayansiMarks'] + $req['updatedEnglishMarks'] + $req['updatedJamiiMarks'] + $req['updatedMaadiliMarks']) / 6), 2);
                 $validMark['examId'] = $req['updatedExam'];
+
+                $totalMarks = 0;
+                foreach ($subjects as $subject) {
+                    $subjectKey = strtolower($subject);
+                    $validMark[$subjectKey] = $req["updated{$subjectKey}Marks"];
+                    $totalMarks += $req["updated{$subjectKey}Marks"];
+                }
+
+                $validMark['total'] = $totalMarks;
+                $validMark['average'] = number_format($totalMarks / count($subjects), 2);
                 $validMark->save();
 
                 Session::flash('success', 'Data Updated Successfully!');
@@ -208,39 +232,28 @@ class UploadController extends Controller
 
     public function uploadInfo($id)
     {
-        if (Session::get('loggedin') == true) {
-            $uploadData = Marks::find($id);
+        $mark = Marks::find($id);
+        $subjects = $this->getSubjectsForClass($mark->classId);
 
-            if ($uploadData) {
-                $data = [];
-                $data['examDate'] = $uploadData['examDate'];
-                $data['classId'] = $uploadData['classId'];
-                $data['studentName'] = $uploadData['studentName'];
-                $data['gender'] = $uploadData['gender'];
-                $data['hisabati'] = $uploadData['hisabati'];
-                $data['kiswahili'] = $uploadData['kiswahili'];
-                $data['sayansi'] = $uploadData['sayansi'];
-                $data['english'] = $uploadData['english'];
-                $data['jamii'] = $uploadData['jamii'];
-                $data['maadili'] = $uploadData['maadili'];
-                $data['examId'] = $uploadData['examId'];
-                $data['firstGrade'] = $uploadData['firstGrade'];
-
-                return response()->json([
-                    'status' => 200,
-                    'data' => $data
-                ]);
-            } else {
-                return response()->json([
-                    'status' => 404,
-                    'data' => "No Data Found"
-                ]);
-            }
-        } else {
-            return redirect('/')->with('accessDenied', 'Session Expired!');
+        return response()->json([
+            'status' => 200,
+            'data' => $mark,
+            'subjects' => $subjects
+        ]);
+    }
+    public function getSubjectsForClass($classId)
+    {
+        switch ($classId) {
+            case 1:
+                return ['Kuhesabu', 'Kusoma', 'Kuandika', 'English', 'Mazingira', 'Michezo'];
+            case 2:
+                return ['Kuhesabu', 'Kusoma', 'Kuandika', 'English', 'Mazingira', 'Utamaduni'];
+            case 3:
+                return ['Hisabati', 'Kiswahili', 'Sayansi', 'English', 'Maadili', 'Jiographia', 'Michezo'];
+            default: // Classes 4 to 7
+                return ['Hisabati', 'Kiswahili', 'Sayansi', 'English', 'Jamii', 'Maadili'];
         }
     }
-
     public function deleteUpload(Request $req)
     {
         if (Session::get('loggedin') == true) {

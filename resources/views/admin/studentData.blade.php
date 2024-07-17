@@ -1,4 +1,38 @@
 @extends('admin.layout')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<style>
+    .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: none;
+    }
+
+    .progress {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 5px;
+        background-color: #fff;
+    }
+
+    .progress-bar-inner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background-color: #337ab7;
+        width: 0;
+        transition: width 0.5s;
+    }
+</style>
 
 @section('content')
     @php
@@ -200,32 +234,20 @@
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Mkoa</th>
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Wilaya</th>
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Kata</th>
-                        <th colspan="2" class="border border-black p-[15px] uppercase">Hisabati</th>
-                        <th colspan="2" class="border border-black p-[15px] uppercase">Kiswahili</th>
-                        <th colspan="2" class="border border-black p-[15px] uppercase">Sayansi</th>
-                        <th colspan="2" class="border border-black p-[15px] uppercase">English</th>
-                        <th colspan="2" class="border border-black p-[15px] uppercase">M/JAMII & S/KAZI</th>
-                        <th colspan="2" class="border border-black p-[15px] uppercase">U/MAADILI</th>
+                        @foreach ($subjects as $subject)
+                            <th colspan="2" class="border border-black p-[15px] uppercase">{{ $subject }}</th>
+                        @endforeach
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Jumla</th>
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Wastani</th>
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Daraja</th>
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Nafasi</th>
                         <th rowspan="2" class="border border-black p-[15px] uppercase">Ufaulu</th>
                     </tr>
-
                     <tr>
-                        <th class="border border-black p-[15px]">AL</th>
-                        <th class="border border-black p-[15px]">DRJ</th>
-                        <th class="border border-black p-[15px]">AL</th>
-                        <th class="border border-black p-[15px]">DRJ</th>
-                        <th class="border border-black p-[15px]">AL</th>
-                        <th class="border border-black p-[15px]">DRJ</th>
-                        <th class="border border-black p-[15px]">AL</th>
-                        <th class="border border-black p-[15px]">DRJ</th>
-                        <th class="border border-black p-[15px]">AL</th>
-                        <th class="border border-black p-[15px]">DRJ</th>
-                        <th class="border border-black p-[15px]">AL</th>
-                        <th class="border border-black p-[15px]">DRJ</th>
+                        @foreach ($subjects as $subject)
+                            <th class="border border-black p-[15px]">AL</th>
+                            <th class="border border-black p-[15px]">DRJ</th>
+                        @endforeach
                     </tr>
                 </thead>
 
@@ -317,18 +339,10 @@
 
                                 <p>{!! $wardName !!}</p>
                             </td>
-                            <td class="p-[15px] border border-black text-right">{{ $mark['hisabati'] }}</td>
-                            <td class="p-[15px] border border-black">{{ assignGrade($mark['hisabati']) }}</td>
-                            <td class="p-[15px] border border-black text-right">{{ $mark['kiswahili'] }}</td>
-                            <td class="p-[15px] border border-black">{{ assignGrade($mark['kiswahili']) }}</td>
-                            <td class="p-[15px] border border-black text-right">{{ $mark['sayansi'] }}</td>
-                            <td class="p-[15px] border border-black">{{ assignGrade($mark['sayansi']) }}</td>
-                            <td class="p-[15px] border border-black text-right">{{ $mark['english'] }}</td>
-                            <td class="p-[15px] border border-black">{{ assignGrade($mark['english']) }}</td>
-                            <td class="p-[15px] border border-black text-right">{{ $mark['jamii'] }}</td>
-                            <td class="p-[15px] border border-black">{{ assignGrade($mark['jamii']) }}</td>
-                            <td class="p-[15px] border border-black text-right">{{ $mark['maadili'] }}</td>
-                            <td class="p-[15px] border border-black">{{ assignGrade($mark['maadili']) }}</td>
+                            @foreach ($subjects as $subject)
+                                <td class="p-[15px] border border-black text-right">{{ $mark[$subject] }}</td>
+                                <td class="p-[15px] border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                            @endforeach
                             <td class="p-[15px] border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="p-[15px] border border-black text-right">{{ $mark['average'] }}</td>
 
@@ -355,7 +369,8 @@
                             @endif
 
                             @if ($mark['average'] > 0)
-                                <td class="p-[15px] border border-black">{{ finalStatus($mark['average']) }}</td>
+                                <td class="p-[15px] border border-black">{{ finalStatus($mark['average'], $classId) }}
+                                </td>
                             @else
                                 <td class="p-[15px] border border-black"></td>
                             @endif
@@ -394,8 +409,8 @@
                                     }
 
                                     $gAver =
-                                        count($marks) > 0
-                                            ? $gATotal / (6 * (count($marks) - $gradeArray[10] - $gradeArray[11]))
+                                        count($allMarks) > 0
+                                            ? $gATotal / (6 * (count($allMarks) - $gradeArray[10] - $gradeArray[11]))
                                             : 0;
                                     $schoolGrade = assignGrade($gAver);
                                 @endphp
@@ -428,11 +443,11 @@
                                     }
 
                                     $gAver =
-                                        count($marks) > 0
-                                            ? $gATotal / (count($marks) - $gradeArray[10] - $gradeArray[11])
+                                        count($allMarks) > 0
+                                            ? $gATotal / (count($allMarks) - $gradeArray[10] - $gradeArray[11])
                                             : 0;
                                 @endphp
-
+                                {{-- @dd($gAver,$gAverage,$gATotal,count($allMarks),$gradeArray[10] - $gradeArray[11]) --}}
                                 {{ number_format($gAver, 2) }}
                             </td>
                             <td class="p-[15px] border border-black p-1 text-center">{{ $schoolGrade }}</td>
@@ -498,7 +513,8 @@
                         <td class="p-[15px] border border-black text-center">{{ $gradeArray[8] }}</td>
                         <td class="p-[15px] border border-black text-center">{{ $gradeArray[9] }}</td>
                         <td class="p-[15px] border border-black text-center">{{ $gradeArray[11] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeFemaleCount + $gradeArray[11] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeFemaleCount + $gradeArray[11] }}
+                        </td>
                     </tr>
 
                     <tr class="bg-white">
@@ -580,7 +596,7 @@
             </div>
         </div>
 
-        <div class="mt-5">
+        <div class="mt-5 overflow-x-auto">
             @php
                 $failedCount = 0;
                 $subList = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
@@ -624,8 +640,8 @@
                 </thead>
 
                 <tbody>
-                    @if (count($subList) > 0)
-                        @php
+                    @if (count($subjects) > 0)
+                        {{-- @php
                             $i = 0;
                             $rowColor = $i % 2 == 0 ? 'bg-white' : 'bg-gray-200';
                             $failCount =
@@ -635,8 +651,8 @@
                                         array_sum($dFemaleGrade) +
                                         array_sum($eFemaleGrade)
                                     : array_sum($eMaleGrade) + array_sum($dMaleGrade);
-                        @endphp
-                        @foreach ($subList as $name)
+                        @endphp --}}
+                        {{-- @foreach ($subjects as $name)
                             @php
                                 $totalGradeCount =
                                     $aMaleGrade[$i] +
@@ -704,6 +720,80 @@
                             @php
                                 $i++;
                             @endphp
+                        @endforeach --}}
+                        @foreach ($subjects as $index => $subject)
+                            <tr>
+                                <td class="p-[15px] border border-black capitalize">{{ $subject }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['A']['M'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['A']['F'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['A']['M'][$index] + $subjectGrades['A']['F'][$index] }}</td>
+
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['B']['M'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['B']['F'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['B']['M'][$index] + $subjectGrades['B']['F'][$index] }}</td>
+
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['C']['M'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['C']['F'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['C']['M'][$index] + $subjectGrades['C']['F'][$index] }}</td>
+
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['D']['M'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['D']['F'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['D']['M'][$index] + $subjectGrades['D']['F'][$index] }}</td>
+
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['E']['M'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['E']['F'][$index] }}</td>
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ $subjectGrades['E']['M'][$index] + $subjectGrades['E']['F'][$index] }}</td>
+
+                                <!-- Calculate and display the average for each subject -->
+                                @php
+                                    // $subjectTotalMarks = $marks->pluck($subject)->sum();
+                                    $subjectTotalMarks = $gAverage[$index];
+                                    $averageSubjectMarks =
+                                        $allMarks->count() > 0 ? $subjectTotalMarks / $allMarks->count() : 0;
+                                @endphp
+                                <td class="p-[15px] text-center border border-black">
+                                    {{ number_format($averageSubjectMarks, 2) }} </td>
+
+                                <!-- Calculate and display the pass/fail rate for the subject -->
+                                @php
+                                    $passCount =
+                                        $subjectGrades['A']['M'][$index] +
+                                        $subjectGrades['A']['F'][$index] +
+                                        $subjectGrades['B']['M'][$index] +
+                                        $subjectGrades['B']['F'][$index] +
+                                        $subjectGrades['C']['M'][$index] +
+                                        $subjectGrades['C']['F'][$index];
+                                    $failCount =
+                                        $subjectGrades['D']['M'][$index] +
+                                        $subjectGrades['D']['F'][$index] +
+                                        $subjectGrades['E']['M'][$index] +
+                                        $subjectGrades['E']['F'][$index];
+                                    $totalStudents = $passCount + $failCount;
+                                    $passRate = $totalStudents > 0 ? ($passCount / $totalStudents) * 100 : 0;
+                                    $failRate = $totalStudents > 0 ? ($failCount / $totalStudents) * 100 : 0;
+                                @endphp
+                                <td class="p-[15px] text-center border border-black">{{ $passCount }}</td>
+                                <td class="p-[15px] text-center border border-black">{{ number_format($passRate, 2) }}%
+                                </td>
+                                <td class="p-[15px] text-center border border-black">{{ $failCount }}</td>
+                                <td class="p-[15px] text-center border border-black">{{ number_format($failRate, 2) }}%
+                                </td>
+                            </tr>
                         @endforeach
                     @else
                         <tr>
@@ -714,5 +804,40 @@
             </table>
         </div>
     </div>
+    <div class="progress-bar" style="display: none;">
+        <div class="progress" style="width: 100%; height: 5px; background-color: #ccc;">
+            <div class="progress-bar-inner" style="width: 0%; background-color: #337ab7;"></div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            // Show the progress bar when the filter form is submitted
+            $('#filterForm').submit(function() {
+                $('.progress-bar').show();
+                var progressBar = $('.progress-bar-inner');
+                progressBar.css('width', '0%');
+                progressBar.html('0%');
 
+                // Simulate a delay to show the progress bar (you can remove this if you want)
+                setTimeout(function() {
+                    // Update the progress bar every 100ms
+                    var interval = setInterval(function() {
+                        var width = progressBar.width() + 10;
+                        progressBar.css('width', width + '%');
+                        progressBar.html(width + '%');
+
+                        // Stop the interval when the progress bar reaches 100%
+                        if (width >= 100) {
+                            clearInterval(interval);
+                        }
+                    }, 100);
+                }, 500);
+            });
+
+            // Hide the progress bar when the response comes
+            $(document).ajaxStop(function() {
+                $('.progress-bar').hide();
+            });
+        });
+    </script>
 @endsection

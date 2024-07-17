@@ -185,6 +185,7 @@ class UserReportController extends Controller
             $url3 = url('/reports/delete');
 
             $data = compact('marks', 'allMarks', 'classes', 'exams', 'regions', 'dates', 'url3', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
+            // return $data;
             return view('user.reports')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
