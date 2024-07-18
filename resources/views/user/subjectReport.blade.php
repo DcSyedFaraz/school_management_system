@@ -233,30 +233,57 @@
                             @php
                                 $y = 4;
                             @endphp
-                            @foreach ($subList as $subject)
-                                <td class="text-center border border-black px-2 col{{ $y }}">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'A', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'A'] : 0 }}
-                                </td>
-                                <td class="text-center border border-black px-2 col{{ $y + 1 }}">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'B', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'B'] : 0 }}
-                                </td>
-                                <td class="text-center border border-black px-2 col{{ $y + 2 }}">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'C', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'C'] : 0 }}
-                                </td>
-                                <td class="text-center border border-black px-2 col{{ $y + 3 }}">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'D', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'D'] : 0 }}
-                                </td>
-                                <td class="text-center border border-black px-2 col{{ $y + 4 }}">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'E', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'E'] : 0 }}
-                                </td>
-                                <td class="text-center border border-black px-2 col{{ $y + 5 }}">
-                                    {{ (array_key_exists('' . substr($subject, 0, 1) . 'A', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'A'] : 0) + (array_key_exists('' . substr($subject, 0, 1) . 'B', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'B'] : 0) + (array_key_exists('' . substr($subject, 0, 1) . 'C', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'C'] : 0) + (array_key_exists('' . substr($subject, 0, 1) . 'D', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'D'] : 0) + (array_key_exists('' . substr($subject, 0, 1) . 'E', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'E'] : 0) }}
-                                </td>
+                           @foreach ($subList as $subject)
+                           @php
+                               $gradeA = 0;
+                               $gradeB = 0;
+                               $gradeC = 0;
+                               $gradeD = 0;
+                               $gradeE = 0;
+                           @endphp
 
-                                @php
-                                    $y = $y + 6;
-                                @endphp
-                            @endforeach
+                           @foreach ($allMarks as $aMark)
+                               @php
+                                   if ($aMark['total'] != 0) {
+                                       $grade = assignGrade($aMark[$subject]);
+                                       if ($grade == 'A') {
+                                           $gradeA++;
+                                       } elseif ($grade == 'B') {
+                                           $gradeB++;
+                                       } elseif ($grade == 'C') {
+                                           $gradeC++;
+                                       } elseif ($grade == 'D') {
+                                           $gradeD++;
+                                       } else {
+                                           $gradeE++;
+                                       }
+                                   }
+                               @endphp
+                           @endforeach
+
+                           <td class="text-center border border-black px-2 col{{ $y }}">
+                               {{ $gradeA }}
+                           </td>
+                           <td class="text-center border border-black px-2 col{{ $y + 1 }}">
+                               {{ $gradeB }}
+                           </td>
+                           <td class="text-center border border-black px-2 col{{ $y + 2 }}">
+                               {{ $gradeC }}
+                           </td>
+                           <td class="text-center border border-black px-2 col{{ $y + 3 }}">
+                               {{ $gradeD }}
+                           </td>
+                           <td class="text-center border border-black px-2 col{{ $y + 4 }}">
+                               {{ $gradeE }}
+                           </td>
+                           <td class="text-center border border-black px-2 col{{ $y + 5 }}">
+                               {{ $gradeA + $gradeB + $gradeC + $gradeD + $gradeE }}
+                           </td>
+
+                           @php
+                               $y = $y + 6;
+                           @endphp
+                       @endforeach
                         </tr>
 
                         <tr class="font-bold">
