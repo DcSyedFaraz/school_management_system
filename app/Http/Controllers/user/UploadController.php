@@ -29,7 +29,7 @@ class UploadController extends Controller
             $columns = array_merge(
                 ['markId', 'gender', 'studentName', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId'],
                 $subjects,
-                ['total', 'average']
+                ['total', 'average','examDate']
             );
 
             $marks = Marks::select($columns)->where([
@@ -278,7 +278,7 @@ class UploadController extends Controller
     {
         if (Session::get('loggedin') == true) {
             $idArray = $req['delId'];
-
+            dd($idArray);
             if (isset($req['delId']) && count($idArray) > 0) {
                 foreach ($idArray as $id) {
                     $validMark = Marks::find($id);

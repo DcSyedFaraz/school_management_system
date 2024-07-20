@@ -159,10 +159,14 @@
         </div>
 
         <div class="p-3 overflow-x-scroll">
+            <input id="selectAll" type="checkbox" onclick="toggleAllCheckboxes(this)"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"> Select
+            All
             <table class="myTable bg-white">
                 <thead>
                     <tr>
-                        <th class="border border-black">S/N</th>
+                        <th class="border border-black">
+                            S/N </th>
                         <th class="border border-black uppercase">Jina La Mwanafunzi</th>
                         @foreach ($subjects as $subject)
                             <th class="border border-black uppercase">
@@ -187,7 +191,7 @@
                             $totalMarks=$mark['hisabati']+$mark['kiswahili']+$mark['sayansi']+$mark['english']+$mark['jamii']+$mark['maadili'];
                             $average=number_format(($totalMarks/6), 2, '.', '');
                         @endphp --}}
-
+{{-- @dump($mark['examDate']) --}}
                         <tr class="odd:bg-gray-200 even:bg-white">
                             <td class="border border-black">
                                 <div class="flex justify-start">
@@ -197,8 +201,9 @@
 
                                     <div class="flex items-center ml-1">
                                         <input id="delRecord{{ $mark['markId'] }}" name="delRecord{{ $mark['markId'] }}"
-                                            type="checkbox" onclick="addDelId({{ $mark['markId'] }})"
-                                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                                            type="checkbox"
+                                            class="delRecord w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                            onclick="addDelId({{ $mark['markId'] }})" data-id="{{ $mark['markId'] }}">
                                     </div>
                                 </div>
                             </td>
@@ -299,6 +304,22 @@
             } else {
                 $(`#delId${id}`).remove();
             }
+        }
+
+        function toggleAllCheckboxes(source) {
+            const checkboxes = document.querySelectorAll('.delRecord');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = source.checked;
+                const id = checkbox.getAttribute('data-id');
+                if (source.checked) {
+                    if (!$(`#delId${id}`).length) {
+                        $("#bulkDelId").append(
+                            `<input type="hidden" name="delId[]" id="delId${id}" value="${id}">`);
+                    }
+                } else {
+                    $(`#delId${id}`).remove();
+                }
+            });
         }
 
         function editEntry(id) {

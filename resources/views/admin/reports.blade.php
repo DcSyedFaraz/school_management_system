@@ -429,23 +429,11 @@
             @foreach ($marks as $aMark)
                 @php
                     foreach ($subjects as $subject) {
-                        if (assignGrade($aMark[$subject]) == 'A') {
-                            array_push($gradeArray, '' . substr($subject, 0, 1) . 'A');
-                        } elseif (assignGrade($aMark[$subject]) == 'B') {
-                            array_push($gradeArray, '' . substr($subject, 0, 1) . 'B');
-                        } elseif (assignGrade($aMark[$subject]) == 'C') {
-                            array_push($gradeArray, '' . substr($subject, 0, 1) . 'C');
-                        } elseif (assignGrade($aMark[$subject]) == 'D') {
-                            array_push($gradeArray, '' . substr($subject, 0, 1) . 'D');
-                        } else {
-                            array_push($gradeArray, '' . substr($subject, 0, 1) . 'E');
-                        }
+                        $gradeArray[] = substr($subject, 0, 1) . assignGrade($aMark[$subject]);
                     }
                 @endphp
             @endforeach
-
             <h2 class="text-2xl font-bold mb-2 text-center">TATHIMINI YA MADARAJA YA KILA SOMO</h2>
-
             <table class="w-full">
                 <thead>
                     <tr>
@@ -462,89 +450,58 @@
                         <th class="text-center border border-black">%</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     @if (count($subjects) > 0)
                         @php
                             $groupArray = array_count_values($gradeArray);
                         @endphp
-
                         @foreach ($subjects as $key => $subject)
                             @php
                                 $rowColor = $key % 2 == 0 ? 'bg-white' : 'bg-gray-200';
-
-                                if ($classId > 4) {
-                                    $failedCount =
-                                        (array_key_exists('' . substr($subject, 0, 1) . 'D', $groupArray)
-                                            ? $groupArray['' . substr($subject, 0, 1) . 'D']
-                                            : 0) +
-                                        (array_key_exists('' . substr($subject, 0, 1) . 'E', $groupArray)
-                                            ? $groupArray['' . substr($subject, 0, 1) . 'E']
+                                $failedCount =
+                                    $classId > 4
+                                        ? (array_key_exists(substr($subject, 0, 1) . 'D', $groupArray)
+                                                ? $groupArray[substr($subject, 0, 1) . 'D']
+                                                : 0) +
+                                            (array_key_exists(substr($subject, 0, 1) . 'E', $groupArray)
+                                                ? $groupArray[substr($subject, 0, 1) . 'E']
+                                                : 0)
+                                        : (array_key_exists(substr($subject, 0, 1) . 'E', $groupArray)
+                                            ? $groupArray[substr($subject, 0, 1) . 'E']
                                             : 0);
-                                } else {
-                                    $failedCount = array_key_exists('' . substr($subject, 0, 1) . 'E', $groupArray)
-                                        ? $groupArray['' . substr($subject, 0, 1) . 'E']
-                                        : 0;
-                                }
-
-                                $totalGradeCount =
-                                    (array_key_exists('' . substr($subject, 0, 1) . 'A', $groupArray)
-                                        ? $groupArray['' . substr($subject, 0, 1) . 'A']
-                                        : 0) +
-                                    (array_key_exists('' . substr($subject, 0, 1) . 'B', $groupArray)
-                                        ? $groupArray['' . substr($subject, 0, 1) . 'B']
-                                        : 0) +
-                                    (array_key_exists('' . substr($subject, 0, 1) . 'C', $groupArray)
-                                        ? $groupArray['' . substr($subject, 0, 1) . 'C']
-                                        : 0) +
-                                    (array_key_exists('' . substr($subject, 0, 1) . 'D', $groupArray)
-                                        ? $groupArray['' . substr($subject, 0, 1) . 'D']
-                                        : 0) +
-                                    (array_key_exists('' . substr($subject, 0, 1) . 'E', $groupArray)
-                                        ? $groupArray['' . substr($subject, 0, 1) . 'E']
-                                        : 0);
+                                $totalGradeCount = array_sum(
+                                    array_map(
+                                        function ($grade) use ($groupArray, $subject) {
+                                            return array_key_exists(substr($subject, 0, 1) . $grade, $groupArray)
+                                                ? $groupArray[substr($subject, 0, 1) . $grade]
+                                                : 0;
+                                        },
+                                        ['A', 'B', 'C', 'D', 'E'],
+                                    ),
+                                );
                             @endphp
 
                             <tr class="{{ $rowColor }}">
                                 <td class="pl-2 border border-black capitalize">{{ $subject }}</td>
                                 <td class="text-center border border-black px-2">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'A', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'A'] : 0 }}
-                                </td>
+                                    {{ $groupArray[substr($subject, 0, 1) . 'A'] ?? 0 }}</td>
                                 <td class="text-center border border-black px-2">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'B', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'B'] : 0 }}
-                                </td>
+                                    {{ $groupArray[substr($subject, 0, 1) . 'B'] ?? 0 }}</td>
                                 <td class="text-center border border-black px-2">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'C', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'C'] : 0 }}
-                                </td>
+                                    {{ $groupArray[substr($subject, 0, 1) . 'C'] ?? 0 }}</td>
                                 <td class="text-center border border-black px-2">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'D', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'D'] : 0 }}
-                                </td>
+                                    {{ $groupArray[substr($subject, 0, 1) . 'D'] ?? 0 }}</td>
                                 <td class="text-center border border-black px-2">
-                                    {{ array_key_exists('' . substr($subject, 0, 1) . 'E', $groupArray) ? $groupArray['' . substr($subject, 0, 1) . 'E'] : 0 }}
-                                </td>
-
-                                @if (count($marks) > 0)
-                                    <td class="text-center border border-black">
-                                        {{ number_format($gAverage[$key] / count($marks), 2) }}</td>
-                                @else
-                                    <td class="text-center border border-black">0</td>
-                                @endif
-
+                                    {{ $groupArray[substr($subject, 0, 1) . 'E'] ?? 0 }}</td>
+                                <td class="text-center border border-black">
+                                    {{ number_format($gAverage[$key] / count($marks), 2) }}</td>
                                 <td class="text-center border border-black">{{ $totalGradeCount - $failedCount }}</td>
                                 <td class="text-center border border-black">
-                                    @if ($totalGradeCount > 0)
-                                        {{ number_format((($totalGradeCount - $failedCount) * 100) / $totalGradeCount, 2) }}
-                                    @else
-                                        <p>0</p>
-                                    @endif
+                                    {{ $totalGradeCount > 0 ? number_format((($totalGradeCount - $failedCount) * 100) / $totalGradeCount, 2) : 0 }}
                                 </td>
                                 <td class="text-center border border-black">{{ $failedCount }}</td>
                                 <td class="text-center border border-black">
-                                    @if ($totalGradeCount > 0)
-                                        {{ number_format(($failedCount * 100) / $totalGradeCount, 2) }}
-                                    @else
-                                        <p>0</p>
-                                    @endif
+                                    {{ $totalGradeCount > 0 ? number_format(($failedCount * 100) / $totalGradeCount, 2) : 0 }}
                                 </td>
                             </tr>
                         @endforeach
@@ -555,6 +512,7 @@
                     @endif
                 </tbody>
             </table>
+
         </div>
     </div>
 

@@ -22,8 +22,11 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
     protected $wardId;
     protected $startDate;
     protected $endDate;
+    protected $subjects;
+    protected $rank;
 
-    public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate){
+    public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate)
+    {
         $this->examId = $examId;
         $this->classId = $classId;
         $this->regionId = $regionId;
@@ -31,37 +34,42 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
         $this->wardId = $wardId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->rank=Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-            ['isActive','=','1'],
-            ['isDeleted','=','0']
-        ])->orderBy('rankName','asc')->get();
+        $this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
+            ['isActive', '=', '1'],
+            ['isDeleted', '=', '0']
+        ])->orderBy('rankName', 'asc')->get();
+
+        $this->subjects = config('subjects.' . $classId) ?: config('subjects.class_default');
     }
 
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
-        $examCondition=($this->examId=='')?['examId','!=',null]:['examId','=',$this->examId];
-        $regionCondition=($this->regionId=='')?['regionId','!=',null]:['regionId','=',$this->regionId];
-        $districtCondition=($this->districtId=='')?['districtId','!=',null]:['districtId','=',$this->districtId];
-        $wardCondition=($this->wardId=='')?['wardId','!=',null]:['wardId','=',$this->wardId];
+        $examCondition = ($this->examId == '') ? ['examId', '!=', null] : ['examId', '=', $this->examId];
+        $regionCondition = ($this->regionId == '') ? ['regionId', '!=', null] : ['regionId', '=', $this->regionId];
+        $districtCondition = ($this->districtId == '') ? ['districtId', '!=', null] : ['districtId', '=', $this->districtId];
+        $wardCondition = ($this->wardId == '') ? ['wardId', '!=', null] : ['wardId', '=', $this->wardId];
 
-        $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId,
-            ROUND((ROUND(SUM(hisabati), 2) + ROUND(SUM(kiswahili), 2) + ROUND(SUM(sayansi), 2) + ROUND(SUM(english), 2) + ROUND(SUM(jamii), 2) + ROUND(SUM(maadili), 2)), 2) as averageMarks')
-        ->where([
-            ['isActive','=','1'],
-            ['isDeleted','=','0'],
-            ['classId','=',$this->classId],
-            $examCondition,
-            $regionCondition,
-            $districtCondition,
-            $wardCondition
-        ])
-        ->whereBetween('examDate', [$this->startDate, $this->endDate])
-        ->groupBy('schoolId','regionId','districtId','wardId')
-        ->orderBy('averageMarks', 'desc')
-        ->get();
+        $subjectsSelect = implode(', ', array_map(function ($subject) {
+            return "ROUND(SUM($subject), 2) as $subject";
+        }, $this->subjects));
+
+        $marks = Marks::selectRaw("schoolId, regionId, districtId, wardId, $subjectsSelect, ROUND((ROUND(SUM(hisabati), 2) + ROUND(SUM(kiswahili), 2) + ROUND(SUM(sayansi), 2) + ROUND(SUM(english), 2) + ROUND(SUM(jamii), 2) + ROUND(SUM(maadili), 2)), 2) as averageMarks")
+            ->where([
+                ['isActive', '=', '1'],
+                ['isDeleted', '=', '0'],
+                ['classId', '=', $this->classId],
+                $examCondition,
+                $regionCondition,
+                $districtCondition,
+                $wardCondition
+            ])
+            ->whereBetween('examDate', [$this->startDate, $this->endDate])
+            ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
+            ->orderBy('averageMarks', 'desc')
+            ->get();
 
         return $marks;
     }
@@ -74,6 +82,8 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
             'C' => 20,
             'D' => 20,
             'E' => 20,
+            // Adjust the widths for dynamic subjects
+            // Assuming each subject will take 6 columns
             'F' => 20,
             'G' => 20,
             'H' => 20,
@@ -122,314 +132,127 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
             'Mkoa',
             'Wilaya',
             'Kata',
-            'Shule',
-            'Wav('.(date('Y')-$this->classId).')',
-            'Was('.(date('Y')-$this->classId).')',
-            'Jml',
-            'Wav(Waliosaijliwa)',
-            'Was(Waliosaijliwa)',
-            'Jml',
-            'Wav(WaliofanyaMtihani)',
-            'Was(WaliofanyaMtihani)',
-            'Jml',
-            'Percent',
-            'Wav(Waliofanya)',
-            'Was(Waliofanya)',
-            'Jml',
-            'Percent',
-            'Wav(Grade A)',
-            'Was(Grade A)',
-            'Jml',
-            'Wav(Grade B)',
-            'Was(Grade B)',
-            'Jml',
-            'Wav(Grade C)',
-            'Was(Grade C)',
-            'Jml'
+            'Shule'
         ];
-    
-        if ($this->classId > 4) {
+
+        foreach ($this->subjects as $subject) {
             $headings = array_merge($headings, [
-                'Wav(Grade A-C)',
-                'Was(Grade A-C)',
-                'Jml',
-                'Percent',
-                'Wav(Grade D)',
-                'Was(Grade D)',
-                'Jml',
-                'Wav(Grade E)',
-                'Was(Grade E)',
-                'Jml',
-                'Wav(Grade D-E)',
-                'Was(Grade D-E)',
-                'Jml',
-                'Percent',
-            ]);
-        } else {
-            $headings = array_merge($headings, [
-                'Wav(Grade D)',
-                'Was(Grade D)',
-                'Jml',
-                'Wav(Grade A-D)',
-                'Was(Grade A-D)',
-                'Jml',
-                'Percent',
-                'Wav(Grade E)',
-                'Was(Grade E)',
-                'Jml',
-                'Wav(Grade E)',
-                'Was(Grade E)',
-                'Jml',
-                'Percent',
+                "$subject Grade A",
+                "$subject Grade B",
+                "$subject Grade C",
+                "$subject Grade D",
+                "$subject Grade E",
+                "$subject Total"
             ]);
         }
-    
+
         $headings = array_merge($headings, [
             'Wastani ya ufaulu',
             'Daraja'
         ]);
-    
+
         return $headings;
     }
 
+
     public function map($marks): array
     {
-        $schoolData=Schools::find($marks['schoolId']);
-        $schoolName=($schoolData)?$schoolData['schoolName']:"Not Found";
+        $schoolData = Schools::find($marks['schoolId']);
+        $schoolName = ($schoolData) ? $schoolData['schoolName'] : "Not Found";
 
-        $regionData=Regions::find($marks['regionId']);
-        $regionName=($regionData)?$regionData['regionName']:'Not Found';
+        $regionData = Regions::find($marks['regionId']);
+        $regionName = ($regionData) ? $regionData['regionName'] : 'Not Found';
 
-        $districtData=Districts::find($marks['districtId']);
-        $districtName=($districtData)?$districtData['districtName']:'Not Found';
+        $districtData = Districts::find($marks['districtId']);
+        $districtName = ($districtData) ? $districtData['districtName'] : 'Not Found';
 
-        $wardData=Wards::find($marks['wardId']);
-        $wardName=($wardData)?$wardData['wardName']:'Not Found';
+        $wardData = Wards::find($marks['wardId']);
+        $wardName = ($wardData) ? $wardData['wardName'] : 'Not Found';
 
-        $examCondition=($this->examId=='')?['examId','!=',null]:['examId','=',$this->examId];
-        $regionCondition=($this->regionId=='')?['regionId','!=',null]:['regionId','=',$this->regionId];
-        $districtCondition=($this->districtId=='')?['districtId','!=',null]:['districtId','=',$this->districtId];
-        $wardCondition=($this->wardId=='')?['wardId','!=',null]:['wardId','=',$this->wardId];
+        $examCondition = ($this->examId == '') ? ['examId', '!=', null] : ['examId', '=', $this->examId];
+        $regionCondition = ($this->regionId == '') ? ['regionId', '!=', null] : ['regionId', '=', $this->regionId];
+        $districtCondition = ($this->districtId == '') ? ['districtId', '!=', null] : ['districtId', '=', $this->districtId];
+        $wardCondition = ($this->wardId == '') ? ['wardId', '!=', null] : ['wardId', '=', $this->wardId];
 
-        $fgMale=Marks::where([
-            ['isActive','=','1'],
-            ['isDeleted','=','0'],
-            ['classId','=',$this->classId],
-            ['firstGrade','=','1'],
-            ['gender','=','M'],
-            ['schoolId','=',$marks['schoolId']],
-            $examCondition,
-            $regionCondition,
-            $districtCondition,
-            $wardCondition
-        ])->whereBetween('examDate', [$this->startDate, $this->endDate])->count();
+        $avgMarks = Marks::selectRaw('gender, ' . implode(', ', array_map(function ($subject) {
+            return "ROUND($subject, 2) as $subject";
+        }, $this->subjects)))
+            ->where([
+                ['isActive', '=', '1'],
+                ['isDeleted', '=', '0'],
+                ['classId', '=', $this->classId],
+                ['schoolId', '=', $marks['schoolId']],
+                $examCondition,
+                $regionCondition,
+                $districtCondition,
+                $wardCondition
+            ])->whereBetween('examDate', [$this->startDate, $this->endDate])->get();
 
-        $fgFemale=Marks::where([
-            ['isActive','=','1'],
-            ['isDeleted','=','0'],
-            ['classId','=',$this->classId],
-            ['firstGrade','=','1'],
-            ['gender','=','F'],
-            ['schoolId','=',$marks['schoolId']],
-            $examCondition,
-            $regionCondition,
-            $districtCondition,
-            $wardCondition
-        ])->whereBetween('examDate', [$this->startDate, $this->endDate])->count();
-
-        $avgMarks=Marks::selectRaw('gender, ROUND((hisabati + kiswahili + sayansi + english + jamii + maadili) / 6, 2) as averageMarks')->where([
-            ['isActive','=','1'],
-            ['isDeleted','=','0'],
-            ['classId','=',$this->classId],
-            ['schoolId','=',$marks['schoolId']],
-            $examCondition,
-            $regionCondition,
-            $districtCondition,
-            $wardCondition
-        ])->whereBetween('examDate', [$this->startDate, $this->endDate])->get();
-
-        $totalMale=0;
-        $totalFemale=0;
-        $aGradeMale=0;
-        $aGradeFemale=0;
-        $bGradeMale=0;
-        $bGradeFemale=0;
-        $cGradeMale=0;
-        $cGradeFemale=0;
-        $dGradeMale=0;
-        $dGradeFemale=0;
-        $eGradeMale=0;
-        $eGradeFemale=0;
-        $maleAbsent=0;
-        $femaleAbsent=0;
-
-        foreach ($avgMarks as $avg) {
-            ($avg['gender']=='M')?$totalMale++:$totalFemale++;
-
-            if($avg['averageMarks']==0){
-                if($avg['gender']=='M'){
-                    $maleAbsent++;
-                }
-                else{
-                    $femaleAbsent++;
-                }
-            }
-            else{
-                if($this->assignGrade($avg['averageMarks'])=='A'){
-                    ($avg['gender']=='M')?$aGradeMale++:$aGradeFemale++;
-                }
-                else if($this->assignGrade($avg['averageMarks'])=='B'){
-                    ($avg['gender']=='M')?$bGradeMale++:$bGradeFemale++;
-                }
-                else if($this->assignGrade($avg['averageMarks'])=='C'){
-                    ($avg['gender']=='M')?$cGradeMale++:$cGradeFemale++;
-                }
-                else if($this->assignGrade($avg['averageMarks'])=='D'){
-                    ($avg['gender']=='M')?$dGradeMale++:$dGradeFemale++;
-                }
-                else{
-                    ($avg['gender']=='M')?$eGradeMale++:$eGradeFemale++;
-                }
-            }
+        $totalMale = 0;
+        $totalFemale = 0;
+        $gradeCounts = [];
+        foreach ($this->subjects as $subject) {
+            $gradeCounts[$subject] = [
+                'A' => 0,
+                'B' => 0,
+                'C' => 0,
+                'D' => 0,
+                'E' => 0
+            ];
         }
 
-        if ($this->classId>4) {
-            $totalPassMale=$aGradeMale+$bGradeMale+$cGradeMale;
-            $totalPassFemale=$aGradeFemale+$bGradeFemale+$cGradeFemale;
-            $totalFailMale=$dGradeMale+$eGradeMale;
-            $totalFailFemale=$dGradeFemale+$eGradeFemale;
-            $totalPass=$totalPassMale+$totalPassFemale;
-            $totalFail=$totalFailMale+$totalFailFemale;
-        } else {
-            $totalPassMale=$aGradeMale+$bGradeMale+$cGradeMale+$dGradeMale;
-            $totalPassFemale=$aGradeFemale+$bGradeFemale+$cGradeFemale+$dGradeFemale;
-            $totalFailMale=$eGradeMale;
-            $totalFailFemale=$eGradeFemale;
-            $totalPass=$totalPassMale+$totalPassFemale;
-            $totalFail=$totalFailMale+$totalFailFemale; 
+        foreach ($avgMarks as $avg) {
+            ($avg['gender'] == 'M') ? $totalMale++ : $totalFemale++;
+            foreach ($this->subjects as $subject) {
+                $grade = $this->assignGrade($avg[$subject]);
+                if (isset($gradeCounts[$subject][$grade])) {
+                    $gradeCounts[$subject][$grade]++;
+                }
+            }
         }
 
         static $serialNumber = 0;
         $serialNumber++;
 
-        if($this->classId>4){
-            return [
-                $serialNumber,
-                $regionName,
-                $districtName,
-                $wardName,
-                $schoolName,
-                ($fgMale==0)?"0":$fgMale,
-                ($fgFemale==0)?"0":$fgFemale,
-                (($fgMale+$fgFemale)==0)?"0":($fgMale+$fgFemale),
-                ($totalMale==0)?"0":$totalMale,
-                ($totalFemale==0)?"0":$totalFemale,
-                (($totalMale+$totalFemale)==0)?"0":($totalMale+$totalFemale),
-                (($totalPassMale+$totalFailMale)==0)?"0":($totalPassMale+$totalFailMale),
-                (($totalPassFemale+$totalFailFemale)==0)?"0":($totalPassFemale+$totalFailFemale),
-                (($totalPassMale+$totalPassFemale+$totalFailMale+$totalFailFemale)==0)?"0":($totalPassMale+$totalPassFemale+$totalFailMale+$totalFailFemale),
-                number_format(((($totalPassMale+$totalPassFemale+$totalFailMale+$totalFailFemale)/($totalMale+$totalFemale))*100), 2),
-                ($maleAbsent==0)?"0":$maleAbsent,
-                ($femaleAbsent==0)?"0":$femaleAbsent,
-                (($maleAbsent+$femaleAbsent)==0)?"0":($maleAbsent+$femaleAbsent),
-                number_format(((($maleAbsent+$femaleAbsent)/($totalMale+$totalFemale))*100), 2),
-                ($aGradeMale==0)?"0":$aGradeMale,
-                ($aGradeFemale==0)?"0":$aGradeFemale,
-                (($aGradeMale+$aGradeFemale)==0)?"0":($aGradeMale+$aGradeFemale),
-                ($bGradeMale==0)?"0":$bGradeMale,
-                ($bGradeFemale==0)?"0":$bGradeFemale,
-                (($bGradeMale+$bGradeFemale)==0)?"0":($bGradeMale+$bGradeFemale),
-                ($cGradeMale==0)?"0":$cGradeMale,
-                ($cGradeFemale==0)?"0":$cGradeFemale,
-                (($cGradeMale+$cGradeFemale)==0)?"0":($cGradeMale+$cGradeFemale),
-                (($aGradeMale+$bGradeMale+$cGradeMale)==0)?"0":($aGradeMale+$bGradeMale+$cGradeMale),
-                (($aGradeFemale+$bGradeFemale+$cGradeFemale)=="0")?"0":($aGradeFemale+$bGradeFemale+$cGradeFemale),
-                (($aGradeMale+$bGradeMale+$cGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale)==0)?"0":($aGradeMale+$bGradeMale+$cGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale),
-                number_format(((($aGradeMale+$bGradeMale+$cGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale)/($totalMale+$totalFemale))*100), 2),
-                ($dGradeMale==0)?"0":$dGradeMale,
-                ($dGradeFemale==0)?"0":$dGradeFemale,
-                (($dGradeMale+$dGradeFemale)==0)?"0":($dGradeMale+$dGradeFemale),
-                ($eGradeMale==0)?"0":$eGradeMale,
-                ($eGradeFemale==0)?"0":$eGradeFemale,
-                (($eGradeMale+$eGradeFemale)==0)?"0":($eGradeMale+$eGradeFemale),
-                (($eGradeMale+$dGradeMale)==0)?"0":($eGradeMale+$dGradeMale),
-                (($eGradeFemale+$dGradeFemale)==0)?"0":($eGradeFemale+$dGradeFemale),
-                (($eGradeMale+$dGradeMale+$eGradeFemale+$dGradeFemale)==0)?"0":($eGradeMale+$dGradeMale+$eGradeFemale+$dGradeFemale),
-                number_format(((($eGradeMale+$dGradeMale+$eGradeFemale+$dGradeFemale)/($totalMale+$totalFemale))*100), 2),
-                ($marks['averageMarks']==0)?"0":number_format(($marks['averageMarks']/(count($avgMarks)-$maleAbsent-$femaleAbsent)), 5),
-                $this->assignGrade(number_format(($marks['averageMarks']/(count($avgMarks)-$maleAbsent-$femaleAbsent)), 5)/6)
-            ];
+        $row = [
+            $serialNumber,
+            $regionName,
+            $districtName,
+            $wardName,
+            $schoolName
+        ];
+
+        foreach ($this->subjects as $subject) {
+            $row = array_merge($row, [
+                $gradeCounts[$subject]['A'],
+                $gradeCounts[$subject]['B'],
+                $gradeCounts[$subject]['C'],
+                $gradeCounts[$subject]['D'],
+                $gradeCounts[$subject]['E'],
+                array_sum($gradeCounts[$subject])
+            ]);
         }
-        else{
-            return [
-                $serialNumber,
-                $regionName,
-                $districtName,
-                $wardName,
-                $schoolName,
-                ($fgMale==0)?"0":$fgMale,
-                ($fgFemale==0)?"0":$fgFemale,
-                (($fgMale+$fgFemale)==0)?"0":($fgMale+$fgFemale),
-                ($totalMale==0)?"0":$totalMale,
-                ($totalFemale==0)?"0":$totalFemale,
-                (($totalMale+$totalFemale)==0)?"0":($totalMale+$totalFemale),
-                ($totalPassMale==0)?"0":$totalPassMale,
-                ($totalPassFemale==0)?"0":$totalPassFemale,
-                (($totalPassMale+$totalPassFemale)==0)?"0":($totalPassMale+$totalPassFemale),
-                number_format(((($totalPassMale+$totalPassFemale)/($totalMale+$totalFemale))*100), 2),
-                ($maleAbsent==0)?"0":$maleAbsent,
-                ($femaleAbsent==0)?"0":$femaleAbsent,
-                (($maleAbsent+$femaleAbsent)==0)?"0":($maleAbsent+$femaleAbsent),
-                number_format(((($maleAbsent+$femaleAbsent)/($totalMale+$totalFemale))*100), 2),
-                ($aGradeMale==0)?"0":$aGradeMale,
-                ($aGradeFemale==0)?"0":$aGradeFemale,
-                (($aGradeMale+$aGradeFemale)==0)?"0":($aGradeMale+$aGradeFemale),
-                ($bGradeMale==0)?"0":$bGradeMale,
-                ($bGradeFemale==0)?"0":$bGradeFemale,
-                (($bGradeMale+$bGradeFemale)==0)?"0":($bGradeMale+$bGradeFemale),
-                ($cGradeMale==0)?"0":$cGradeMale,
-                ($cGradeFemale==0)?"0":$cGradeFemale,
-                (($cGradeMale+$cGradeFemale)==0)?"0":($cGradeMale+$cGradeFemale),
-                ($dGradeMale==0)?"0":$dGradeMale,
-                ($dGradeFemale==0)?"0":$dGradeFemale,
-                (($dGradeMale+$dGradeFemale)==0)?"0":($dGradeMale+$dGradeFemale),
-                (($aGradeMale+$bGradeMale+$cGradeMale+$dGradeMale)==0)?"0":($aGradeMale+$bGradeMale+$cGradeMale+$dGradeMale),
-                (($aGradeFemale+$bGradeFemale+$cGradeFemale+$dGradeFemale)=="0")?"0":($aGradeFemale+$bGradeFemale+$cGradeFemale+$dGradeFemale),
-                (($aGradeMale+$bGradeMale+$cGradeMale+$dGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale+$dGradeFemale)==0)?"0":($aGradeMale+$bGradeMale+$cGradeMale+$dGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale+$dGradeFemale),
-                number_format(((($aGradeMale+$bGradeMale+$cGradeMale+$dGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale+$dGradeFemale)/($totalMale+$totalFemale))*100), 2),
-                ($eGradeMale==0)?"0":$eGradeMale,
-                ($eGradeFemale==0)?"0":$eGradeFemale,
-                (($eGradeMale+$eGradeFemale)==0)?"0":($eGradeMale+$eGradeFemale),
-                (($eGradeMale)==0)?"0":($eGradeMale),
-                (($eGradeFemale)==0)?"0":($eGradeFemale),
-                (($eGradeMale+$eGradeFemale)==0)?"0":($eGradeMale+$eGradeFemale),
-                number_format(((($eGradeMale+$eGradeFemale)/($totalMale+$totalFemale))*100), 2),
-                ($marks['averageMarks']==0)?"0":number_format(($marks['averageMarks']/(count($avgMarks)-$maleAbsent-$femaleAbsent)), 5),
-                $this->assignGrade(number_format(($marks['averageMarks']/(count($avgMarks)-$maleAbsent-$femaleAbsent)), 5)/6)
-            ];
-        }
+
+        $averageMarks = $marks['averageMarks'] == 0 ? 0 : number_format(($marks['averageMarks'] / count($avgMarks)), 5);
+        $row[] = $averageMarks;
+        $row[] = $this->assignGrade($averageMarks / 6);
+
+        return $row;
     }
 
-    function assignGrade($marks){
-        if($this->rank){
-            if($this->rank[0]['rankRangeMin']<$marks && $this->rank[0]['rankRangeMax']>=$marks){
-                return $this->rank[0]['rankName'];
-            }
-            else if($this->rank[1]['rankRangeMin']<$marks && $this->rank[1]['rankRangeMax']>=$marks){
-                return $this->rank[1]['rankName'];
-            }
-            else if($this->rank[2]['rankRangeMin']<$marks && $this->rank[2]['rankRangeMax']>=$marks){
-                return $this->rank[2]['rankName'];
-            }
-            else if($this->rank[3]['rankRangeMin']<$marks && $this->rank[3]['rankRangeMax']>=$marks){
-                return $this->rank[3]['rankName'];
-            }
-            else{
-                return $this->rank[4]['rankName'];
+
+
+
+
+    function assignGrade($marks)
+    {
+        foreach ($this->rank as $r) {
+            if ($r['rankRangeMin'] < $marks && $r['rankRangeMax'] >= $marks) {
+                return $r['rankName'];
             }
         }
-        else{
-            return "Null";
-        }
-    } 
+        return "F"; // Returning "F" as a default grade if no valid grade is found
+    }
+
+
 }

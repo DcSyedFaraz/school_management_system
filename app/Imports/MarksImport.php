@@ -52,43 +52,26 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             $markData['gender'] = $gender;
             $markData['firstGrade'] = $firstGrade;
 
+            $subjects = [];
+
             if ($this->requestData['class'] == 1) {
-                $markData['kuhesabu'] = $row['kuhesabu'] ?? 0;
-                $markData['kusoma'] = $row['kusoma'] ?? 0;
-                $markData['kuandika'] = $row['kuandika'] ?? 0;
-                $markData['english'] = $row['english'] ?? 0;
-                $markData['mazingira'] = $row['mazingira'] ?? 0;
-                $markData['michezo'] = $row['michezo'] ?? 0;
-                $total = $row['kuhesabu'] + $row['kusoma'] + $row['kuandika'] + $row['english'] + $row['mazingira'] + $row['michezo'];
+                $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
             } elseif ($this->requestData['class'] == 2) {
-                $markData['kuhesabu'] = $row['kuhesabu'] ?? 0;
-                $markData['kusoma'] = $row['kusoma'] ?? 0;
-                $markData['kuandika'] = $row['kuandika'] ?? 0;
-                $markData['english'] = $row['english'] ?? 0;
-                $markData['mazingira'] = $row['mazingira'] ?? 0;
-                $markData['utamaduni'] = $row['utamaduni'] ?? 0;
-                $total = $row['kuhesabu'] + $row['kusoma'] + $row['kuandika'] + $row['english'] + $row['mazingira'] + $row['utamaduni'];
+                $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
             } elseif ($this->requestData['class'] == 3) {
-                $markData['hisabati'] = $row['hisabati'] ?? 0;
-                $markData['kiswahili'] = $row['kiswahili'] ?? 0;
-                $markData['sayansi'] = $row['sayansi'] ?? 0;
-                $markData['english'] = $row['english'] ?? 0;
-                $markData['maadili'] = $row['maadili'] ?? 0;
-                $markData['jiographia'] = $row['jiographia'] ?? 0;
-                $markData['smichezo'] = $row['smichezo'] ?? 0;
-                $total = $row['hisabati'] + $row['kiswahili'] + $row['sayansi'] + $row['english'] + $row['maadili'] + $row['jiographia'] + $row['smichezo'];
+                $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
             } else { // classes 4 to 7
-                $markData['hisabati'] = $row['hisabati'] ?? 0;
-                $markData['kiswahili'] = $row['kiswahili'] ?? 0;
-                $markData['sayansi'] = $row['sayansi'] ?? 0;
-                $markData['english'] = $row['english'] ?? 0;
-                $markData['jamii'] = $row['jamii'] ?? 0;
-                $markData['maadili'] = $row['maadili'] ?? 0;
-                $total = $row['hisabati'] + $row['kiswahili'] + $row['sayansi'] + $row['english'] + $row['jamii'] + $row['maadili'];
+                $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
+            }
+
+            $total = 0;
+            foreach ($subjects as $subject) {
+                $markData[$subject] = $row[$subject] ?? 0;
+                $total += $markData[$subject];
             }
 
             $markData['total'] = $total;
-            $markData['average'] = number_format($total / count(array_filter($row->all(), 'is_numeric')), 2);
+            $markData['average'] = number_format($total / count($subjects), 2);
             $markData['examId'] = $this->requestData['exam'];
             $markData['userId'] = $this->userId;
             $markData['regionId'] = $this->userRegion;

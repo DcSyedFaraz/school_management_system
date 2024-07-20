@@ -47,7 +47,7 @@ class DashboardController extends Controller
                 'email'=>'required|email',
             ]
         );
-        
+
         $validUser=User::where([
             ['email','=',$req['email']]
         ])->first();
@@ -121,10 +121,10 @@ class DashboardController extends Controller
                     $validUser['password']=Hash::make($req['newPassword']);
                     $validUser->save();
 
-                    return back()->with('success','Password Changed Successfully!'); 
+                    return back()->with('success','Password Changed Successfully!');
                 }
                 else{
-                    return back()->with('error','Wrong Current Password!');  
+                    return back()->with('error','Wrong Current Password!');
                 }
             }
             else{
@@ -151,7 +151,7 @@ class DashboardController extends Controller
 
         if($users){
             if($users['isActive']==0){
-                return back()->with('accessDenied', 'Your Account is In-Active');  
+                return back()->with('accessDenied', 'Akaunti Imefungwa, Lipia Tsh 4,000 kwa mwezi. NMB: 52910003854');
             }
             else{
                 if(Hash::check($req['password'], $users['password'])){
@@ -170,7 +170,7 @@ class DashboardController extends Controller
                     }
                     else {
                         Cookie::queue('email', "", (86400*7));
-                        Cookie::queue('password', "", (86400*7));  
+                        Cookie::queue('password', "", (86400*7));
                     }
 
                     if($users['userType']!='A'){
