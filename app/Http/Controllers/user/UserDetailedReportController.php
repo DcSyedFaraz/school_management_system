@@ -77,7 +77,7 @@ class UserDetailedReportController extends Controller
             // ])->orderBy('examDate','desc')->distinct()->pluck('examDate');
 
             session(['pageTitle'=>"PSLE/SFNA Ripoti"]);
-    
+
             $data=compact('marks','classes','exams','classId','examId','startDate','endDate');
             return view('user.detailedReport')->with($data);
         }
@@ -152,8 +152,9 @@ class UserDetailedReportController extends Controller
 
             session(['pageTitle'=>"PSLE/SFNA Ripoti"]);
             // $url3=url('/reports/delete');
-    
+
             $data=compact('marks','classes','exams','classId','examId','startDate','endDate');
+            // return $data;
             return view('user.detailedReport')->with($data);
         }
         else{
@@ -163,7 +164,7 @@ class UserDetailedReportController extends Controller
 
     public function downloadTeacherReport(Request $req){
         set_time_limit(300);
-        
+
         if(Session::get('loggedin')==true){
             $examId=$req['rExam'];
             $classId=$req['rClass'];
@@ -177,7 +178,7 @@ class UserDetailedReportController extends Controller
             return Excel::download(new TeacherReportExport($examId, $classId, $schoolId, $startDate, $endDate), 'teacherDetailedReport('.date('Y-m-d H:i:s').').xlsx');
         }
         else{
-            return redirect('/')->with('accessDenied','Session Expired!');   
+            return redirect('/')->with('accessDenied','Session Expired!');
         }
     }
 }

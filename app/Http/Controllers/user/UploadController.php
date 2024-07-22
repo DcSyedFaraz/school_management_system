@@ -127,16 +127,16 @@ class UploadController extends Controller
                     'exam' => 'required|integer'
                 ]
             );
-
-            $subjectsByClass = [
-                1 => ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'],
-                2 => ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'],
-                3 => ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'],
-                'default' => ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili']
-            ];
+// dd($req->all());
+            // $subjectsByClass = [
+            //     1 => ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'],
+            //     2 => ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'],
+            //     3 => ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'],
+            //     'default' => ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili']
+            // ];
 
             $classId = $req->input('class');
-            $subjects = $subjectsByClass[$classId] ?? $subjectsByClass['default'];
+            $subjects = config("subjects.$classId") ?: config('subjects.class_default');
 
             $validationRules = [];
             foreach ($subjects as $subject) {
@@ -243,16 +243,9 @@ class UploadController extends Controller
     }
     public function getSubjectsForClass($classId)
     {
-        switch ($classId) {
-            case 1:
-                return ['Kuhesabu', 'Kusoma', 'Kuandika', 'English', 'Mazingira', 'Michezo'];
-            case 2:
-                return ['Kuhesabu', 'Kusoma', 'Kuandika', 'English', 'Mazingira', 'Utamaduni'];
-            case 3:
-                return ['Hisabati', 'Kiswahili', 'Sayansi', 'English', 'Maadili', 'Jiographia', 'Michezo'];
-            default: // Classes 4 to 7
-                return ['Hisabati', 'Kiswahili', 'Sayansi', 'English', 'Jamii', 'Maadili'];
-        }
+        $subjects = Config::get('subjects');
+
+        return $subjects[$classId] ?? $subjects['class_default'];
     }
     public function deleteUpload(Request $req)
     {

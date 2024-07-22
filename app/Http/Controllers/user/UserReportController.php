@@ -25,20 +25,13 @@ class UserReportController extends Controller
 
             // Get subjects based on class
             $subjects = [];
-            switch ($classId) {
-                case 1:
-                    $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-                    break;
-                case 2:
-                    $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-                    break;
-                case 3:
-                    $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
-                    break;
-                default: // classes 4 to 7
-                    $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-                    break;
-            }
+            $subjects = match ($classId) {
+                '1' => config('subjects.1'),
+                '2' => config('subjects.2'),
+                '3' => config('subjects.3'),
+                default => config('subjects.class_default'),
+            };
+
 
             // Select relevant columns including dynamic subjects
             $selectColumns = array_merge(['markId', 'studentName', 'gender', 'total', 'average'], $subjects);
@@ -91,7 +84,7 @@ class UserReportController extends Controller
                 ->distinct()
                 ->pluck('examDate');
 
-            session(['pageTitle' => "Ripoti"]);
+            session(['pageTitle' => "Matokeo"]);
             $url3 = url('/reports/delete');
 
             $data = compact('marks', 'allMarks', 'classes', 'exams', 'regions', 'dates', 'url3', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
@@ -115,20 +108,12 @@ class UserReportController extends Controller
 
             // Get subjects based on class
             $subjects = [];
-            switch ($classId) {
-                case 1:
-                    $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-                    break;
-                case 2:
-                    $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-                    break;
-                case 3:
-                    $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
-                    break;
-                default: // classes 4 to 7
-                    $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-                    break;
-            }
+            $subjects = match ($classId) {
+                '1' => config('subjects.1'),
+                '2' => config('subjects.2'),
+                '3' => config('subjects.3'),
+                default => config('subjects.class_default'),
+            };
 
             // Select relevant columns including dynamic subjects
             $selectColumns = array_merge(['markId', 'studentName', 'gender', 'total', 'average'], $subjects);
@@ -181,7 +166,7 @@ class UserReportController extends Controller
                 ->distinct()
                 ->pluck('examDate');
 
-            session(['pageTitle' => "Ripoti"]);
+            session(['pageTitle' => "Matokeo"]);
             $url3 = url('/reports/delete');
 
             $data = compact('marks', 'allMarks', 'classes', 'exams', 'regions', 'dates', 'url3', 'classId', 'examId', 'startDate', 'endDate', 'subjects');

@@ -14,6 +14,7 @@ use App\Models\Wards;
 use App\Models\Ranks;
 use App\Exports\MarksExport;
 use App\Exports\StudentDataExport;
+use Illuminate\Support\Facades\Config;
 use Session;
 use Excel;
 use DB;
@@ -104,7 +105,7 @@ class ReportController extends Controller
                 ['isDeleted', '=', '0']
             ])->orderBy('examDate', 'desc')->distinct()->pluck('examDate');
 
-            session(['pageTitle' => "Ripoti"]);
+            session(['pageTitle' => "Matokeo"]);
 
             $data = compact('marks', 'classes', 'exams', 'regions', 'districts', 'dates', 'classId', 'examId', 'regionId', 'districtId', 'startDate', 'endDate');
             return view('admin.reports')->with($data);
@@ -205,7 +206,7 @@ class ReportController extends Controller
                 ['isDeleted', '=', '0']
             ])->orderBy('examDate', 'desc')->distinct()->pluck('examDate');
 
-            session(['pageTitle' => "Ripoti"]);
+            session(['pageTitle' => "Matokeo"]);
             $url3 = url('/reports/delete');
 
             $data = compact('marks', 'classes', 'exams', 'regions', 'districts', 'dates', 'url3', 'classId', 'examId', 'regionId', 'districtId', 'startDate', 'endDate');
@@ -389,16 +390,9 @@ class ReportController extends Controller
     // New code
     private function getSubjectsByClassId($classId)
     {
-        switch ($classId) {
-            case 1:
-                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-            case 2:
-                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-            case 3:
-                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'michezo'];
-            default: // classes 4 to 7
-                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-        }
+        $subjects = Config::get('subjects');
+
+        return $subjects[$classId] ?? $subjects['class_default'];
     }
     // public function studentDataFilter(Request $request)
     // {

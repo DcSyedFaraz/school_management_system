@@ -22,7 +22,7 @@
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     speed
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">Ubao</p>
             </a>
 
@@ -30,33 +30,33 @@
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
-                <p class="inline-block -translate-y-[2px]">Ripoti</p>
+
+                <p class="inline-block -translate-y-[2px]">Matokeo</p>
             </a>
-            
+
             <a href="{{ url('/admin-dashboard/student-data') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">Matokeo Kiwanafunzi</p>
-            </a> 
-            
+            </a>
+
             <a href="{{ url('/dashboard/detailed-report') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">PSLE/SFNA Ripoti</p>
-            </a> 
-            
+            </a>
+
             <a href="{{ url('/admin-dashboard/subject-report') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">Kimasomo Ripoti</p>
-            </a> 
+            </a>
 
             <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="hover:bg-blue-50 w-full focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg px-5 py-2.5 flex items-center justify-between" type="button">
                 <p>
@@ -70,7 +70,7 @@
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                 </svg>
             </button>
-            
+
             <!-- Dropdown menu -->
             <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
                 <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
@@ -81,8 +81,8 @@
                         <a href="{{ url('/admin-dashboard/teachers') }}" class="block px-4 py-2 hover:bg-gray-100">Walimu</a>
                     </li>
                 </ul>
-            </div>   
-            
+            </div>
+
             <button id="dropdownDefaultButton" data-dropdown-toggle="masterData" class="hover:bg-blue-50 w-full focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg px-5 py-2.5 flex items-center justify-between" type="button">
                 <p>
                     <span class="material-symbols-outlined inline-block -translate-x-2">
@@ -95,7 +95,7 @@
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
                 </svg>
             </button>
-            
+
             <!-- Dropdown menu -->
             <div id="masterData" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
                 <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
@@ -112,7 +112,7 @@
                         <a href="{{ url('/admin-dashboard/schools') }}" class="block px-4 py-2 hover:bg-gray-100">Shule</a>
                     </li>
                 </ul>
-            </div>   
+            </div>
         </div>
     @else
         <div>
@@ -120,7 +120,7 @@
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     speed
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">Ubao</p>
             </a>
 
@@ -128,33 +128,33 @@
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
-                <p class="inline-block -translate-y-[2px]">Ripoti</p>
-            </a> 
-            
+
+                <p class="inline-block -translate-y-[2px]">Matokeo</p>
+            </a>
+
             <a href="{{ url('/dashboard/teacher-detailed-report') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">PSLE/SFNA Ripoti</p>
-            </a> 
-            
+            </a>
+
             <a href="{{ url('/dashboard/teacher-subject-report') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     lab_profile
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">Kimasomo Ripoti</p>
-            </a> 
-            
+            </a>
+
             <a href="{{ url('/dashboard/uploads') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
                 <span class="material-symbols-outlined mr-1 translate-y-1">
                     upload
                 </span>
-                
+
                 <p class="inline-block -translate-y-[2px]">Pandisha Faili</p>
-            </a> 
+            </a>
         </div>
     @endif
 

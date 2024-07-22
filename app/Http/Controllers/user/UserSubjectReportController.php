@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\Controller;
+use Config;
 use Illuminate\Http\Request;
 use App\Models\Marks;
 use App\Models\Grades;
@@ -117,16 +118,9 @@ class UserSubjectReportController extends Controller
 
     public function getSubjectsForClass($classId)
     {
-        switch ($classId) {
-            case 1:
-                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-            case 2:
-                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-            case 3:
-                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'michezo'];
-            default: // Classes 4 to 7
-                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-        }
+        $subjects = Config::get('subjects');
+
+        return $subjects[$classId] ?? $subjects['class_default'];
     }
 
 

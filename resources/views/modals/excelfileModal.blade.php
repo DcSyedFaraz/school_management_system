@@ -4,29 +4,29 @@
         <div class="relative bg-white rounded-lg shadow-md">
             <div class="p-6 text-lg">
                 <h5 class="text-lg font-medium leading-relaxed text-gray-800 ">Pakua Kiolezo</h5>
-                <p class="text-sm text-gray-500 ">Choose the class to download the excel file:</p>
+                <p class="text-sm text-gray-500 ">Chagua darasa la kupakua Kiolezo:</p>
                 <ul class="list-none mb-0">
                     <li>
                         <a href="{{ asset('excel/class_one.xlsx') }}" target="_blank" download class="flex items-center justify-between py-2 px-4 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <span>Class One</span>
+                            <span>Darasa la Kwanza</span>
                             <i class="material-symbols-outlined text-sm text-gray-400">file_download</i>
                         </a>
                     </li>
                     <li>
                         <a href="{{ asset('excel/class_two.xlsx') }}" target="_blank" download class="flex items-center justify-between py-2 px-4 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <span>Class Two</span>
+                            <span>Darasa la Pili</span>
                             <i class="material-symbols-outlined text-sm text-gray-400">file_download</i>
                         </a>
                     </li>
                     <li>
                         <a href="{{ asset('excel/class_three.xlsx') }}" target="_blank" download class="flex items-center justify-between py-2 px-4 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <span>Class Three</span>
+                            <span>Darasa la Tatu</span>
                             <i class="material-symbols-outlined text-sm text-gray-400">file_download</i>
                         </a>
                     </li>
                     <li>
                         <a href="{{ asset('excel/class_four_to_seven.xlsx') }}" target="_blank" download class="flex items-center justify-between py-2 px-4 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <span>Class Four to Seven</span>
+                            <span>Darasa la Nne mpaka la Saba</span>
                             <i class="material-symbols-outlined text-sm text-gray-400">file_download</i>
                         </a>
                     </li>
