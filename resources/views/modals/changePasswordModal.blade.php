@@ -4,7 +4,7 @@
         <div class="relative bg-white rounded-lg shadow">
             <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold">
-                    Change Password:
+                    Badili Nywila:
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="changePasswordModal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -13,14 +13,14 @@
                     <span class="sr-only">Close modal</span>
                 </button>
             </div>
-            
+
             <div class="p-6 space-y-6">
                 <div>
                     <form action="{{ url('/changePassword') }}" method="post" id="passwordForm">
                         @csrf
 
                         <input type="hidden" name="userId" id="userId" value="{{ Session::get('userId') }}">
-                        
+
                         <div class="my-3">
                             <label class="block" for="currentPassword">Current Password:<span class="text-red-500">*</span></label>
                             <div class="relative">
@@ -47,7 +47,7 @@
                     </form>
                 </div>
             </div>
-          
+
             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
                 <button type="submit" form="passwordForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
                 <button data-modal-hide="changePasswordModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Close</button>

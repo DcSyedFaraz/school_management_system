@@ -42,24 +42,24 @@
             @endif
 
             <div>EN</div>
-    
+
             <div class="mx-2">
                 <label class="inline-flex items-center cursor-pointer">
                     <input type="checkbox" class="sr-only peer" name="langCheckbox" id="langCheckbox" {{ $checkStatus }} onclick="changeLang()">
                     <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                 </label>
             </div>
-    
+
             <div>SW</div>
         </div> --}}
-        
+
         <div class="relative">
             <button id="dropdownAvatarNameButton" data-dropdown-toggle="dropdownAvatarName" class="flex items-center text-sm font-medium text-gray-900 rounded-full hover:text-blue-600 dark:hover:text-blue-500 md:mr-0 focus:ring-4 focus:ring-gray-100" type="button">
                 <span class="material-symbols-outlined text-3xl">
                     account_circle
                 </span>
             </button>
-    
+
             <!-- Dropdown menu -->
             <div id="dropdownAvatarName" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
                 <div class="px-4 py-3 text-sm">
@@ -68,13 +68,13 @@
                 </div>
                 <ul class="py-2 text-sm" aria-labelledby="dropdownInformdropdownAvatarNameButtonationButton">
                     <li>
-                        <button data-modal-target="changePasswordModal" data-modal-toggle="changePasswordModal" class="block px-4 py-2 w-full text-left">Change Password</button>
+                        <button data-modal-target="changePasswordModal" data-modal-toggle="changePasswordModal" class="block px-4 py-2 w-full text-left">Badili Nywila</button>
                     </li>
                 </ul>
                 <div class="py-2">
                     <form action="{{ url('/logout') }}" method="post">
                         @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-500 font-bold">Sign Out</button>
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-500 font-bold">Toka</button>
                     </form>
                 </div>
             </div>

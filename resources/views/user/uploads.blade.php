@@ -160,8 +160,7 @@
 
         <div class="p-3 overflow-x-scroll">
             <input id="selectAll" type="checkbox" onclick="toggleAllCheckboxes(this)"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"> Select
-            All
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"> Chagua Wote
             <table class="myTable bg-white">
                 <thead>
                     <tr>
