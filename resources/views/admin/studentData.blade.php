@@ -486,7 +486,7 @@
                             $failMaleCount = $gradeArray[4];
                             $failFemaleCount = $gradeArray[9];
                         }
-
+                        // dd($gradeArray);
                         $gradeCount = array_sum($gradeArray) - $gradeArray[10] - $gradeArray[11];
                         $gradeMaleCount =
                             $gradeArray[0] + $gradeArray[1] + $gradeArray[2] + $gradeArray[3] + $gradeArray[4];
@@ -771,21 +771,36 @@
 
                                 <!-- Calculate and display the pass/fail rate for the subject -->
                                 @php
-                                    $passCount =
-                                        $subjectGrades['A']['M'][$index] +
-                                        $subjectGrades['A']['F'][$index] +
-                                        $subjectGrades['B']['M'][$index] +
-                                        $subjectGrades['B']['F'][$index] +
-                                        $subjectGrades['C']['M'][$index] +
-                                        $subjectGrades['C']['F'][$index];
-                                    $failCount =
-                                        $subjectGrades['D']['M'][$index] +
-                                        $subjectGrades['D']['F'][$index] +
-                                        $subjectGrades['E']['M'][$index] +
-                                        $subjectGrades['E']['F'][$index];
-                                    $totalStudents = $passCount + $failCount;
-                                    $passRate = $totalStudents > 0 ? ($passCount / $totalStudents) * 100 : 0;
-                                    $failRate = $totalStudents > 0 ? ($failCount / $totalStudents) * 100 : 0;
+                                    if ($classId > 4) {
+                                        $passCount =
+                                            $subjectGrades['A']['M'][$index] +
+                                            $subjectGrades['A']['F'][$index] +
+                                            $subjectGrades['B']['M'][$index] +
+                                            $subjectGrades['B']['F'][$index] +
+                                            $subjectGrades['C']['M'][$index] +
+                                            $subjectGrades['C']['F'][$index];
+                                        $failCount =
+                                            $subjectGrades['D']['M'][$index] +
+                                            $subjectGrades['D']['F'][$index] +
+                                            $subjectGrades['E']['M'][$index] +
+                                            $subjectGrades['E']['F'][$index];
+                                    } else {
+                                        $passCount =
+                                            $subjectGrades['A']['M'][$index] +
+                                            $subjectGrades['A']['F'][$index] +
+                                            $subjectGrades['B']['M'][$index] +
+                                            $subjectGrades['B']['F'][$index] +
+                                            $subjectGrades['C']['M'][$index] +
+                                            $subjectGrades['C']['F'][$index] +
+                                            $subjectGrades['D']['M'][$index] +
+                                            $subjectGrades['D']['F'][$index];
+                                        $failCount =
+                                            $subjectGrades['E']['M'][$index] + $subjectGrades['E']['F'][$index];
+                                    }
+
+                                $totalStudents = $passCount + $failCount;
+                                $passRate = $totalStudents > 0 ? ($passCount / $totalStudents) * 100 : 0;
+                                $failRate = $totalStudents > 0 ? ($failCount / $totalStudents) * 100 : 0;
                                 @endphp
                                 <td class="p-[15px] text-center border border-black">{{ $passCount }}</td>
                                 <td class="p-[15px] text-center border border-black">{{ number_format($passRate, 2) }}%

@@ -144,6 +144,7 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
         $districtCondition = ($this->districtId == '') ? ['districtId', '!=', null] : ['districtId', '=', $this->districtId];
         $wardCondition = ($this->wardId == '') ? ['wardId', '!=', null] : ['wardId', '=', $this->wardId];
 
+
         $marks = Marks::select($this->subjects)
             ->where([
                 ['isActive', '=', '1'],
@@ -155,7 +156,6 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
                 $districtCondition,
                 $wardCondition,
             ])
-            ->orderBy('average', 'desc')
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->get();
 
@@ -195,14 +195,16 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
             if ($totalMarks != 0) {
                 foreach ($this->subjects as $subject) {
                     $grade = $this->assignGrade($aMark[$subject]);
-                    $gradeArray[] = substr($subject, 0, 1) . $grade;
+                    // dump($subject . $grade);
+                    $gradeArray[] = $subject . $grade;
                 }
+                // die;
             }
         }
 
         $groupArray = array_count_values($gradeArray);
         static $serialNumber = 0;
-        $serialNumber++;
+                $serialNumber++;
 
         $mappedData = [
             $serialNumber,
@@ -217,17 +219,18 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
 
         foreach ($this->subjects as $subject) {
             foreach (['A', 'B', 'C', 'D', 'E'] as $grade) {
-                $mappedData[] = $groupArray[substr($subject, 0, 1) . $grade] ?? "0";
+                $mappedData[] = $groupArray[$subject . $grade] ?? "0";
             }
             // Calculate the total number of students who have a grade for each subject
             $subjectTotal = 0;
             foreach (['A', 'B', 'C', 'D', 'E'] as $grade) {
-                $subjectTotal += $groupArray[substr($subject, 0, 1) . $grade] ?? 0;
+                $subjectTotal += $groupArray[$subject . $grade] ?? 0;
             }
             $mappedData[] = $subjectTotal != 0 ? $subjectTotal : "0";
         }
+
         // dd($mappedData);
-        dd($gradeArray,$marks,$femalePassed,$malePassed);
+        // dd($gradeArray,$marks,$femalePassed,$malePassed);
         return $mappedData;
     }
 
