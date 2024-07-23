@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Illuminate\Support\Facades\Config;
 
 class StudentDataExport implements FromCollection, WithHeadings, WithMapping, WithColumnWidths, WithChunkReading
 {
@@ -28,6 +29,8 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
     protected $endDate;
     protected $rank;
 
+    protected $subjects;
+
     public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate){
         $this->examId = $examId;
         $this->classId = $classId;
@@ -36,11 +39,15 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
         $this->wardId = $wardId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->rank=Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
+        $this->rank = Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
             ['isActive','=','1'],
             ['isDeleted','=','0']
         ])->orderBy('rankName','asc')->get();
+
+        // Load subjects dynamically based on classId
+        $this->subjects = Config::get("subjects.{$classId}", Config::get('subjects.class_default'));
     }
+
 
     /**
     * @return \Illuminate\Support\Collection
@@ -52,7 +59,13 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
         $districtCondition=($this->districtId=='')?['districtId','!=',null]:['districtId','=',$this->districtId];
         $wardCondition=($this->wardId=='')?['wardId','!=',null]:['wardId','=',$this->wardId];
 
-        $marks = Marks::select('markId','gender','studentName','classId','examId','schoolId','regionId','districtId','wardId','hisabati','kiswahili','sayansi','english','jamii','maadili','total','average')->where([
+        $columns = array_merge(
+            ['markId', 'gender', 'studentName', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId'],
+            $this->subjects,
+            ['total', 'average']
+        );
+
+        $marks = Marks::select($columns)->where([
             ['isActive','=','1'],
             ['isDeleted','=','0'],
             $classCondition,
@@ -67,6 +80,7 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
 
         return $marks;
     }
+
 
     public function chunkSize(): int
     {
@@ -105,126 +119,111 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
     }
 
     public function headings(): array
-    {
-        return [
-            'Sr.No',
-            'Jina La Shule',
-            'Darasa',
-            'Mtihani',
-            'Shule',
-            'Mkoa',
-            'Wilaya',
-            'Kata',
-            'Hisabati',
-            'Grade',
-            'Kiswaili',
-            'Grade',
-            'Sayansi',
-            'Grade',
-            'English',
-            'Grade',
-            'Jamii',
-            'Grade',
-            'Maadili',
-            'Grade',
-            'Jumla',
-            'Wastani',
-            'Daraja',
-            'Nafasi',
-            'Ufaulu'
-        ]; 
+{
+    $headings = [
+        'Sr.No',
+        'Jina La Shule',
+        'Darasa',
+        'Mtihani',
+        'Shule',
+        'Mkoa',
+        'Wilaya',
+        'Kata',
+    ];
+
+    foreach ($this->subjects as $subject) {
+        $headings[] = ucfirst($subject);
+        $headings[] = 'Grade';
     }
 
-    public function map($marks): array
-    {
-        $schoolData=Schools::find($marks->schoolId);
-        $schoolName=($schoolData)?$schoolData['schoolName']:"Not Found";
+    $headings = array_merge($headings, [
+        'Jumla',
+        'Wastani',
+        'Daraja',
+        'Nafasi',
+        'Ufaulu'
+    ]);
 
-        $classData=Grades::find($marks->classId);
-        $className=($classData)?$classData['gradeName']:"Not Found";
+    return $headings;
+}
 
-        $examData=Exams::find($marks->examId);
-        $examName=($examData)?$examData['examName']:"Not Found";
 
-        $regionData=Regions::find($marks->regionId);
-        $regionName=($regionData)?$regionData['regionName']:"Not Found";
+public function map($marks): array
+{
+    $schoolData = Schools::find($marks->schoolId);
+    $schoolName = ($schoolData) ? $schoolData['schoolName'] : "Not Found";
 
-        $districtData=Districts::find($marks->districtId);
-        $districtName=($districtData)?$districtData['districtName']:"Not Found";
+    $classData = Grades::find($marks->classId);
+    $className = ($classData) ? $classData['gradeName'] : "Not Found";
 
-        $wardData=Wards::find($marks->wardId);
-        $wardName=($wardData)?$wardData['wardName']:"Not Found";
+    $examData = Exams::find($marks->examId);
+    $examName = ($examData) ? $examData['examName'] : "Not Found";
 
-        static $storedAvg='';
-        static $serialNumber = 0;
-        static $j = 0;
+    $regionData = Regions::find($marks->regionId);
+    $regionName = ($regionData) ? $regionData['regionName'] : "Not Found";
 
-        $serialNumber++;
+    $districtData = Districts::find($marks->districtId);
+    $districtName = ($districtData) ? $districtData['districtName'] : "Not Found";
 
-        if($storedAvg==$marks->average){
-            $j++;
-            $rank=$serialNumber-$j;
-            $storedAvg=$marks->average;
-        }
-        else{
-            $j=0;
-            $rank=$serialNumber;
-            $storedAvg=$marks->average;
-        }
+    $wardData = Wards::find($marks->wardId);
+    $wardName = ($wardData) ? $wardData['wardName'] : "Not Found";
 
-        $gradeVal=($marks->average>0)?$this->assignGrade($marks->average):"ABS";
+    static $storedAvg = '';
+    static $serialNumber = 0;
+    static $j = 0;
 
-        return [
-            $serialNumber,
-            $marks->studentName,
-            $className,
-            $examName,
-            $schoolName,
-            $regionName,
-            $districtName,
-            $wardName,
-            ($marks->hisabati>0)?$marks->hisabati:"0",
-            $this->assignGrade($marks->hisabati),
-            ($marks->kiswahili>0)?$marks->kiswahili:"0",
-            $this->assignGrade($marks->kiswahili),
-            ($marks->sayansi>0)?$marks->sayansi:"0",
-            $this->assignGrade($marks->sayansi),
-            ($marks->english>0)?$marks->english:"0",
-            $this->assignGrade($marks->english),
-            ($marks->jamii>0)?$marks->jamii:"0",
-            $this->assignGrade($marks->jamii),
-            ($marks->maadili>0)?$marks->maadili:"0",
-            $this->assignGrade($marks->maadili),
-            ($marks->total>0)?$marks->total:"0",
-            ($marks->average>0)?$marks->average:"0",
-            $gradeVal,
-            $rank,
-            $this->finalStatus($marks->average)
-        ];
+    $serialNumber++;
+
+    if ($storedAvg == $marks->average) {
+        $j++;
+        $rank = $serialNumber - $j;
+        $storedAvg = $marks->average;
+    } else {
+        $j = 0;
+        $rank = $serialNumber;
+        $storedAvg = $marks->average;
     }
 
-    function assignGrade($marks){
-        if($this->rank){
-            if($this->rank[0]['rankRangeMin']<=$marks && $this->rank[0]['rankRangeMax']>=$marks){
-                return $this->rank[0]['rankName'];
-            }
-            else if($this->rank[1]['rankRangeMin']<=$marks && $this->rank[1]['rankRangeMax']>=$marks){
-                return $this->rank[1]['rankName'];
-            }
-            else if($this->rank[2]['rankRangeMin']<=$marks && $this->rank[2]['rankRangeMax']>=$marks){
-                return $this->rank[2]['rankName'];
-            }
-            else if($this->rank[3]['rankRangeMin']<=$marks && $this->rank[3]['rankRangeMax']>=$marks){
-                return $this->rank[3]['rankName'];
-            }
-            else{
-                return $this->rank[4]['rankName'];
-            }
+    $gradeVal = ($marks->average > 0) ? $this->assignGrade($marks->average) : "ABS";
+
+    $mappedData = [
+        $serialNumber,
+        $marks->studentName,
+        $className,
+        $examName,
+        $schoolName,
+        $regionName,
+        $districtName,
+        $wardName,
+    ];
+
+    foreach ($this->subjects as $subject) {
+        $subjectMarks = $marks->$subject > 0 ? $marks->$subject : "0";
+        $mappedData[] = $subjectMarks;
+        $mappedData[] = $this->assignGrade($subjectMarks);
+    }
+
+    $mappedData = array_merge($mappedData, [
+        $marks->total > 0 ? $marks->total : "0",
+        $marks->average > 0 ? $marks->average : "0",
+        $gradeVal,
+        $rank,
+        $this->finalStatus($marks->average)
+    ]);
+
+    return $mappedData;
+}
+
+
+function assignGrade($marks){
+    foreach ($this->rank as $rank) {
+        if ($rank['rankRangeMin'] <= $marks && $rank['rankRangeMax'] >= $marks) {
+            return $rank['rankName'];
         }
-        else{
-            return "Null";
-        }
-    } 
+    }
+    return "Null";
+}
+
 
     function finalStatus($average){
         if($this->classId>4){
