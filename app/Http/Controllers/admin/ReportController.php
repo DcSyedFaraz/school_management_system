@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\DownloadStudentDataJob;
 use Cache;
 use Illuminate\Http\Request;
 use App\Models\Marks;
@@ -1005,8 +1006,10 @@ class ReportController extends Controller
             $regionId = $req['rRegion'];
             $districtId = $req['rDistrict'];
             $wardId = $req['rWard'];
-
-            return Excel::download(new StudentDataExport($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate), 'studentData(' . date('Y-m-d H:i:s') . ').xlsx');
+            DownloadStudentDataJob::dispatch($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate);
+            Session::flash('success', 'Data Updated Successfully!');
+            return back();
+            // return Excel::download(new StudentDataExport($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate), 'studentData(' . date('Y-m-d H:i:s') . ').xlsx');
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
