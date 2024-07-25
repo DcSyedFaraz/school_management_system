@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\user\PrintController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\admin\DashboardController;
@@ -112,3 +113,5 @@ Route::post('/uploads/bulkDelete', [UploadController::class, 'deleteBulkUpload']
 Route::post('/filterUploads', [UploadController::class, 'filterUploads']);
 Route::post('/uploads/update', [UploadController::class, 'updateUpload']);
 Route::post('/uploads/file', [UploadController::class, 'fileUpload']);
+
+Route::post('/printReport', [PrintController::class, 'printReport']);

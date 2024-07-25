@@ -27,6 +27,15 @@
 
     <div class="p-3">
         <div class="flex justify-end">
+            <form id="printReportForm" action="{{ url('/printReport') }}" method="post">
+                @csrf
+                <input type="hidden" name="selectedStudents" id="selectedStudents">
+                <button type="button" onclick="submitPrintReportForm()"
+                    class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md mr-1">
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Print Report</span>
+                </button>
+            </form>
+
             <form action="{{ url('/downloadTeacherReport') }}" method="post">
                 @csrf
 
@@ -107,10 +116,11 @@
 
         <div class="overflow-x-auto">
             <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO WA WANAFUNZI WOTE:</h2>
+            <input type="checkbox" id="selectAll"> Select All
             <table class="myTable bg-white">
                 <thead>
                     <tr>
-                        <th rowspan="2" class="border border-black">S/N</th>
+                        <th rowspan="2" class="border border-black"> S/N</th>
                         <th rowspan="2" class="border border-black uppercase">Jina la Mwanafunzi</th>
                         @foreach ($subjects as $subject)
                             <th colspan="2" class="border border-black uppercase">{{ $subject }}</th>
@@ -173,9 +183,51 @@
                                 }
                             }
                         @endphp
-
                         <tr class="odd:bg-gray-200">
-                            <td class="border border-black text-right">{{ $i }}</td>
+                            {{-- @dd($mark->markId) --}}
+                            @if ($storedAvg == $mark['average'])
+                                @php
+                                    $j++;
+                                    $storedAvg = $mark['average'];
+                                    $position = $i - $j;
+                                @endphp
+                            @else
+                                @php
+                                    $j = 0;
+                                    $storedAvg = $mark['average'];
+                                    $position = $i;
+                                @endphp
+                            @endif
+                            <td class="border border-black text-right"><input type="checkbox" class="studentCheckbox"
+                                    value="{{ json_encode([
+                                        'id' => $mark['markId'],
+                                        'studentName' => $mark['studentName'],
+                                        'class' => '3 ANTELOPE', // Adjust as needed
+                                        'term' => '1', // Adjust as needed
+                                        'year' => '2024', // Adjust as needed
+                                        'subjects' => collect($subjects)->map(function ($subject) use ($mark, $ranks) {
+                                                return [
+                                                    'name' => $subject,
+                                                    // 'test' => $mark[$subject . '_test'],
+                                                    // 'exam' => $mark[$subject . '_exam'],
+                                                    'total' => $mark[$subject],
+                                                    // 'average' => ($mark[$subject . '_test'] + $mark[$subject . '_exam']) / 2,
+                                                    'grade' => assignGrade($mark[$subject], $ranks),
+                                                    'comment' =>
+                                                        assignGrade(($mark[$subject . '_test'] + $mark[$subject . '_exam']) / 2, $ranks) == 'A'
+                                                            ? 'Excellent'
+                                                            : 'Good',
+                                                ];
+                                            })->all(),
+                                        'totalMarks' => $mark['total'],
+                                        'average' => $mark['average'],
+                                        'grade' => assignGrade($mark['average'], $ranks),
+                                        'position' => $position,
+                                        'totalposition' => $loop->count,
+                                        // 'attendance' => 100, // Adjust as needed
+                                        // 'absent' => 0, // Adjust as needed
+                                    ]) }}">
+                                {{ $i }}</td>
                             <td class="capitalize border border-black">{{ $mark['studentName'] }}</td>
                             @foreach ($subjects as $subject)
                                 <td class="border border-black text-right">{{ $mark[$subject] }}</td>
@@ -190,21 +242,8 @@
                                 <td class="border border-black">ABS</td>
                             @endif
 
-                            @if ($storedAvg == $mark['average'])
-                                @php
-                                    $j++;
-                                    $storedAvg = $mark['average'];
-                                @endphp
 
-                                <td class="border border-black text-right">{{ $i - $j }}</td>
-                            @else
-                                @php
-                                    $j = 0;
-                                    $storedAvg = $mark['average'];
-                                @endphp
-
-                                <td class="border border-black text-right">{{ $i }}</td>
-                            @endif
+                            <td class="border border-black text-right">{{ $position }}</td>
 
                             @if ($mark['average'] > 0)
                                 <td class="border border-black">{{ finalStatus($mark['average'], $ranks, $classId) }}</td>
@@ -519,8 +558,10 @@
                             <tr class="{{ $rowColor }}">
                                 <td class="pl-2 border border-black capitalize">{{ $name }}</td>
                                 @foreach (['A', 'B', 'C', 'D', 'E'] as $grade)
-                                    <td class="text-center border border-black px-2">{{ $gradeMaleArray[$name][$grade] }}</td>
-                                    <td class="text-center border border-black px-2">{{ $gradeFemaleArray[$name][$grade] }}</td>
+                                    <td class="text-center border border-black px-2">{{ $gradeMaleArray[$name][$grade] }}
+                                    </td>
+                                    <td class="text-center border border-black px-2">
+                                        {{ $gradeFemaleArray[$name][$grade] }}</td>
                                     <td class="text-center border border-black px-2">{{ $gradeArray[$name][$grade] }}</td>
                                 @endforeach
                                 @if (count($marks) > 0)
@@ -562,4 +603,20 @@
         </div>
 
     </div>
+    <script>
+        document.getElementById('selectAll').addEventListener('change', function() {
+            let checkboxes = document.querySelectorAll('.studentCheckbox');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        function submitPrintReportForm() {
+            let selectedStudents = [];
+            let checkboxes = document.querySelectorAll('.studentCheckbox:checked');
+            checkboxes.forEach(checkbox => selectedStudents.push(JSON.parse(checkbox.value)));
+
+            document.getElementById('selectedStudents').value = JSON.stringify(selectedStudents);
+            document.getElementById('printReportForm').submit();
+        }
+    </script>
+
 @endsection
