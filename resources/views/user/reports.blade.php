@@ -31,7 +31,7 @@
                 @csrf
                 <input type="hidden" name="selectedStudents" id="selectedStudents">
                 <button type="button" onclick="submitPrintReportForm()"
-                    class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md mr-1">
+                    class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md mr-1 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed">
                     <i class="material-symbols-outlined text-sm">print</i> <span>Print Report</span>
                 </button>
             </form>
@@ -202,21 +202,14 @@
                                     value="{{ json_encode([
                                         'id' => $mark['markId'],
                                         'studentName' => $mark['studentName'],
-                                        'class' => '3 ANTELOPE', // Adjust as needed
-                                        'term' => '1', // Adjust as needed
-                                        'year' => '2024', // Adjust as needed
                                         'subjects' => collect($subjects)->map(function ($subject) use ($mark, $ranks) {
                                                 return [
                                                     'name' => $subject,
-                                                    // 'test' => $mark[$subject . '_test'],
+                                                    // 'gradeDescription' => '',
                                                     // 'exam' => $mark[$subject . '_exam'],
                                                     'total' => $mark[$subject],
                                                     // 'average' => ($mark[$subject . '_test'] + $mark[$subject . '_exam']) / 2,
                                                     'grade' => assignGrade($mark[$subject], $ranks),
-                                                    'comment' =>
-                                                        assignGrade(($mark[$subject . '_test'] + $mark[$subject . '_exam']) / 2, $ranks) == 'A'
-                                                            ? 'Excellent'
-                                                            : 'Good',
                                                 ];
                                             })->all(),
                                         'totalMarks' => $mark['total'],
@@ -617,6 +610,23 @@
             document.getElementById('selectedStudents').value = JSON.stringify(selectedStudents);
             document.getElementById('printReportForm').submit();
         }
+        // Get all checkboxes and the print report button
+        const checkboxes = document.querySelectorAll('.studentCheckbox');
+        const printReportButton = document.querySelector('#printReportForm button');
+
+        // Function to check if any checkbox is selected
+        function checkCheckboxes() {
+            const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+            printReportButton.disabled = !anyChecked;
+        }
+
+        // Call the function initially to disable the button
+        checkCheckboxes();
+
+        // Add event listener to each checkbox to call the function on change
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', checkCheckboxes);
+        });
     </script>
 
 @endsection

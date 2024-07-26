@@ -10,8 +10,32 @@ use setasign\Fpdi\Fpdi;
 
 class PrintController extends Controller
 {
+    private function getGradeDescription($grade)
+    {
+        switch ($grade) {
+            case 'A':
+                return 'Bora';
+            case 'B':
+                return 'Nzuri sana';
+            case 'C':
+                return 'Nzuri';
+            case 'D':
+                return 'Inaridhisha';
+            case 'E':
+                return 'Dhaifu';
+            default:
+                return '';
+        }
+    }
     public function printReport(Request $request)
     {
+        // $this->validate($request, [
+        //     'selectedStudents' => 'required|array|min:1',
+        // ], [
+        //     'selectedStudents.required' => 'Please select at least one student.',
+        //     'selectedStudents.array' => 'Invalid input format.',
+        //     'selectedStudents.min' => 'Please select at least one student.',
+        // ]);
         // $new = json_decode($request->selectedStudents);
         $students = json_decode($request->input('selectedStudents'), true);
 
@@ -31,6 +55,11 @@ class PrintController extends Controller
             $student['classname'] = $mark->class->gradeName ?? 'NOT AVAILABLE';
             $student['date'] = $mark->examDate ?? 'NOT AVAILABLE';
             $student['examname'] = $mark->exam->examName ?? 'NOT AVAILABLE';
+
+            foreach ($student['subjects'] as &$subject) {
+                $subject['gradeDescription'] = $this->getGradeDescription($subject['grade']);
+                // dd($subject);
+            }
 
             $pdf = PDF::loadView('pdf.report', compact('student'))->setPaper('a5', 'portrait');
             $path = storage_path("app/reports/{$student['id']}.pdf");
@@ -53,19 +82,19 @@ class PrintController extends Controller
             }
 
             // Output the merged PDF
-            $mergedPdfPath = storage_path('app/reports/finalReport.pdf');
+            $mergedPdfPath = storage_path('app/reports/Ripoti.pdf');
             $pdfMerger->Output($mergedPdfPath, 'F');
 
             // Delete individual PDFs
             foreach ($pdfPaths as $pdfPath) {
                 unlink($pdfPath);
             }
-            // return response()->file($mergedPdfPath, [
-            //     'Content-Type' => 'application/pdf',
-            //     'Content-Disposition' => 'inline; filename="finalReport.pdf"',
-            // ]);
-            
-            return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
+            return response()->file($mergedPdfPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="Ripoti.pdf"',
+            ]);
+
+            // return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             // Handle the exception
             \Log::error($e->getMessage());
