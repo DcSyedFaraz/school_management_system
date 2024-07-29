@@ -32,7 +32,7 @@
                 <input type="hidden" name="selectedStudents" id="selectedStudents">
                 <button type="button" onclick="submitPrintReportForm()"
                     class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md mr-1 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed">
-                    <i class="material-symbols-outlined text-sm">print</i> <span>Print Report</span>
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha Rripoti</span>
                 </button>
             </form>
 
@@ -116,7 +116,7 @@
 
         <div class="overflow-x-auto">
             <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO WA WANAFUNZI WOTE:</h2>
-            <input type="checkbox" id="selectAll"> Select All
+            <input type="checkbox" id="selectAll"> Chagua Wote
             <table class="myTable bg-white">
                 <thead>
                     <tr>

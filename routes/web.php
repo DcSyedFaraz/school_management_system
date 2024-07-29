@@ -29,6 +29,11 @@ use App\Http\Controllers\user\UploadController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/done', function () {
+    Artisan::call('optimize:clear');
+
+    return 'done';
+});
 
 Route::get('/', [DashboardController::class, 'signIn']);
 Route::post('/signIn', [DashboardController::class, 'login']);
