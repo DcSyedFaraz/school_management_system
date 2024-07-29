@@ -89,12 +89,12 @@ class PrintController extends Controller
             foreach ($pdfPaths as $pdfPath) {
                 unlink($pdfPath);
             }
-            return response()->file($mergedPdfPath, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="Ripoti.pdf"',
-            ]);
+            // return response()->file($mergedPdfPath, [
+            //     'Content-Type' => 'application/pdf',
+            //     'Content-Disposition' => 'inline; filename="Ripoti.pdf"',
+            // ]);
 
-            // return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
+            return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             // Handle the exception
             \Log::error($e->getMessage());

@@ -230,7 +230,8 @@
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         </p>
         <div class="footer">
-            <p><strong>Jina la Mzazi:</strong> _____________________________________________________<strong>Tarehe:</strong>________________________
+            <p><strong>Jina la Mzazi:</strong>
+                _____________________________________________________<strong>Tarehe:</strong>________________________
             </p>
             <p> <strong>Jina la Mwanafunzi:</strong>
                 ________________________________________________<strong>Darasa:</strong>________________________ </p>
@@ -243,6 +244,19 @@
             {{-- <p style="text-align: right; margin-right: 6rem"><strong>Tarehe:</strong>{{ date('F j, Y') }}</p>
             <p style="text-align: right; margin-right: 8.2rem"><strong>Darasa:</strong> {{ $student['classname'] }}</p> --}}
 
+        </div>
+        <hr style="margin-top: 3rem; border-style: dashed">
+        <div style="text-align: center">
+            <p>
+                <strong> Designed by:
+                </strong> rmstechnology.co.tz +255 786 283 282 or +255 736 102 030,
+            </p>
+            <p>
+                <strong>
+                    Printed Date:
+                </strong>
+                {{ date('F j, Y') }}
+            </p>
         </div>
     </div>
 </body>
