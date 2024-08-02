@@ -133,7 +133,8 @@
             color: #fff;
         }
 
-        .color-E {
+        .color-E,
+        .color-Null {
             background-color: #FF0000;
             display: inline-block;
             padding: 0.25em 0.5em;
@@ -153,6 +154,15 @@
     @php
 
         $term = date('m', strtotime($student['date'])) <= 6 ? 1 : 2;
+
+        $subjectMapping = [
+            'mazingira' => 'Kutunza afya na mazingira',
+            'michezo' => 'Sanaa na michezo',
+            'utamaduni' => 'Kuthamini utamaduni sanaa na michezo',
+            'jiographia' => 'Jiographia na Mazingira',
+            'jamii' => 'Maarifa ya Jamii',
+            'maadili' => 'Uraia na Maadili',
+        ];
 
     @endphp
     <div class="report-container">
@@ -193,11 +203,19 @@
             </thead>
             <tbody>
                 @foreach ($student['subjects'] as $subject)
+                    @php
+                        $subjectName = $subject['name'];
+                        if (array_key_exists($subjectName, $subjectMapping)) {
+                            $subjectName = $subjectMapping[$subjectName];
+                        }
+                    @endphp
                     <tr>
                         {{-- @dd($subject) --}}
-                        <td style="text-transform: uppercase">{{ $subject['name'] }}</td>
+                        <td style="text-transform: uppercase">{{ $subjectName }}</td>
                         <td>{{ $subject['total'] }}</td>
-                        <td><span class="color-{{ $subject['grade'] }}">{{ $subject['grade'] }}</span></td>
+                        <td><span
+                                class="color-{{ $subject['grade'] }}">{{ $subject['grade'] == 'Null' ? 'Hajafanya' : $subject['grade'] }}</span>
+                        </td>
                         <td><span class="color-{{ $subject['grade'] }}">{{ $subject['gradeDescription'] }}</span>
                         </td>
                     </tr>

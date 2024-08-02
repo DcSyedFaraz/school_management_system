@@ -24,7 +24,7 @@ class PrintController extends Controller
             case 'E':
                 return 'Dhaifu';
             default:
-                return '';
+                return 'Hajafanya';
         }
     }
     public function printReport(Request $request)

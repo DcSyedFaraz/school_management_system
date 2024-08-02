@@ -23,7 +23,7 @@ class SubjectReportController extends Controller
         set_time_limit(300);
 
         if (Session::get('adminLoggedin') == true) {
-            $classId = 1;
+            $classId = '1';
             $examId = 1;
             $regionId = '';
             $districtId = '';

@@ -292,7 +292,10 @@
                             <td class="border border-black p-1 text-center">
                                 @php
                                     $gATotal = array_sum($gAverage);
-                                    $gAver = count($marks) > 0 ? $gATotal / (count($subjects) * count($marks)) : 0;
+                                    $gAver =
+                                        count($marks) > 0 && count($subjects) > 0
+                                            ? $gATotal / (count($subjects) * count($marks))
+                                            : 0;
                                     $schoolGrade = assignGrade($gAver);
                                 @endphp
 
@@ -495,7 +498,7 @@
                                 <td class="text-center border border-black px-2">{{ $dCount }}</td>
                                 <td class="text-center border border-black px-2">{{ $eCount }}</td>
                                 <td class="text-center border border-black">
-                                    {{ number_format($totalMarks / $totalStudents, 2) }}
+                                    {{ $totalStudents > 0 ? number_format($totalMarks / $totalStudents, 2) : 0 }}
                                 </td>
                                 <td class="text-center border border-black">{{ $totalStudents - $failedCount }}</td>
                                 <td class="text-center border border-black">

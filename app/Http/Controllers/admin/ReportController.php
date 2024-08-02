@@ -25,7 +25,7 @@ class ReportController extends Controller
     public function reports()
     {
         if (Session::get('adminLoggedin') == true) {
-            $classId = 1; // Default class
+            $classId = '1'; // Default class
             $examId = 1; // Default exam
             $regionId = '';
             $districtId = '';
@@ -264,7 +264,7 @@ class ReportController extends Controller
     set_time_limit(300);
 
     if (Session::get('adminLoggedin') == true) {
-        $classId = 1;
+        $classId = '1';
         $examId = 1;
         $regionId = '';
         $districtId = '';

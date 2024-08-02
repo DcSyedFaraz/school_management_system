@@ -273,7 +273,8 @@
                                     }
 
                                     $gAver =
-                                        count($marks) > 0
+                                        count($marks) > 0 &&
+                                        count($subjects) * (count($marks) - $maleAbsent - $femaleAbsent) > 0
                                             ? $gATotal /
                                                 (count($subjects) * (count($marks) - $maleAbsent - $femaleAbsent))
                                             : 0;
@@ -539,6 +540,9 @@
                         @foreach ($subList as $name)
                             @php
                                 $rowColor = $g % 2 == 0 ? 'bg-white' : 'bg-gray-200';
+                                $totalStudents = count($marks) - $maleAbsent - $femaleAbsent;
+                                $subjectAverage =
+                                    $totalStudents > 0 ? number_format($gAverage[$g] / $totalStudents, 2) : 0;
 
                                 $totalGradeCount = array_sum($gradeArray[$name]);
                                 if ($classId > 4) {
@@ -564,6 +568,9 @@
                                 @else
                                     <td class="text-center border border-black">0</td>
                                 @endif
+                                {{-- <td class="text-center border border-black">
+                                    {{ $subjectAverage }}
+                                </td> --}}
                                 <td class="text-center border border-black">{{ $totalGradeCount - $failedCount }}</td>
                                 <td class="text-center border border-black">
                                     @if ($totalGradeCount > 0)

@@ -18,7 +18,7 @@ class UserReportController extends Controller
     public function reports()
     {
         if (Session::get('loggedin') == true) {
-            $classId = 1;
+            $classId = '1';
             $examId = 1;
             $startDate = date('Y-m-d', strtotime('' . date('Y') . '-' . date('m') . '-01'));
             $endDate = date('Y-m-d');

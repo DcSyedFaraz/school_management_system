@@ -78,7 +78,7 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
             ])
             ->whereBetween('examDate', [$startDate, $endDate])
             ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
-            ->orderBy('average', 'desc')
+            ->orderByRaw('AVG(average) desc')
             ->get();
 
         return $markData;
