@@ -163,6 +163,13 @@
                     @endphp
                     @foreach ($marks as $mark)
                         @php
+                            if ($classId == 2) {
+                                $totalMarks = 0;
+                                foreach ($subjects as $subject) {
+                                    $totalMarks += $mark[$subject];
+                                }
+                                $mark['average'] = $totalMarks / count($subjects);
+                            }
                             if ($mark['average'] == 0) {
                                 $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
                             } else {
