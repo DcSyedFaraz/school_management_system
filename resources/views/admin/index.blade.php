@@ -22,27 +22,27 @@
 
                         <div class="lg:w-3/12 md:w-1/2 w-11/12 shadow-2xl rounded-xl shadow-green-800 p-5 mx-auto bg-white">
                             <h1 class="font-bold text-center text-md mb-3">Tafadhali Andika E-mail Na Nywila Ili Kuingia</h1>
-                
+
                             @if (Session::has('accessDenied'))
                                 <div class="text-center font-bold text-red-500">
                                     {{ Session::get('accessDenied') }}
                                 </div>
                             @endif
-        
+
                             @if (Session::has('success'))
                                 <div class="text-center font-bold text-green-500">
                                     {{ Session::get('success') }}
                                 </div>
                             @endif
-        
+
                             <form action="{{ url('/signIn') }}" method="post">
                                 @csrf
                                 <div>
                                     <div class="my-3">
                                         <label class="block" for="email">Barua Pepe:<span class="text-red-500">*</span></label>
-                                        <input class="block w-full rounded-md p-2 border border-gray-200" type="email" name="email" id="email" placeholder="Ingiza Barua Pepe" value="{{ Cookie::get('email') }}" required>
+                                        <input class="block w-full rounded-md p-2 border border-gray-200" type="text" name="email" id="email" placeholder="Ingiza Barua Pepe" value="{{ Cookie::get('email') }}" required>
                                     </div>
-                    
+
                                     <div class="my-3">
                                         <label class="block" for="password">Nywila:<span class="text-red-500">*</span></label>
                                         <div class="relative">
@@ -50,18 +50,18 @@
                                             <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer" id="eye" onclick="showText('password', 'eye')">visibility</i>
                                         </div>
                                     </div>
-            
+
                                     <div class="flex justify-between">
                                         <div>
                                             <input type="checkbox" name="rememberMe" id="rememberMe" class="rounded-sm">
                                             <label for="rememberMe">Nikumbuke</label>
                                         </div>
-            
+
                                         <div>
                                             <a href="{{ url('/forgotPassword') }}" class="text-blue-500 hover:text-blue-600">Nimesahau Nywila?</a>
                                         </div>
                                     </div>
-                    
+
                                     <div class="my-3">
                                         <button type="submit" class="text-black bg-blue-300 hover:bg-blue-400 w-full rounded-md py-2 font-bold">Ingia</button>
                                     </div>

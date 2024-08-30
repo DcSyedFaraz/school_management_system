@@ -134,5 +134,5 @@
         $(`#${divName}`).text(changeText);
     }
 </script>
-
+@yield('scripts')
 </html>

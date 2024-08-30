@@ -35,8 +35,10 @@ Route::get('/done', function () {
     return 'done';
 });
 
-Route::get('/', [DashboardController::class, 'signIn']);
+Route::get('/', [DashboardController::class, 'signIn'])->name('login');
+Route::view('/password-change', 'admin.changepassword')->name('password.change');
 Route::post('/signIn', [DashboardController::class, 'login']);
+Route::post('/updatePassword', [DashboardController::class, 'updatePassword'])->name('updatePassword');
 Route::get('/admin-dashboard', [DashboardController::class, 'adminDashboard']);
 Route::post('/admin-dashboard/filter', [DashboardController::class, 'adminDashboardFilter']);
 Route::get('/forgotPassword', [DashboardController::class, 'forgotPassword']);

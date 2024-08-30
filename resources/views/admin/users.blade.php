@@ -47,6 +47,7 @@
                         <td>{{ $i }}</td>
                         <td>
                             <p class="capitalize">{{ $user['userName'] }}</p>
+                            <p><b>User Name: {{ $user['user_name'] ?? 'N/A' }}</b></p>
                             @if (Session::get('pageTitle')=='Teachers')
                                 <p><b>R.No: {{ $user['registrationNumber'] }}</b></p>
                             @endif
@@ -66,7 +67,7 @@
                             <p><b>District:</b> {{ $user['districtName'] }}</p>
                             <p><b>Ward:</b> {{ $user['wardName'] }}</p>
                         </td>
-                     
+
                         @if (count($userData)>1)
                             <td>
                                 <label class="relative inline-flex items-center cursor-pointer" onclick="changeActivity({{ $user['userId'] }})">
@@ -75,13 +76,13 @@
                                 </label>
                             </td>
                         @endif
-                        
+
                         <td>
                             <button data-modal-target="editAdminModal" data-modal-toggle="editAdminModal" type="button" class="rounded-md bg-blue-500 text-white py-1 px-2 hover:bg-blue-600" onclick="editAdmin({{ $user['userId'] }})">
                                 <i class="material-symbols-outlined text-sm">border_color</i>
                             </button>
                         </td>
-                    </tr> 
+                    </tr>
 
                     @php
                         $i++;
@@ -95,6 +96,8 @@
     @include('modals.editAdmin')
     @include('modals.activityModal')
 
+@endsection
+@section('scripts')
     <script>
         var errorFlag=$("#errorFlag").val();
 
@@ -115,7 +118,7 @@
         }
 
         function changeActivity(id){
-            $("#activityModal").removeClass('hidden'); 
+            $("#activityModal").removeClass('hidden');
             $("#truckId2").val(id);
         }
 
@@ -128,16 +131,18 @@
                 success: function($response){
                     if($response.status==200){
                         $("#username2").val($response.data.fullname);
+                        $("#user_name2").val($response.data.user_name);
                         $("#email2").val($response.data.email);
-                        $("#contactNumber2").val($response.data.mobile); 
-                        $("#region2").val($response.data.regionId); 
-                        $("#district2").val($response.data.districtId); 
-                        $("#ward2").val($response.data.wardId); 
-                        $("#school2").val($response.data.schoolId); 
-                        $("#adminId").val(id);   
+                        $("#contactNumber2").val($response.data.mobile);
+                        $("#region2").val($response.data.regionId);
+                        $("#district2").val($response.data.districtId);
+                        $("#ward2").val($response.data.wardId);
+                        $("#school2").val($response.data.schoolId);
+                        $("#adminId").val(id);
                     }
                 }
             });
         }
     </script>
+
 @endsection
