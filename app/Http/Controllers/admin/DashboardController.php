@@ -164,6 +164,7 @@ class DashboardController extends Controller
 
         try {
             $user = User::where('user_name', $validatedData['email'])
+                ->Orwhere('email', $validatedData['email'])
                 ->where('isDeleted', '0')
                 ->first();
 
@@ -363,7 +364,7 @@ class DashboardController extends Controller
                 }
             }
 
-            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(average), 2) as average')
+            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as average')
                 ->join('schools', 'schools.schoolId', '=', 'marks.schoolId')->where([
                         ['marks.isActive', '=', '1'],
                         ['marks.isDeleted', '=', '0'],
@@ -490,7 +491,7 @@ class DashboardController extends Controller
                 }
             }
 
-            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(average), 2) as average')
+            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as average')
                 ->join('schools', 'schools.schoolId', '=', 'marks.schoolId')->where([
                         ['marks.isActive', '=', '1'],
                         ['marks.isDeleted', '=', '0'],

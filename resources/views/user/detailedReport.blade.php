@@ -258,7 +258,7 @@
                         $i = 1;
                     @endphp
                     @foreach ($marks as $mark)
-                    {{-- @dd($mark) --}}
+                        {{-- @dd($mark) --}}
                         @php
                             $regionData = \App\Models\Regions::find($mark['regionId']);
                             $regionName = $regionData
@@ -400,7 +400,13 @@
                             <td class="border border-black totalPassMale">{{ $totalPassMale + $totalFailMale }}</td>
                             <td class="border border-black totalPassFemale">{{ $totalPassFemale + $totalFailFemale }}</td>
                             <td class="border border-black">
-                                {{ $totalPassMale + $totalPassFemale + $totalFailMale + $totalFailFemale }}</td>
+                                @php
+                                    $totalstudent =
+                                        $totalPassMale + $totalPassFemale + $totalFailMale + $totalFailFemale;
+
+                                @endphp
+                                {{-- @dd($totalPassMale, $totalPassFemale, $totalFailMale, $totalFailFemale, $totalPassMale + $totalPassFemale + $totalFailMale + $totalFailFemale, $totalstudent) --}}
+                                {{ $totalstudent }}</td>
                             @if ($totalMale + $totalFemale == 0)
                                 <td class="border border-black">0</td>
                             @else
@@ -469,14 +475,25 @@
                                     {{ $aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale }}</td>
                                 <td class="border border-black passGradeFemale">
                                     {{ $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale }}</td>
-                                <td class="border border-black">
-                                    {{ $aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale }}
+                                <td class="border border-black"> @php
+                                    $gradess =
+                                        $aGradeMale +
+                                        $bGradeMale +
+                                        $cGradeMale +
+                                        $dGradeMale +
+                                        $aGradeFemale +
+                                        $bGradeFemale +
+                                        $cGradeFemale +
+                                        $dGradeFemale;
+                                @endphp
+                                    {{ $gradess }}
                                 </td>
                                 @if ($totalMale + $totalFemale == 0)
                                     <td class="border border-black">0</td>
                                 @else
                                     <td class="border border-black">
-                                        {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                        {{ number_format(($gradess / $totalstudent) * 100, 2) }}
+                                        {{-- {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }}ss --}}
                                     </td>
                                 @endif
                                 <td class="border border-black eGradeMale">{{ $eGradeMale }}</td>
@@ -489,7 +506,8 @@
                                     <td class="border border-black">0</td>
                                 @else
                                     <td class="border border-black">
-                                        {{ number_format((($eGradeMale + $eGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                        {{ number_format((($eGradeMale + $eGradeFemale) / $totalstudent) * 100, 2) }}
+                                        {{-- {{ number_format(($totalFail / $totalstudent) * 100, 2) }}, {{ $totalFail }} {{$totalstudent}} --}}
                                     </td>
                                 @endif
                             @endif
@@ -786,6 +804,7 @@
 
             $("#malePassTotalJumla").text(totalPassMaleSum);
             $("#femalePassTotalJumla").text(totalPassFemaleSum);
+
             $("#passTotalJumla").text(totalPassMaleSum + totalPassFemaleSum);
             $("#passPercent").text(((totalPassMaleSum + totalPassFemaleSum) / (femaleTotalSum + maleTotalSum) * 100)
                 .toFixed(2));
@@ -817,13 +836,17 @@
             $("#passGradeMaleJumla").text(passGradeMaleSum);
             $("#passGradeFemaleJumla").text(passGradeFemaleSum);
             $("#passGradeJumla").text(passGradeMaleSum + passGradeFemaleSum);
-            $("#passGradePercent").text(((passGradeMaleSum + passGradeFemaleSum) / (femaleTotalSum + maleTotalSum) *
-                100).toFixed(2));
+
+            var totalPass = totalPassMaleSum + totalPassFemaleSum;
+            var totalStudents = passGradeMaleSum + passGradeFemaleSum;
+            console.log(totalPass, passGradeMaleSum + passGradeFemaleSum);
+
+            $("#passGradePercent").text(((totalStudents / totalPass) * 100).toFixed(2));
 
             $("#failGradeMaleJumla").text(failGradeMaleSum);
             $("#failGradeFemaleJumla").text(failGradeFemaleSum);
             $("#failGradeJumla").text(failGradeMaleSum + failGradeFemaleSum);
-            $("#failGradePercent").text(((failGradeMaleSum + failGradeFemaleSum) / (femaleTotalSum + maleTotalSum) *
+            $("#failGradePercent").text(((failGradeMaleSum + failGradeFemaleSum) / totalPass *
                 100).toFixed(2));
 
             if ({{ count($marks) }} > 0) {
