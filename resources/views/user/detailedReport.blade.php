@@ -441,13 +441,23 @@
                                 <td class="border border-black passGradeFemale">
                                     {{ $aGradeFemale + $bGradeFemale + $cGradeFemale }}</td>
                                 <td class="border border-black">
-                                    {{ $aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale }}
+                                    @php
+                                        $gradess =
+                                            $aGradeMale +
+                                            $bGradeMale +
+                                            $cGradeMale +
+                                            $aGradeFemale +
+                                            $bGradeFemale +
+                                            $cGradeFemale;
+                                    @endphp
+                                    {{ $gradess }}
                                 </td>
                                 @if ($totalMale + $totalFemale == 0)
                                     <td class="border border-black">0</td>
                                 @else
                                     <td class="border border-black">
-                                        {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                        {{ number_format(($gradess / $totalstudent) * 100, 2) }}
+                                        {{-- {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }} --}}
                                     </td>
                                 @endif
                                 <td class="border border-black dGradeMale">{{ $dGradeMale }}</td>
@@ -464,7 +474,7 @@
                                     <td class="border border-black">0</td>
                                 @else
                                     <td class="border border-black">
-                                        {{ number_format((($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                        {{ number_format((($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / $totalstudent) * 100, 2) }}
                                     </td>
                                 @endif
                             @else

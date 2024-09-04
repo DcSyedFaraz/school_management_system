@@ -39,7 +39,7 @@
                                 @csrf
                                 <div>
                                     <div class="my-3">
-                                        <label class="block" for="email">Barua Pepe:<span class="text-red-500">*</span></label>
+                                        <label class="block" for="email">Jina la mtumiaje/Email:<span class="text-red-500">*</span></label>
                                         <input class="block w-full rounded-md p-2 border border-gray-200" type="text" name="email" id="email" placeholder="Ingiza Barua Pepe" value="{{ Cookie::get('email') }}" required>
                                     </div>
 
