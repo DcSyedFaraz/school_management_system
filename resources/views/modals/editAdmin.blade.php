@@ -79,7 +79,7 @@
                             <div class="my-3">
                                 <label for="region" class="block">Region:<span class="text-red-500">*</span></label>
                                 <select class="p-2 rounded-md w-full border border-black" name="updatedRegion"
-                                    id="region2" disabled required>
+                                    id="region2" required>
                                     <option value="">--- SELECT REGION ---</option>
                                     @if (count($regions) > 0)
                                         @foreach ($regions as $region)
@@ -99,7 +99,7 @@
                                 <label for="district" class="block">District:<span
                                         class="text-red-500">*</span></label>
                                 <select class="p-2 rounded-md w-full border border-black" name="updatedDistrict"
-                                    id="district2" disabled required>
+                                    id="district2" required>
                                     <option value="">--- SELECT DISTRICT ---</option>
                                     @if (count($districts) > 0)
                                         @foreach ($districts as $district)
@@ -120,7 +120,7 @@
                             <div class="my-3">
                                 <label for="ward" class="block">Ward:<span class="text-red-500">*</span></label>
                                 <select class="p-2 rounded-md w-full border border-black" name="updatedWard"
-                                    id="ward2" disabled required>
+                                    id="ward2" required>
                                     <option value="">--- SELECT WARD ---</option>
                                     @if (count($wards) > 0)
                                         @foreach ($wards as $ward)
@@ -143,7 +143,7 @@
                                     <label for="school" class="block">School:<span
                                             class="text-red-500">*</span></label>
                                     <select class="p-2 rounded-md w-full border border-black" name="updatedSchool"
-                                        id="school2" disabled required>
+                                        id="school2" required>
                                         <option value="">--- SELECT SCHOOL ---</option>
                                         @if (count($schools) > 0)
                                             @foreach ($schools as $school)

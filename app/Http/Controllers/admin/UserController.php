@@ -214,7 +214,13 @@ class UserController extends Controller
                     'user_name' => 'required|regex:/^[^\s]+$/|unique:users,user_name,' . $req['adminId'] . ',userId',
                     'otp' => 'nullable|regex:/^[^\s]+$/',
                     'updatedEmail' => 'required|email:rfc,dns|unique:users,email,' . $req['adminId'] . ',userId',
-                    'updatedContactNumber' => 'required|unique:users,mobile,' . $req['adminId'] . ',userId'
+                    'updatedContactNumber' => 'required|unique:users,mobile,' . $req['adminId'] . ',userId',
+
+
+                    'updatedRegion' => 'required|integer',
+                    'updatedDistrict' => 'required|integer',
+                    'updatedWard' => 'required|integer',
+                    'updatedSchool' => 'nullable|integer',
                 ]
             );
 
@@ -234,6 +240,11 @@ class UserController extends Controller
                 $validUser['otp'] = $req['otp'] ?? null;
                 $validUser['email'] = $req['updatedEmail'];
                 $validUser['mobile'] = $req['updatedContactNumber'];
+
+                $validUser['regionId'] = $req['updatedRegion'];
+                $validUser['districtId'] = $req['updatedDistrict'];
+                $validUser['wardId'] = $req['updatedWard'];
+                $validUser['schoolId'] = $req['updatedSchool'];
                 $validUser->save();
 
                 return back()->with('success', 'User Data Updated Successfully!');

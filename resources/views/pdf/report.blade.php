@@ -164,6 +164,14 @@
             'maadili' => 'Uraia na Maadili',
         ];
 
+        $gradeComments = [
+            'A' => 'Aongeze bidi Zaidi ufaulu wake usishuke.',
+            'B' => 'Aongeze bidi sana ili apate daraja la juu zaidi.',
+            'C' => 'Ajitume kusoma Zaidi kwa kuwa ufaulu wake si mzuri.',
+            'D' => 'Ufaulu si mzuri aongeze bidi ya kujisomea.',
+            'E' => 'Ufualu si mzuri anastahili adhabu.',
+        ];
+
     @endphp
     <div class="report-container">
         <div class="header">
@@ -233,8 +241,9 @@
         </div>
 
         <div class="remarks compact">
-            <p><strong>Maoni ya mwalimu wa darasa:</strong>
-                ________________________________________________________________________________
+            <p><strong>Maoni ya mwalimu wa darasa: &nbsp;</strong>
+                {{ array_key_exists($student['grade'], $gradeComments) ? $gradeComments[$student['grade']] : '' }}
+                {{-- ________________________________________________________________________________ --}}
             </p>
             <p><strong>Maoni ya Mwalimu mkuu:</strong>
                 ____________________________________________________________________________________</p>

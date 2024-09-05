@@ -2,6 +2,10 @@
 
 @section('content')
     @php
+        $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+            ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+            ->orderBy('rankName', 'asc')
+            ->get();
         function assignGrade($marks)
         {
             $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
@@ -9,6 +13,9 @@
                 ->orderBy('rankName', 'asc')
                 ->get();
 
+            if ($marks == 10) {
+                return 'E';
+            }
             foreach ($rank as $r) {
                 if ($marks >= $r->rankRangeMin && $marks <= $r->rankRangeMax) {
                     return $r->rankName;
@@ -485,17 +492,18 @@
                                     {{ $aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale }}</td>
                                 <td class="border border-black passGradeFemale">
                                     {{ $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale }}</td>
-                                <td class="border border-black"> @php
-                                    $gradess =
-                                        $aGradeMale +
-                                        $bGradeMale +
-                                        $cGradeMale +
-                                        $dGradeMale +
-                                        $aGradeFemale +
-                                        $bGradeFemale +
-                                        $cGradeFemale +
-                                        $dGradeFemale;
-                                @endphp
+                                <td class="border border-black">
+                                    @php
+                                        $gradess =
+                                            $aGradeMale +
+                                            $bGradeMale +
+                                            $cGradeMale +
+                                            $dGradeMale +
+                                            $aGradeFemale +
+                                            $bGradeFemale +
+                                            $cGradeFemale +
+                                            $dGradeFemale;
+                                    @endphp
                                     {{ $gradess }}
                                 </td>
                                 @if ($totalMale + $totalFemale == 0)

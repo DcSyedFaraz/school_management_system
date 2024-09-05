@@ -246,7 +246,9 @@
                             <td class="border border-black text-right">{{ $position }}</td>
 
                             @if ($mark['average'] > 0)
-                                <td class="border border-black">{{ finalStatus($mark['average'], $ranks, $classId) }}</td>
+                                {{-- @dd($mark['average']) --}}
+                                <td class="border border-black">{{ finalStatus($mark['average'], $ranks, $classId) }}
+                                   </td>
                             @else
                                 <td class="border border-black"></td>
                             @endif

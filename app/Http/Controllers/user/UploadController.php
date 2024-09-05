@@ -193,6 +193,7 @@ class UploadController extends Controller
                     'updatedClass' => 'required|integer',
                     'updatedFirstGrade' => 'required|integer',
                     'updatedExam' => 'required|integer',
+
                 ];
 
                 foreach ($subjects as $subject) {
