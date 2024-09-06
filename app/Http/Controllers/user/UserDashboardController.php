@@ -295,7 +295,7 @@ class UserDashboardController extends Controller
 
             $borderLine = $classId > 4 ? $rank[3]['rankRangeMax'] : $rank[4]['rankRangeMax'];
 
-            // dd($borderLine);
+            // dd($schoolRanks[0]);
             $data = compact('classes', 'exams', 'regions', 'dates', 'classId', 'regionId', 'examId', 'startDate', 'endDate', 'maleRanks', 'femaleRanks', 'schoolRanks', 'borderLine');
             return view('user.dashboard')->with($data);
         } else {

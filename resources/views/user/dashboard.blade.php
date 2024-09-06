@@ -102,10 +102,10 @@
                                         </td>
                                         <td class="border border-black p-2">
                                             {{-- @dd($schoolRank['average']) --}}
-                                            @if ($schoolRank['average'] <= $borderLine)
-                                                <p class="text-red-500 italic">Fail</p>
-                                            @elseif($schoolRank['average'] == 0)
+                                            @if ($schoolRank['average'] == 0)
                                                 <p class="text-blue-500 italic">Absent</p>
+                                            @elseif($schoolRank['average'] <= $borderLine)
+                                                <p class="text-red-500 italic">Fail</p>
                                             @else
                                                 @php
                                                     $totalPass++;

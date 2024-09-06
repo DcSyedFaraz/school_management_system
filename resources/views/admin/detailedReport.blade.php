@@ -869,7 +869,7 @@
             $("#failGradeMaleJumla").text(failGradeMaleSum);
             $("#failGradeFemaleJumla").text(failGradeFemaleSum);
             $("#failGradeJumla").text(failGradeMaleSum + failGradeFemaleSum);
-            $("#failGradePercent").text(((failGradeMaleSum + failGradeFemaleSum) / (femaleTotalSum + maleTotalSum) *
+            $("#failGradePercent").text(((failGradeMaleSum + failGradeFemaleSum) / totalPass *
                 100).toFixed(2));
 
             if ({{ count($marks) }} > 0) {
