@@ -43,21 +43,16 @@
                 ->orderBy('rankName', 'asc')
                 ->get();
 
-            if ($rank) {
-                if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
-                    return $rank[0]['rankName'];
-                } elseif ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
-                    return $rank[1]['rankName'];
-                } elseif ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
-                    return $rank[2]['rankName'];
-                } elseif ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
-                    return $rank[3]['rankName'];
-                } else {
-                    return $rank[4]['rankName'];
-                }
-            } else {
-                return 'Null';
+            if ($marks == 10) {
+                return 'E';
             }
+            foreach ($rank as $r) {
+                if ($marks >= $r->rankRangeMin && $marks <= $r->rankRangeMax) {
+                    return $r->rankName;
+                }
+            }
+
+            return 'Null';
         }
 
         if ($classId > 4) {
@@ -798,9 +793,9 @@
                                             $subjectGrades['E']['M'][$index] + $subjectGrades['E']['F'][$index];
                                     }
 
-                                $totalStudents = $passCount + $failCount;
-                                $passRate = $totalStudents > 0 ? ($passCount / $totalStudents) * 100 : 0;
-                                $failRate = $totalStudents > 0 ? ($failCount / $totalStudents) * 100 : 0;
+                                    $totalStudents = $passCount + $failCount;
+                                    $passRate = $totalStudents > 0 ? ($passCount / $totalStudents) * 100 : 0;
+                                    $failRate = $totalStudents > 0 ? ($failCount / $totalStudents) * 100 : 0;
                                 @endphp
                                 <td class="p-[15px] text-center border border-black">{{ $passCount }}</td>
                                 <td class="p-[15px] text-center border border-black">{{ number_format($passRate, 2) }}%
