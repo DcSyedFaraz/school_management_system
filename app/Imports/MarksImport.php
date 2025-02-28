@@ -54,15 +54,8 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
             $subjects = [];
 
-            if ($this->requestData['class'] == 1) {
-                $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-            } elseif ($this->requestData['class'] == 2) {
-                $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-            } elseif ($this->requestData['class'] == 3) {
-                $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
-            } else { // classes 4 to 7
-                $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-            }
+            $subjects = config('subjects.' . $this->requestData['class'], config('subjects.class_default'));
+            ;
 
             $total = 0;
             foreach ($subjects as $subject) {
@@ -84,52 +77,75 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
     public function rules(): array
     {
-        return match ($this->requestData['class']) {
-            '1' => [
-                'studentname' => 'required|string',
-                'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
-                'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
-                'kuhesabu' => 'required|numeric|min:0|max:50',
-                'kusoma' => 'required|numeric|min:0|max:50',
-                'kuandika' => 'required|numeric|min:0|max:50',
-                'english' => 'required|numeric|min:0|max:50',
-                'mazingira' => 'required|numeric|min:0|max:50',
-                'michezo' => 'required|numeric|min:0|max:50',
-            ],
-            '2' => [
-                'studentname' => 'required|string',
-                'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
-                'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
-                'kuhesabu' => 'required|numeric|min:0|max:50',
-                'kusoma' => 'required|numeric|min:0|max:50',
-                'kuandika' => 'required|numeric|min:0|max:50',
-                'english' => 'required|numeric|min:0|max:50',
-                'mazingira' => 'required|numeric|min:0|max:50',
-                'utamaduni' => 'required|numeric|min:0|max:50',
-            ],
-            '3' => [
-                'studentname' => 'required|string',
-                'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
-                'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
-                'hisabati' => 'required|numeric|min:0|max:50',
-                'kiswahili' => 'required|numeric|min:0|max:50',
-                'sayansi' => 'required|numeric|min:0|max:50',
-                'english' => 'required|numeric|min:0|max:50',
-                'maadili' => 'required|numeric|min:0|max:50',
-                'jiographia' => 'required|numeric|min:0|max:50',
-                'smichezo' => 'required|numeric|min:0|max:50',
-            ],
-            default => [
-                'studentname' => 'required|string',
-                'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
-                'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
-                'hisabati' => 'required|numeric|min:0|max:50',
-                'kiswahili' => 'required|numeric|min:0|max:50',
-                'sayansi' => 'required|numeric|min:0|max:50',
-                'english' => 'required|numeric|min:0|max:50',
-                'jamii' => 'required|numeric|min:0|max:50',
-                'maadili' => 'required|numeric|min:0|max:50',
-            ],
-        };
+        // Define common rules that are the same for all classes.
+        $rules = [
+            'studentname' => 'required|string',
+            'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
+            'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
+        ];
+
+        // Retrieve the list of subjects for the given class.
+        // If the class is not found, fallback to the default subjects.
+        $classId = $this->requestData['class'];
+        $subjects = config("subjects.{$classId}", config('subjects.class_default'));
+
+        // Loop through each subject and add the same numeric validation rule.
+        foreach ($subjects as $subject) {
+            $rules[$subject] = 'required|numeric|min:0|max:50';
+        }
+
+        return $rules;
     }
+
+
+    // public function rules(): array
+    // {
+    //     return match ($this->requestData['class']) {
+    //         '1' => [
+    //             'studentname' => 'required|string',
+    //             'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
+    //             'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
+    //             'kuhesabu' => 'required|numeric|min:0|max:50',
+    //             'kusoma' => 'required|numeric|min:0|max:50',
+    //             'kuandika' => 'required|numeric|min:0|max:50',
+    //             'english' => 'required|numeric|min:0|max:50',
+    //             'mazingira' => 'required|numeric|min:0|max:50',
+    //             'michezo' => 'required|numeric|min:0|max:50',
+    //         ],
+    //         '2' => [
+    //             'studentname' => 'required|string',
+    //             'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
+    //             'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
+    //             'kuhesabu' => 'required|numeric|min:0|max:50',
+    //             'kusoma' => 'required|numeric|min:0|max:50',
+    //             'kuandika' => 'required|numeric|min:0|max:50',
+    //             'english' => 'required|numeric|min:0|max:50',
+    //             'mazingira' => 'required|numeric|min:0|max:50',
+    //             'utamaduni' => 'required|numeric|min:0|max:50',
+    //         ],
+    //         '3' => [
+    //             'studentname' => 'required|string',
+    //             'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
+    //             'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
+    //             'hisabati' => 'required|numeric|min:0|max:50',
+    //             'kiswahili' => 'required|numeric|min:0|max:50',
+    //             'sayansi' => 'required|numeric|min:0|max:50',
+    //             'english' => 'required|numeric|min:0|max:50',
+    //             'maadili' => 'required|numeric|min:0|max:50',
+    //             'jiographia' => 'required|numeric|min:0|max:50',
+    //             'smichezo' => 'required|numeric|min:0|max:50',
+    //         ],
+    //         default => [
+    //             'studentname' => 'required|string',
+    //             'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
+    //             'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
+    //             'hisabati' => 'required|numeric|min:0|max:50',
+    //             'kiswahili' => 'required|numeric|min:0|max:50',
+    //             'sayansi' => 'required|numeric|min:0|max:50',
+    //             'english' => 'required|numeric|min:0|max:50',
+    //             'jamii' => 'required|numeric|min:0|max:50',
+    //             'maadili' => 'required|numeric|min:0|max:50',
+    //         ],
+    //     };
+    // }
 }

@@ -105,6 +105,7 @@ Route::post('/filterTeacherSubjectReport', [UserSubjectReportController::class, 
 Route::post('/downloadTeacherSubjectReport', [UserSubjectReportController::class, 'downloadTeacherSubjectReport']);
 
 Route::get('/admin-dashboard/subject-report', [SubjectReportController::class, 'reports']);
+Route::get('/fetchCachedFilteredReport', [SubjectReportController::class, 'fetchCachedFilteredReport']);
 Route::post('/filterSubjectReport', [SubjectReportController::class, 'filterReport']);
 Route::post('/downloadSubjectReport', [SubjectReportController::class, 'downloadSubjectReport']);
 

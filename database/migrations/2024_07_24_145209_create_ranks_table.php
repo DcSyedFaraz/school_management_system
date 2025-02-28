@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ranks', function (Blueprint $table) {
-            $table->id();
-            $table->integer('rankId');
+            // $table->id();
+            $table->id('rankId');
             $table->string('rankName');
             $table->string('rankRangeMin');
             $table->string('rankRangeMax');

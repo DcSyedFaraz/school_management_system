@@ -31,20 +31,7 @@ class MarksUserExport implements FromCollection, WithHeadings, WithMapping, With
         ])->orderBy('rankName', 'asc')->get();
 
         // Get subjects based on class
-        switch ($classId) {
-            case 1:
-                $this->subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-                break;
-            case 2:
-                $this->subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-                break;
-            case 3:
-                $this->subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
-                break;
-            default: // classes 4 to 7
-                $this->subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-                break;
-        }
+        $this->subjects = config('subjects.' . $classId, config('subjects.class_default'));
     }
 
     public function collection()

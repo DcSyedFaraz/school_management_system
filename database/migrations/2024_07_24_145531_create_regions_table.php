@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('regions', function (Blueprint $table) {
-            $table->id();
-            $table->integer('regionId');
+            // $table->id();
+            $table->id('regionId');
             $table->string('regionName');
             $table->string('regionCode');
             $table->string('isActive')->default(1);

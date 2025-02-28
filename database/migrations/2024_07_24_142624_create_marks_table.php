@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('marks', function (Blueprint $table) {
-            $table->id();
-            $table->integer('markId');
+            // $table->id();
+            $table->id('markId');
             $table->string('examDate');
             $table->integer('classId');
             $table->string('studentName');
@@ -32,9 +32,11 @@ return new class extends Migration
             $table->integer('michezo')->nullable()->default(0);
             $table->integer('jiographia')->default(0);
             $table->integer('smichezo')->default(0);
+            $table->integer('historia')->default(0);
+            $table->integer('s_kazi')->default(0);
             $table->double('total', 13, 6)->default(0.000000);
             $table->double('average', 13, 6)->default(0.000000);
-            $table->string('examId'); 
+            $table->string('examId');
             $table->integer('userId');
             $table->integer('regionId');
             $table->integer('districtId');

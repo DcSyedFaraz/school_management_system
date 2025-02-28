@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\FilterReportJob;
+use Cache;
 use Illuminate\Http\Request;
 use App\Models\Marks;
 use App\Models\Grades;
@@ -12,8 +14,8 @@ use App\Models\Regions;
 use App\Models\Wards;
 use App\Models\Districts;
 use App\Exports\SubjectExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Session;
-use Excel;
 use DB;
 
 class SubjectReportController extends Controller
@@ -89,7 +91,7 @@ class SubjectReportController extends Controller
     }
 
 
-    public function filterReport(Request $req)
+    public function oldfilterReport(Request $req)
     {
         set_time_limit(300);
 
@@ -127,6 +129,7 @@ class SubjectReportController extends Controller
                 ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
                 ->orderBy('averageMarks', 'desc')
                 ->get();
+            // dd($startDate, $endDate, $examCondition);
 
             $classes = Grades::select('gradeId', 'gradeName')->where([
                 ['isActive', '=', '1'],
@@ -169,6 +172,61 @@ class SubjectReportController extends Controller
             $data = compact('borderLine', 'marks', 'classes', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate', 'subjects');
             return view('admin.subjectReport')->with($data);
         } else {
+            return redirect('/')->with('accessDenied', 'Session Expired!');
+        }
+    }
+    public function fetchCachedFilteredReport(Request $req)
+    {
+        // dd($req);
+        $classId = $req['class'];
+        $regionId = $req['region'];
+        $wardId = $req['ward'];
+        $districtId = $req['district'];
+        $examId = $req['exam'];
+        $startDate = $req['startDate'];
+        $endDate = $req['endDate'];
+
+        $cacheKey = "filtered_report_{$classId}_{$regionId}_{$wardId}_{$districtId}_{$examId}_{$startDate}_{$endDate}";
+
+        if (Cache::has($cacheKey)) {
+            return response()->json(Cache::get($cacheKey));
+        } else {
+            return response()->json(['message' => 'Data is not available yet. Please try again later.'], 404);
+        }
+    }
+
+    public function filterReport(Request $req)
+    {
+        // Ensure the user is logged in
+        if (Session::get('adminLoggedin') == true) {
+            // Capture the filter inputs from the request
+            $classId = $req['class'];
+            $regionId = $req['region'];
+            $wardId = $req['ward'];
+            $districtId = $req['district'];
+            $examId = $req['exam'];
+            $startDate = $req['startDate'];
+            $endDate = $req['endDate'];
+
+            // Generate a cache key based on the filter inputs
+            $cacheKey = "filtered_report_{$classId}_{$regionId}_{$wardId}_{$districtId}_{$examId}_{$startDate}_{$endDate}";
+            Cache::delete($cacheKey);
+            // Check if the data is already cached
+            if (Cache::has($cacheKey)) {
+                // Return the cached data directly
+                dd(Cache::get($cacheKey));
+                return response()->json(Cache::get($cacheKey));
+            } else {
+                // If the data is not cached, dispatch the job to handle the filtering
+                $job = FilterReportJob::dispatch($classId, $regionId, $wardId, $districtId, $examId, $startDate, $endDate);
+
+                // Return a response indicating that the job has been dispatched
+                return response()->json([
+                    'message' => 'Filtering started, please wait...',
+                ]);
+            }
+        } else {
+            // If the user is not logged in, redirect with an error message
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
     }

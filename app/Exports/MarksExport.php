@@ -155,16 +155,7 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
 
     function getSubjectsByClassId($classId)
     {
-        switch ($classId) {
-            case 1:
-                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-            case 2:
-                return ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-            case 3:
-                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
-            default: // classes 4 to 7
-                return ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-        }
+        return config('subjects.' . $classId, config('subjects.class_default'));
     }
 
     function assignGrade($marks)

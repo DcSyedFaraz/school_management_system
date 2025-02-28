@@ -32,41 +32,14 @@ class ReportController extends Controller
             $startDate = date('Y-m-d', strtotime('' . date('Y') . '-' . date('m') . '-01'));
             $endDate = date('Y-m-d');
 
+            $subjects = config('subjects.' . $classId, config('subjects.class_default'));
+
+            // Start with the base select fields.
             $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks';
 
-            if ($classId == 1) {
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
-                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
-                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
-                ROUND(AVG(CASE WHEN michezo > 0 THEN michezo END), 2) as michezo';
-            } elseif ($classId == 2) {
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
-                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
-                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
-                ROUND(AVG(CASE WHEN utamaduni > 0 THEN utamaduni END), 2) as utamaduni';
-            } elseif ($classId == 3) {
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
-                ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
-                ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili,
-                ROUND(AVG(CASE WHEN jiographia > 0 THEN jiographia END), 2) as jiographia,
-                ROUND(AVG(CASE WHEN smichezo > 0 THEN smichezo END), 2) as smichezo';
-            } else { // classes 4 to 7
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
-                ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
-                ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN jamii > 0 THEN jamii END), 2) as jamii,
-                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili';
+            // Loop over each subject and append the respective AVG calculation.
+            foreach ($subjects as $subject) {
+                $selectFields .= ", ROUND(AVG(CASE WHEN {$subject} > 0 THEN {$subject} END), 2) as {$subject}";
             }
 
             $marks = Marks::selectRaw($selectFields)
@@ -131,54 +104,25 @@ class ReportController extends Controller
             $startDate = ($req['startDate'] == '') ? date('Y-m-d', strtotime("2023-01-01")) : $req['startDate'];
             $endDate = ($req['endDate'] == '') ? date('Y-m-d') : $req['endDate'];
             // return $classId;
+            $subjects = config('subjects.' . $classId, config('subjects.class_default'));
+
+            // Start with the base select fields.
             $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks';
 
-            if ($classId == 1) {
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
-                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
-                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
-                ROUND(AVG(CASE WHEN michezo > 0 THEN michezo END), 2) as michezo';
-            } elseif ($classId == 2) {
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN kuhesabu > 0 THEN kuhesabu END), 2) as kuhesabu,
-                ROUND(AVG(CASE WHEN kusoma > 0 THEN kusoma END), 2) as kusoma,
-                ROUND(AVG(CASE WHEN kuandika > 0 THEN kuandika END), 2) as kuandika,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN mazingira > 0 THEN mazingira END), 2) as mazingira,
-                ROUND(AVG(CASE WHEN utamaduni > 0 THEN utamaduni END), 2) as utamaduni';
-            } elseif ($classId == 3) {
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
-                ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
-                ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili,
-                ROUND(AVG(CASE WHEN jiographia > 0 THEN jiographia END), 2) as jiographia,
-                ROUND(AVG(CASE WHEN smichezo > 0 THEN smichezo END), 2) as smichezo';
-            } else { // classes 4 to 7
-                $selectFields .= ',
-                ROUND(AVG(CASE WHEN hisabati > 0 THEN hisabati END), 2) as hisabati,
-                ROUND(AVG(CASE WHEN kiswahili > 0 THEN kiswahili END), 2) as kiswahili,
-                ROUND(AVG(CASE WHEN sayansi > 0 THEN sayansi END), 2) as sayansi,
-                ROUND(AVG(CASE WHEN english > 0 THEN english END), 2) as english,
-                ROUND(AVG(CASE WHEN jamii > 0 THEN jamii END), 2) as jamii,
-                ROUND(AVG(CASE WHEN maadili > 0 THEN maadili END), 2) as maadili';
+            // Loop over each subject and append the respective AVG calculation.
+            foreach ($subjects as $subject) {
+                $selectFields .= ", ROUND(AVG(CASE WHEN {$subject} > 0 THEN {$subject} END), 2) as {$subject}";
             }
 
             $marks = Marks::selectRaw($selectFields)
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],
-                    $classCondition,
-                    $regionCondition,
-                    $districtCondition,
-                    $examCondition
+                    ['classId', '=', $classId],
+                    ['examId', '=', $examId]
                 ])
-                ->whereBetween('examDate', [$startDate, $endDate])
                 ->groupBy('schoolId')
+                ->whereBetween('examDate', [$startDate, $endDate])
                 ->orderBy('averageMarks', 'desc')
                 ->get();
             // dd($marks);
@@ -260,132 +204,132 @@ class ReportController extends Controller
     }
 
     public function studentData()
-{
-    set_time_limit(300);
+    {
+        set_time_limit(300);
 
-    if (Session::get('adminLoggedin') == true) {
-        $classId = '1';
-        $examId = 1;
-        $regionId = '';
-        $districtId = '';
-        $wardId = '';
-        $startDate = date('Y-m-d', strtotime('' . date('Y') . '-' . date('m') . '-01'));
-        $endDate = date('Y-m-d');
-        $subjects = $this->getSubjectsByClassId($classId);
+        if (Session::get('adminLoggedin') == true) {
+            $classId = '1';
+            $examId = 1;
+            $regionId = '';
+            $districtId = '';
+            $wardId = '';
+            $startDate = date('Y-m-d', strtotime('' . date('Y') . '-' . date('m') . '-01'));
+            $endDate = date('Y-m-d');
+            $subjects = $this->getSubjectsByClassId($classId);
 
-        $allMarks = Marks::select('markId', 'studentName', 'gender', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId', 'kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo', 'total', 'average')
-            ->where([
+            $allMarks = Marks::select('markId', 'studentName', 'gender', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId', 'kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo', 'total', 'average')
+                ->where([
+                    ['isActive', '=', '1'],
+                    ['isDeleted', '=', '0'],
+                    ['classId', '=', $classId],
+                    ['examId', '=', $examId]
+                ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->get();
+
+            // Paginate marks for display
+            $marks = Marks::select('markId', 'studentName', 'gender', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId', 'kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo', 'total', 'average')
+                ->where([
+                    ['isActive', '=', '1'],
+                    ['isDeleted', '=', '0'],
+                    ['classId', '=', $classId],
+                    ['examId', '=', $examId]
+                ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->paginate(10);
+
+            $classes = Grades::select('gradeId', 'gradeName')->where([
                 ['isActive', '=', '1'],
-                ['isDeleted', '=', '0'],
-                ['classId', '=', $classId],
-                ['examId', '=', $examId]
-            ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->get();
+                ['isDeleted', '=', '0']
+            ])->get();
 
-        // Paginate marks for display
-        $marks = Marks::select('markId', 'studentName', 'gender', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId', 'kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo', 'total', 'average')
-            ->where([
+            $exams = Exams::select('examId', 'examName')->where([
                 ['isActive', '=', '1'],
-                ['isDeleted', '=', '0'],
-                ['classId', '=', $classId],
-                ['examId', '=', $examId]
-            ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->paginate(10);
+                ['isDeleted', '=', '0']
+            ])->get();
 
-        $classes = Grades::select('gradeId', 'gradeName')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->get();
+            $regions = Regions::select('regionId', 'regionName', 'regionCode')->where([
+                ['isActive', '=', '1'],
+                ['isDeleted', '=', '0']
+            ])->orderBy('regionName', 'asc')->get();
 
-        $exams = Exams::select('examId', 'examName')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->get();
+            $districts = Districts::select('districtId', 'districtName', 'districtCode')->where([
+                ['isActive', '=', '1'],
+                ['isDeleted', '=', '0']
+            ])->orderBy('districtName', 'asc')->get();
 
-        $regions = Regions::select('regionId', 'regionName', 'regionCode')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('regionName', 'asc')->get();
+            $wards = Wards::select('wardId', 'wardName', 'wardCode')->where([
+                ['isActive', '=', '1'],
+                ['isDeleted', '=', '0']
+            ])->orderBy('wardName', 'asc')->get();
 
-        $districts = Districts::select('districtId', 'districtName', 'districtCode')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('districtName', 'asc')->get();
+            $gradeArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-        $wards = Wards::select('wardId', 'wardName', 'wardCode')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('wardName', 'asc')->get();
+            $subjectGrades = [
+                'A' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
+                'B' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
+                'C' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
+                'D' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
+                'E' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]]
+            ];
 
-        $gradeArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            $gAverage = [0, 0, 0, 0, 0, 0];
+            $subList = config('subjects.' . $classId, config('subjects.class_default'));
 
-        $subjectGrades = [
-            'A' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
-            'B' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
-            'C' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
-            'D' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]],
-            'E' => ['M' => [0, 0, 0, 0, 0, 0], 'F' => [0, 0, 0, 0, 0, 0]]
-        ];
-
-        $gAverage = [0, 0, 0, 0, 0, 0];
-        $subList = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-
-        foreach ($allMarks as $mark) {
-            if ($mark['average'] == 0) {
-                ($mark['gender'] == 'M') ? $gradeArray[10]++ : $gradeArray[11]++;
-            } else {
-                $gAverage[0] += $mark['kuhesabu'];
-                $gAverage[1] += $mark['kusoma'];
-                $gAverage[2] += $mark['kuandika'];
-                $gAverage[3] += $mark['english'];
-                $gAverage[4] += $mark['mazingira'];
-                $gAverage[5] += $mark['michezo'];
-
-                $grade = $this->assignGrade($mark['average']);
-                if ($grade == 'A') {
-                    ($mark['gender'] == 'M') ? $gradeArray[0]++ : $gradeArray[5]++;
-                } elseif ($grade == 'B') {
-                    ($mark['gender'] == 'M') ? $gradeArray[1]++ : $gradeArray[6]++;
-                } elseif ($grade == 'C') {
-                    ($mark['gender'] == 'M') ? $gradeArray[2]++ : $gradeArray[7]++;
-                } elseif ($grade == 'D') {
-                    ($mark['gender'] == 'M') ? $gradeArray[3]++ : $gradeArray[8]++;
+            foreach ($allMarks as $mark) {
+                if ($mark['average'] == 0) {
+                    ($mark['gender'] == 'M') ? $gradeArray[10]++ : $gradeArray[11]++;
                 } else {
-                    ($mark['gender'] == 'M') ? $gradeArray[4]++ : $gradeArray[9]++;
-                }
+                    $gAverage[0] += $mark['kuhesabu'];
+                    $gAverage[1] += $mark['kusoma'];
+                    $gAverage[2] += $mark['kuandika'];
+                    $gAverage[3] += $mark['english'];
+                    $gAverage[4] += $mark['mazingira'];
+                    $gAverage[5] += $mark['michezo'];
 
-                foreach ($subList as $index => $subject) {
-                    $subjectGrade = $this->assignGrade($mark[$subject]);
-                    $subjectGrades[$subjectGrade][$mark['gender']][$index]++;
+                    $grade = $this->assignGrade($mark['average']);
+                    if ($grade == 'A') {
+                        ($mark['gender'] == 'M') ? $gradeArray[0]++ : $gradeArray[5]++;
+                    } elseif ($grade == 'B') {
+                        ($mark['gender'] == 'M') ? $gradeArray[1]++ : $gradeArray[6]++;
+                    } elseif ($grade == 'C') {
+                        ($mark['gender'] == 'M') ? $gradeArray[2]++ : $gradeArray[7]++;
+                    } elseif ($grade == 'D') {
+                        ($mark['gender'] == 'M') ? $gradeArray[3]++ : $gradeArray[8]++;
+                    } else {
+                        ($mark['gender'] == 'M') ? $gradeArray[4]++ : $gradeArray[9]++;
+                    }
+
+                    foreach ($subList as $index => $subject) {
+                        $subjectGrade = $this->assignGrade($mark[$subject]);
+                        $subjectGrades[$subjectGrade][$mark['gender']][$index]++;
+                    }
                 }
             }
+
+            session(['pageTitle' => "Matokeo Kiwanafunzi"]);
+            $data = compact(
+                'classes',
+                'allMarks',
+                'subjects',
+                'marks',
+                'gradeArray',
+                'subjectGrades',
+                'gAverage',
+                'exams',
+                'regions',
+                'districts',
+                'wards',
+                'classId',
+                'examId',
+                'regionId',
+                'districtId',
+                'wardId',
+                'startDate',
+                'endDate'
+            );
+
+            return view('admin.studentData')->with($data);
+        } else {
+            return redirect('/')->with('accessDenied', 'Session Expired!');
         }
-
-        session(['pageTitle' => "Matokeo Kiwanafunzi"]);
-        $data = compact(
-            'classes',
-            'allMarks',
-            'subjects',
-            'marks',
-            'gradeArray',
-            'subjectGrades',
-            'gAverage',
-            'exams',
-            'regions',
-            'districts',
-            'wards',
-            'classId',
-            'examId',
-            'regionId',
-            'districtId',
-            'wardId',
-            'startDate',
-            'endDate'
-        );
-
-        return view('admin.studentData')->with($data);
-    } else {
-        return redirect('/')->with('accessDenied', 'Session Expired!');
     }
-}
 
 
     // New code
@@ -644,7 +588,8 @@ class ReportController extends Controller
                 ])
                 ->whereBetween('examDate', [$startDate, $endDate])
                 ->orderBy('average', 'desc')
-                ->paginate(10)->appends($params);;
+                ->paginate(10)->appends($params);
+            ;
 
             // Complete query for calculations
             $allMarks = Marks::select($columns)
@@ -704,40 +649,39 @@ class ReportController extends Controller
 
             // Process marks
             $cacheKey = "processed_marks_{$classId}_{$examId}_{$allMarks->count()}_{$regionId}_{$districtId}_{$wardId}_{$startDate}_{$endDate}";
-        $processedData = Cache::get($cacheKey);
+            $processedData = Cache::get($cacheKey);
             // dd($cacheKey);
-        if (!$processedData)
-           {
-            // dd('hi');
-             foreach ($allMarks as $mark) {
-                if ($mark['average'] == 0) {
-                    $gradeArray[$mark['gender'] == 'M' ? 10 : 11]++;
-                } else {
-                    foreach ($subjects as $index => $subject) {
-                        $gAverage[$index] += $mark[$subject];
-                    }
+            if (!$processedData) {
+                // dd('hi');
+                foreach ($allMarks as $mark) {
+                    if ($mark['average'] == 0) {
+                        $gradeArray[$mark['gender'] == 'M' ? 10 : 11]++;
+                    } else {
+                        foreach ($subjects as $index => $subject) {
+                            $gAverage[$index] += $mark[$subject];
+                        }
 
-                    $grade = $this->assignGrade($mark['average']);
-                    $genderIndex = $mark['gender'] == 'M' ? 0 : 5;
-                    $gradeArray[$this->getGradeIndex($grade) + $genderIndex]++;
+                        $grade = $this->assignGrade($mark['average']);
+                        $genderIndex = $mark['gender'] == 'M' ? 0 : 5;
+                        $gradeArray[$this->getGradeIndex($grade) + $genderIndex]++;
 
-                    foreach ($subjects as $index => $subject) {
-                        $subjectGrade = $this->assignGrade($mark[$subject]);
-                        $subjectGrades[$subjectGrade][$mark['gender']][$index]++;
+                        foreach ($subjects as $index => $subject) {
+                            $subjectGrade = $this->assignGrade($mark[$subject]);
+                            $subjectGrades[$subjectGrade][$mark['gender']][$index]++;
+                        }
                     }
                 }
+                $processedData = [
+                    'gradeArray' => $gradeArray,
+                    'gAverage' => $gAverage,
+                    'subjectGrades' => $subjectGrades
+                ];
+                Cache::put($cacheKey, $processedData, now()->addHours(24));
+            } else {
+                $gradeArray = $processedData['gradeArray'];
+                $gAverage = $processedData['gAverage'];
+                $subjectGrades = $processedData['subjectGrades'];
             }
-            $processedData = [
-                'gradeArray' => $gradeArray,
-                'gAverage' => $gAverage,
-                'subjectGrades' => $subjectGrades
-            ];
-            Cache::put($cacheKey, $processedData, now()->addHours(24));
-        } else{
-            $gradeArray = $processedData['gradeArray'];
-            $gAverage = $processedData['gAverage'];
-            $subjectGrades = $processedData['subjectGrades'];
-        }
 
             session(['pageTitle' => "Matokeo Kiwanafunzi"]);
 
@@ -761,7 +705,7 @@ class ReportController extends Controller
                 'subjects',
                 'marks'
             );
-// return $data;
+            // return $data;
             return view('admin.studentData')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
@@ -773,11 +717,16 @@ class ReportController extends Controller
     private function getGradeIndex($grade)
     {
         switch ($grade) {
-            case 'A': return 0;
-            case 'B': return 1;
-            case 'C': return 2;
-            case 'D': return 3;
-            default: return 4; // 'E' grade
+            case 'A':
+                return 0;
+            case 'B':
+                return 1;
+            case 'C':
+                return 2;
+            case 'D':
+                return 3;
+            default:
+                return 4; // 'E' grade
         }
     }
 

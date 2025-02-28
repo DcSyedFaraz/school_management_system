@@ -130,16 +130,11 @@
 </div>
 
 <script>
-    const subjectsByClass = {
-        1: ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'],
-        2: ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'],
-        3: ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'],
-        default: ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili']
-    };
+    const subjectsByClass = @json(config('subjects'));
 
     function loadSubjects() {
         const classId = document.getElementById('selectedclass').value;
-        const subjects = subjectsByClass[classId] || subjectsByClass.default;
+        const subjects = subjectsByClass[classId] || subjectsByClass.class_default;
         const container = document.getElementById('subject-container');
 
         // console.log(subjects, subjectsByClass[classId], classId);

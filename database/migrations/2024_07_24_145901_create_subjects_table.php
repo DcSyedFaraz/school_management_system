@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subjects', function (Blueprint $table) {
-            $table->id();
-            $table->integer('subjectId');
+            // $table->id();
+            $table->id('subjectId');
             $table->string('subjectName');
             $table->string('isActive')->default(1);
             $table->string('isDeleted')->default(0);

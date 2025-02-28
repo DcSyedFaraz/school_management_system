@@ -37,21 +37,8 @@
         }
 
         $subjects = [];
-        switch ($classId) {
-            case 1:
-                $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo'];
-                break;
-            case 2:
-                $subjects = ['kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'utamaduni'];
-                break;
-            case 3:
-                $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'maadili', 'jiographia', 'smichezo'];
-                break;
-            default:
-                // classes 4 to 7
-                $subjects = ['hisabati', 'kiswahili', 'sayansi', 'english', 'jamii', 'maadili'];
-                break;
-        }
+        $subjects = config('subjects.' . $classId, config('subjects.class_default'));
+
     @endphp
 
     <div class="p-3">
