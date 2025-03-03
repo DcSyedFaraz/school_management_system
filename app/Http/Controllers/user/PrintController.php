@@ -29,14 +29,9 @@ class PrintController extends Controller
     }
     public function printReport(Request $request)
     {
-        // $this->validate($request, [
-        //     'selectedStudents' => 'required|array|min:1',
-        // ], [
-        //     'selectedStudents.required' => 'Please select at least one student.',
-        //     'selectedStudents.array' => 'Invalid input format.',
-        //     'selectedStudents.min' => 'Please select at least one student.',
-        // ]);
-        // $new = json_decode($request->selectedStudents);
+        $openingDate = $request->input('openingDate');
+        $closingDate = $request->input('closingDate');
+
         $students = json_decode($request->input('selectedStudents'), true);
 
         $reportsDirectory = storage_path('app/reports');
@@ -61,7 +56,7 @@ class PrintController extends Controller
                 // dd($subject);
             }
 
-            $pdf = PDF::loadView('pdf.report', compact('student'))->setPaper('a5', 'portrait');
+            $pdf = PDF::loadView('pdf.report', compact('student', 'openingDate', 'closingDate'))->setPaper('a5', 'portrait');
             $path = storage_path("app/reports/{$student['id']}.pdf");
             $pdf->save($path);
             $pdfPaths[] = $path;

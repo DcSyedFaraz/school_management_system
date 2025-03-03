@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use App\Models\Marks;
 use App\Models\Grades;
@@ -180,5 +181,17 @@ class UserReportController extends Controller
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
+    }
+    public function printAllReport(Request $request)
+    {
+        // Decode the JSON data sent from the main report view
+        $reportData = json_decode($request->input('reportData'), true);
+        // dd($request->input('reportData'),$reportData);
+
+        // Load the PDF view and pass in the precomputed data
+        $pdf = Pdf::loadView('pdf.report-all', ['reportData' => $reportData]);
+
+        // Return the PDF as a stream (you may also use ->download('report.pdf'))
+        return $pdf->stream('report.pdf');
     }
 }

@@ -2,6 +2,7 @@
 
 @section('content')
     @php
+        // --- HELPER FUNCTIONS ---
         function assignGrade($marks, $ranks)
         {
             foreach ($ranks as $rank) {
@@ -16,26 +17,162 @@
         {
             $failThreshold = $classId > 4 ? $ranks[3]['rankRangeMax'] : $ranks[4]['rankRangeMax'];
             return $average <= $failThreshold ? 'FAIL' : 'PASS';
-        }
-
+        } // --- FETCH RANKS FROM THE DATABASE ---
         $ranks = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
             ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
             ->orderBy('rankName', 'asc')
             ->get()
             ->toArray();
-    @endphp
 
+        // --- Assume these variables are provided from the controller ---
+        // $classId, $examId, $startDate, $endDate, $classes, $exams, $subjects, $marks, $allMarks
+        // --- PRE-COMPUTE CALCULATED DATA ---
+        $gAverage = array_fill(0, count($subjects), 0);
+        $amCount = 0;
+        $bmCount = 0;
+        $cmCount = 0;
+        $dmCount = 0;
+        $emCount = 0;
+        $afCount = 0;
+        $bfCount = 0;
+        $cfCount = 0;
+        $dfCount = 0;
+        $efCount = 0;
+        $maleAbsent = 0;
+        $femaleAbsent = 0;
+
+        foreach ($marks as $mark) {
+            if ($classId == 2) {
+                $totalMarks = 0;
+                foreach ($subjects as $subject) {
+                    $totalMarks += $mark[$subject];
+                }
+                $mark['average'] = $totalMarks / count($subjects);
+            }
+            if ($mark['average'] == 0) {
+                $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
+            } else {
+                foreach ($subjects as $index => $subject) {
+                    $gAverage[$index] += $mark[$subject];
+                }
+                if (assignGrade($mark['average'], $ranks) == 'A') {
+                    $mark['gender'] == 'M' ? $amCount++ : $afCount++;
+                } elseif (assignGrade($mark['average'], $ranks) == 'B') {
+                    $mark['gender'] == 'M' ? $bmCount++ : $bfCount++;
+                } elseif (assignGrade($mark['average'], $ranks) == 'C') {
+                    $mark['gender'] == 'M' ? $cmCount++ : $cfCount++;
+                } elseif (assignGrade($mark['average'], $ranks) == 'D') {
+                    $mark['gender'] == 'M' ? $dmCount++ : $dfCount++;
+                } else {
+                    $mark['gender'] == 'M' ? $emCount++ : $efCount++;
+                }
+            }
+        }
+        unset($mark);
+
+        // Compute overall summary counts
+        $gradeMaleCount = $amCount + $bmCount + $cmCount + $dmCount + $emCount;
+        $gradeFemaleCount = $afCount + $bfCount + $cfCount + $dfCount + $efCount;
+        $gradeCount = $gradeMaleCount + $gradeFemaleCount;
+
+        if ($classId > 4) {
+            $failCount = $dmCount + $emCount + $dfCount + $efCount;
+            $failMaleCount = $dmCount + $emCount;
+            $failFemaleCount = $dfCount + $efCount;
+        } else {
+            $failCount = $emCount + $efCount;
+            $failMaleCount = $emCount;
+            $failFemaleCount = $efCount;
+        }
+
+        $gATotal = array_sum($gAverage);
+        $totalStudentsCount = count($marks) - $maleAbsent - $femaleAbsent;
+        $schoolAverage = $totalStudentsCount > 0 ? $gATotal / (count($subjects) * $totalStudentsCount) : 0;
+        $schoolGrade = assignGrade($schoolAverage, $ranks);
+        $achievementAverage = $totalStudentsCount > 0 ? $gATotal / $totalStudentsCount : 0;
+        // $achievementGrade = assignGrade($achievementAverage, $ranks);
+        // dd($achievementAverage);
+        // Prepare grade arrays per subject for detailed summary
+        $gradeArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
+        $gradeMaleArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
+        $gradeFemaleArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
+
+        foreach ($allMarks as $aMark) {
+            if ($aMark['total'] != 0) {
+                foreach ($subjects as $list) {
+                    $grade = assignGrade($aMark[$list], $ranks);
+                    if ($grade != 'Null') {
+                        if ($aMark['gender'] == 'M') {
+                            $gradeMaleArray[$list][$grade]++;
+                        } else {
+                            $gradeFemaleArray[$list][$grade]++;
+                        }
+                        $gradeArray[$list][$grade]++;
+                    }
+                }
+            }
+        }
+
+        // --- PACK ALL CALCULATED DATA INTO A SINGLE ARRAY FOR THE PDF ---
+        $reportData = [
+            'classes' => $classes,
+            'exams' => $exams,
+            'classId' => $classId,
+            'examId' => $examId,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'subjects' => $subjects,
+            'marks' => $marks,
+            'allMarks' => $allMarks,
+            'ranks' => $ranks,
+            'gAverage' => $gAverage,
+            'maleAbsent' => $maleAbsent,
+            'femaleAbsent' => $femaleAbsent,
+            'schoolAverage' => $schoolAverage,
+            'achievementAverage' => $achievementAverage,
+            'schoolGrade' => $schoolGrade,
+            'amCount' => $amCount,
+            'bmCount' => $bmCount,
+            'cmCount' => $cmCount,
+            'dmCount' => $dmCount,
+            'emCount' => $emCount,
+            'afCount' => $afCount,
+            'bfCount' => $bfCount,
+            'cfCount' => $cfCount,
+            'dfCount' => $dfCount,
+            'efCount' => $efCount,
+            'gradeMaleCount' => $gradeMaleCount,
+            'gradeFemaleCount' => $gradeFemaleCount,
+            'gradeCount' => $gradeCount,
+            'failCount' => $failCount,
+            'failMaleCount' => $failMaleCount,
+            'failFemaleCount' => $failFemaleCount,
+            'gradeArray' => $gradeArray,
+            'gradeMaleArray' => $gradeMaleArray,
+            'gradeFemaleArray' => $gradeFemaleArray,
+        ];
+
+    @endphp
     <div class="p-3">
+
         <div class="flex justify-end">
             <form id="printReportForm" action="{{ url('/printReport') }}" method="post">
                 @csrf
+                <input type="hidden" name="openingDate" id="openingDate">
+                <input type="hidden" name="closingDate" id="closingDate">
                 <input type="hidden" name="selectedStudents" id="selectedStudents">
-                <button type="button" onclick="submitPrintReportForm()"
-                    class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md mr-1 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed">
+                <button type="button" onclick="openModal()"
+                    class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md  disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed">
                     <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha Rripoti</span>
                 </button>
             </form>
-
+            <form id="printAllReportForm" action="{{ url('/printAllReport') }}" method="post" target="_blank">
+                @csrf
+                <input type="hidden" name="reportData" value='{!! json_encode($reportData) !!}'>
+                <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white mx-3 py-1 px-2 rounded-md">
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha PDF</span>
+                </button>
+            </form>
             <form action="{{ url('/downloadTeacherReport') }}" method="post">
                 @csrf
 
@@ -49,17 +186,15 @@
                 </button>
             </form>
         </div>
-
+        <!-- FILTER FORM & TABLES (exactly as in your original code) -->
         <div class="my-3">
             <h2 class="text-2xl font-bold">Kichujio:</h2>
-
             <form action="{{ url('/filterUserReport') }}" method="post" id="filterForm">
                 @csrf
-
                 <div class="grid lg:grid-cols-4 md:grid-cols-4 grid-cols-1 gap-2">
                     <div>
                         <label for="class">Chagua Darasa:<span class="text-red-500">*</span></label>
-                        <select class="block w-full block p-2 rounded-md border border-black" name="class" id="class"
+                        <select class="block w-full p-2 rounded-md border border-black" name="class" id="class"
                             required>
                             <option value="">-- CHAGUA DARASA --</option>
                             @if (count($classes) > 0)
@@ -72,10 +207,9 @@
                             @endif
                         </select>
                     </div>
-
                     <div>
                         <label for="exam">Chagua Mtihani:</label>
-                        <select class="block w-full block p-2 rounded-md border border-black" name="exam" id="exam">
+                        <select class="block w-full p-2 rounded-md border border-black" name="exam" id="exam">
                             <option value="">-- CHAGUA MTIHANI --</option>
                             @if (count($exams) > 0)
                                 @foreach ($exams as $exam)
@@ -87,33 +221,35 @@
                             @endif
                         </select>
                     </div>
-
                     <div>
                         <label for="startDate">Tarehe ya Kuanza:</label>
-                        <input type="date" class="block w-full block p-2 rounded-md border border-black"
+                        <input type="date" class="block w-full p-2 rounded-md border border-black"
                             min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="startDate"
-                            id="startDate" placeholder="Enter Start Date"
-                            value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
+                            id="startDate" value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
                     </div>
-
                     <div>
                         <label for="endDate">Tarehe ya Mwisho:</label>
-                        <input type="date" class="block w-full block p-2 rounded-md border border-black"
+                        <input type="date" class="block w-full p-2 rounded-md border border-black"
                             min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="endDate"
-                            id="endDate" placeholder="Enter End Date" value="{{ date('Y-m-d', strtotime($endDate)) }}">
+                            id="endDate" value="{{ date('Y-m-d', strtotime($endDate)) }}">
                     </div>
                 </div>
             </form>
-
             <div class="flex justify-end">
-                <a href="{{ url('/dashboard/reports') }}"><button type="button" form="filterForm"
-                        class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha
-                        Upya</button></a>
+                <a href="{{ url('/dashboard/reports') }}">
+                    <button type="button" form="filterForm"
+                        class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">
+                        Onesha Upya
+                    </button>
+                </a>
                 <button type="submit" form="filterForm"
-                    class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
+                    class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">
+                    Kichujio
+                </button>
             </div>
         </div>
 
+        <!-- The complete marks table, summaries, and detailed grade breakdown exactly as above -->
         <div class="overflow-x-auto">
             <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO WA WANAFUNZI WOTE:</h2>
             <input type="checkbox" id="selectAll"> Chagua Wote
@@ -131,7 +267,6 @@
                         <th rowspan="2" class="border border-black uppercase">Nafasi</th>
                         <th rowspan="2" class="border border-black uppercase">Ufaulu</th>
                     </tr>
-
                     <tr>
                         @foreach ($subjects as $subject)
                             <th class="border border-black">AL</th>
@@ -139,83 +274,34 @@
                         @endforeach
                     </tr>
                 </thead>
-
                 <tbody>
                     @php
                         $i = 1;
                         $j = 0;
                         $storedAvg = '';
-                        $amCount = 0;
-                        $bmCount = 0;
-                        $cmCount = 0;
-                        $dmCount = 0;
-                        $emCount = 0;
-
-                        $afCount = 0;
-                        $bfCount = 0;
-                        $cfCount = 0;
-                        $dfCount = 0;
-                        $efCount = 0;
-                        $maleAbsent = 0;
-                        $femaleAbsent = 0;
-
-                        $gAverage = array_fill(0, count($subjects), 0);
                     @endphp
                     @foreach ($marks as $mark)
                         @php
-                            if ($classId == 2) {
-                                $totalMarks = 0;
-                                foreach ($subjects as $subject) {
-                                    $totalMarks += $mark[$subject];
-                                }
-                                $mark['average'] = $totalMarks / count($subjects);
-                            }
-                            if ($mark['average'] == 0) {
-                                $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
+                            if ($storedAvg == $mark['average']) {
+                                $j++;
+                                $storedAvg = $mark['average'];
+                                $position = $i - $j;
                             } else {
-                                foreach ($subjects as $index => $subject) {
-                                    $gAverage[$index] += $mark[$subject];
-                                }
-
-                                if (assignGrade($mark['average'], $ranks) == 'A') {
-                                    $mark['gender'] == 'M' ? $amCount++ : $afCount++;
-                                } elseif (assignGrade($mark['average'], $ranks) == 'B') {
-                                    $mark['gender'] == 'M' ? $bmCount++ : $bfCount++;
-                                } elseif (assignGrade($mark['average'], $ranks) == 'C') {
-                                    $mark['gender'] == 'M' ? $cmCount++ : $cfCount++;
-                                } elseif (assignGrade($mark['average'], $ranks) == 'D') {
-                                    $mark['gender'] == 'M' ? $dmCount++ : $dfCount++;
-                                } else {
-                                    $mark['gender'] == 'M' ? $emCount++ : $efCount++;
-                                }
+                                $j = 0;
+                                $storedAvg = $mark['average'];
+                                $position = $i;
                             }
                         @endphp
                         <tr class="odd:bg-gray-200">
-                            {{-- @dd($mark->markId) --}}
-                            @if ($storedAvg == $mark['average'])
-                                @php
-                                    $j++;
-                                    $storedAvg = $mark['average'];
-                                    $position = $i - $j;
-                                @endphp
-                            @else
-                                @php
-                                    $j = 0;
-                                    $storedAvg = $mark['average'];
-                                    $position = $i;
-                                @endphp
-                            @endif
-                            <td class="border border-black text-right"><input type="checkbox" class="studentCheckbox"
+                            <td class="border border-black text-right">
+                                <input type="checkbox" class="studentCheckbox"
                                     value="{{ json_encode([
                                         'id' => $mark['markId'],
                                         'studentName' => $mark['studentName'],
                                         'subjects' => collect($subjects)->map(function ($subject) use ($mark, $ranks) {
                                                 return [
                                                     'name' => $subject,
-                                                    // 'gradeDescription' => '',
-                                                    // 'exam' => $mark[$subject . '_exam'],
                                                     'total' => $mark[$subject],
-                                                    // 'average' => ($mark[$subject . '_test'] + $mark[$subject . '_exam']) / 2,
                                                     'grade' => assignGrade($mark[$subject], $ranks),
                                                 ];
                                             })->all(),
@@ -224,39 +310,29 @@
                                         'grade' => assignGrade($mark['average'], $ranks),
                                         'position' => $position,
                                         'totalposition' => $loop->count,
-                                        // 'attendance' => 100, // Adjust as needed
-                                        // 'absent' => 0, // Adjust as needed
                                     ]) }}">
-                                {{ $i }}</td>
+                                {{ $i }}
+                            </td>
                             <td class="capitalize border border-black">{{ $mark['studentName'] }}</td>
                             @foreach ($subjects as $subject)
                                 <td class="border border-black text-right">{{ $mark[$subject] }}</td>
                                 <td class="border border-black">{{ assignGrade($mark[$subject], $ranks) }}</td>
                             @endforeach
                             <td class="border border-black text-right">{{ $mark['total'] }}</td>
-                            <td class="border border-black text-right">{{ $mark['average'] }}</td>
-
+                            <td class="border border-black text-right">{{ number_format($mark['average'], 2) }}</td>
                             @if ($mark['average'] > 0)
                                 <td class="border border-black">{{ assignGrade($mark['average'], $ranks) }}</td>
                             @else
                                 <td class="border border-black">ABS</td>
                             @endif
-
-
                             <td class="border border-black text-right">{{ $position }}</td>
-
                             @if ($mark['average'] > 0)
-                                {{-- @dd($mark['average']) --}}
-                                <td class="border border-black">{{ finalStatus($mark['average'], $ranks, $classId) }}
-                                   </td>
+                                <td class="border border-black">{{ finalStatus($mark['average'], $ranks, $classId) }}</td>
                             @else
                                 <td class="border border-black"></td>
                             @endif
                         </tr>
-
-                        @php
-                            $i++;
-                        @endphp
+                        @php $i++; @endphp
                     @endforeach
                 </tbody>
             </table>
@@ -349,7 +425,7 @@
                         <th class="border border-black uppercase">Jumla</th>
                     </tr>
 
-                    @php
+                    {{-- @php
                         if ($classId > 4) {
                             $failCount = $dmCount + $emCount + $dfCount + $efCount;
                             $failMaleCount = $dmCount + $emCount;
@@ -373,7 +449,7 @@
                             $efCount;
                         $gradeMaleCount = $amCount + $bmCount + $cmCount + $dmCount + $emCount;
                         $gradeFemaleCount = $afCount + $bfCount + $cfCount + $dfCount + $efCount;
-                    @endphp
+                    @endphp --}}
 
                     <tr class="bg-white">
                         <td class="border border-black text-center">1</td>
@@ -476,32 +552,32 @@
         </div>
 
         <div class="mt-5">
-            @php
+            {{-- @php
                 $gradeArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
                 $gradeMaleArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
                 $gradeFemaleArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
 
                 $failedCount = 0;
                 $subList = $subjects;
-            @endphp
-
-            @foreach ($allMarks as $aMark)
-                @php
-                    if ($aMark['total'] != 0) {
-                        foreach ($subList as $list) {
-                            $grade = assignGrade($aMark[$list], $ranks);
-                            if ($grade != 'Null') {
-                                if ($aMark['gender'] == 'M') {
-                                    $gradeMaleArray[$list][$grade]++;
-                                } else {
-                                    $gradeFemaleArray[$list][$grade]++;
-                                }
-                                $gradeArray[$list][$grade]++;
-                            }
-                        }
-                    }
                 @endphp
-            @endforeach
+
+                @foreach ($allMarks as $aMark)
+                @php
+                if ($aMark['total'] != 0) {
+                foreach ($subList as $list) {
+                $grade = assignGrade($aMark[$list], $ranks);
+                if ($grade != 'Null') {
+                if ($aMark['gender'] == 'M') {
+                $gradeMaleArray[$list][$grade]++;
+                } else {
+                $gradeFemaleArray[$list][$grade]++;
+                }
+                $gradeArray[$list][$grade]++;
+                }
+                }
+                }
+                @endphp
+                @endforeach --}}
 
             <h2 class="text-2xl font-bold mb-2 text-center">TATHIMINI YA MADARAJA YA KILA SOMO</h2>
 
@@ -541,12 +617,12 @@
                 </thead>
 
                 <tbody>
-                    @if (count($subList) > 0)
+                    @if (count($subjects) > 0)
                         @php
                             $g = 0;
                         @endphp
 
-                        @foreach ($subList as $name)
+                        @foreach ($subjects as $name)
                             @php
                                 $rowColor = $g % 2 == 0 ? 'bg-white' : 'bg-gray-200';
                                 $totalStudents = count($marks) - $maleAbsent - $femaleAbsent;
@@ -578,8 +654,8 @@
                                     <td class="text-center border border-black">0</td>
                                 @endif
                                 {{-- <td class="text-center border border-black">
-                                    {{ $subjectAverage }}
-                                </td> --}}
+                                {{ $subjectAverage }}
+                            </td> --}}
                                 <td class="text-center border border-black">{{ $totalGradeCount - $failedCount }}</td>
                                 <td class="text-center border border-black">
                                     @if ($totalGradeCount > 0)
@@ -601,6 +677,29 @@
                             @php
                                 $g++;
                             @endphp
+                            <!-- Add this modal after the form -->
+                            <div id="dateModal"
+                                class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+                                <div class="bg-white rounded-lg p-6">
+                                    <h2 class="text-lg font-bold mb-4">Enter Dates</h2>
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700">Tarehe ya Kufungua (Opening Date)</label>
+                                        <input type="date" id="modalOpeningDate"
+                                            class="mt-1 block w-full border-gray-300 rounded-md">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700">Tarehe ya Kufunga (Closing Date)</label>
+                                        <input type="date" id="modalClosingDate"
+                                            class="mt-1 block w-full border-gray-300 rounded-md">
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="button" onclick="confirmDates()"
+                                            class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md">Confirm</button>
+                                        <button type="button" onclick="closeModal()"
+                                            class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 py-1 px-2 rounded-md">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     @else
                         <tr>
@@ -617,6 +716,28 @@
             let checkboxes = document.querySelectorAll('.studentCheckbox');
             checkboxes.forEach(checkbox => checkbox.checked = this.checked);
         });
+
+        function openModal() {
+            document.getElementById('dateModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('dateModal').classList.add('hidden');
+        }
+
+        function confirmDates() {
+            const openingDate = document.getElementById('modalOpeningDate').value;
+            const closingDate = document.getElementById('modalClosingDate').value;
+            if (!openingDate || !closingDate) {
+                alert('Please fill both dates.');
+                return;
+            }
+            document.getElementById('openingDate').value = openingDate;
+            document.getElementById('closingDate').value = closingDate;
+            closeModal();
+            submitPrintReportForm();
+        }
+
 
         function submitPrintReportForm() {
             let selectedStudents = [];

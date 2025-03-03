@@ -8,7 +8,7 @@
             ->get();
         function assignGrade($marks)
         {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+            $ranks = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
                 ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
                 ->orderBy('rankName', 'asc')
                 ->get();
@@ -16,9 +16,9 @@
             if ($marks == 10) {
                 return 'E';
             }
-            foreach ($rank as $r) {
-                if ($marks >= $r->rankRangeMin && $marks <= $r->rankRangeMax) {
-                    return $r->rankName;
+            foreach ($ranks as $rank) {
+                if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
+                    return $rank['rankName'];
                 }
             }
 

@@ -94,6 +94,7 @@ Route::post('/dashboard/filter', [UserDashboardController::class, 'adminDashboar
 
 Route::get('/dashboard/reports', [UserReportController::class, 'reports']);
 Route::post('/filterUserReport', [UserReportController::class, 'filterReport']);
+Route::post('/printAllReport', [UserReportController::class, 'printAllReport']);
 Route::post('/downloadTeacherReport', [UserReportController::class, 'downloadTeacherReport']);
 
 Route::get('/dashboard/teacher-detailed-report', [UserDetailedReportController::class, 'reports']);

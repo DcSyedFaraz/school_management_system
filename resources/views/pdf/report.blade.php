@@ -248,8 +248,8 @@
             <p><strong>Maoni ya Mwalimu mkuu:</strong>
                 ____________________________________________________________________________________</p>
             <p style="margin-bottom: 10px;"></p>
-            <p><strong>Tarehe ya kufunga:</strong> ________________________________________
-                <strong> Tarehe ya kufungua:</strong> _____________________________
+            <p><strong>Tarehe ya kufunga:</strong> {{ $closingDate ?? '________________________________________' }}
+                <strong> Tarehe ya kufungua:</strong> {{ $openingDate ?? '_____________________________' }}
             </p>
         </div>
 
