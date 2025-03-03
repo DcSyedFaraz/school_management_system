@@ -98,9 +98,14 @@ class MarksUserExport implements FromCollection, WithHeadings, WithMapping, With
         }, 0);
 
         $grades = array_map(function ($subject) use ($marks) {
-            return [$marks->$subject, $this->assignGrade($marks->$subject)];
+            $subjectMark = $marks->$subject;
+            // Cast to string so that even 0 becomes "0"
+            $subjectMark = (string) $subjectMark;
+            return [$subjectMark, $this->assignGrade($marks->$subject)];
         }, $this->subjects);
-
+        // if ($marks->studentName == 'ABDALLAH MASUDI IBRAHIMU') {
+        //     dd($grades);
+        // }
         $gradesFlattened = [];
         foreach ($grades as $grade) {
             $gradesFlattened[] = $grade[0];
@@ -141,9 +146,9 @@ class MarksUserExport implements FromCollection, WithHeadings, WithMapping, With
     function assignGrade($marks)
     {
         if ($this->rank) {
-            foreach ($this->rank as $r) {
-                if ($marks >= $r['rankRangeMin'] && $marks <= $r['rankRangeMax']) {
-                    return $r['rankName'];
+            foreach ($this->rank as $rank) {
+                if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
+                    return $rank['rankName'];
                 }
             }
         }

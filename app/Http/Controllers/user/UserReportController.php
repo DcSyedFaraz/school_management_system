@@ -25,12 +25,7 @@ class UserReportController extends Controller
 
             // Get subjects based on class
             $subjects = [];
-            $subjects = match ($classId) {
-                '1' => config('subjects.1'),
-                '2' => config('subjects.2'),
-                '3' => config('subjects.3'),
-                default => config('subjects.class_default'),
-            };
+            $subjects = config('subjects.' . $classId, config('subjects.class_default'));
 
 
             // Select relevant columns including dynamic subjects
@@ -108,12 +103,7 @@ class UserReportController extends Controller
 
             // Get subjects based on class
             $subjects = [];
-            $subjects = match ($classId) {
-                '1' => config('subjects.1'),
-                '2' => config('subjects.2'),
-                '3' => config('subjects.3'),
-                default => config('subjects.class_default'),
-            };
+            $subjects = config('subjects.' . $classId, config('subjects.class_default'));
 
             // Select relevant columns including dynamic subjects
             $selectColumns = array_merge(['markId', 'studentName', 'gender', 'total', 'average'], $subjects);
