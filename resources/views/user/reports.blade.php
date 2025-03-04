@@ -393,7 +393,7 @@
                                     }
 
                                     $gAver =
-                                        count($marks) > 0
+                                        count($marks) && (count($marks) - $maleAbsent - $femaleAbsent) > 0
                                             ? $gATotal / (count($marks) - $maleAbsent - $femaleAbsent)
                                             : 0;
                                 @endphp
@@ -646,7 +646,7 @@
                                         {{ $gradeFemaleArray[$name][$grade] }}</td>
                                     <td class="text-center border border-black px-2">{{ $gradeArray[$name][$grade] }}</td>
                                 @endforeach
-                                @if (count($marks) > 0)
+                                @if (count($marks) > 0 && (count($marks) - $maleAbsent - $femaleAbsent))
                                     <td class="text-center border border-black">
                                         {{ number_format($gAverage[$g] / (count($marks) - $maleAbsent - $femaleAbsent), 2) }}
                                     </td>

@@ -204,15 +204,15 @@
                             id="endDate" placeholder="Enter End Date" value="{{ date('Y-m-d', strtotime($endDate)) }}">
                     </div>
                 </div>
-            </form>
 
-            <div class="flex justify-end">
-                <a href="{{ url('/admin-dashboard/student-data') }}"><button type="button" form="filterForm"
+                <div class="flex justify-end">
+                    <a href="{{ url('/admin-dashboard/student-data') }}"><button type="button" form="filterForm"
                         class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha
                         Upya</button></a>
-                <button type="submit" form="filterForm"
-                    class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
-            </div>
+                        <button type="submit" form="filterForm"
+                        class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
+                    </div>
+                </form>
         </div>
 
         <div class="overflow-x-auto">
@@ -823,10 +823,10 @@
         $(document).ready(function() {
             // Show the progress bar when the filter form is submitted
             $('#filterForm').submit(function() {
-                $('.progress-bar').show();
-                var progressBar = $('.progress-bar-inner');
-                progressBar.css('width', '0%');
-                progressBar.html('0%');
+                // $('.progress-bar').show();
+                // var progressBar = $('.progress-bar-inner');
+                // progressBar.css('width', '0%');
+                // progressBar.html('0%');
 
                 // Simulate a delay to show the progress bar (you can remove this if you want)
                 setTimeout(function() {

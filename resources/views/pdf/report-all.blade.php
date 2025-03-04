@@ -76,38 +76,6 @@
 
 <body class="p-3">
     <!-- Header -->
-    @php
-        // Parse start and end dates (assuming they are in Y-m-d format)
-        use Carbon\Carbon;
-        $start = Carbon::parse($startDate);
-        $end = Carbon::parse($endDate);
-        // Map English month names to Swahili (adjust as needed)
-        $monthMap = [
-            'January' => 'JANUARI',
-            'February' => 'FEBRUARI',
-            'March' => 'MACHI',
-            'April' => 'APRILI',
-            'May' => 'MEI',
-            'June' => 'JUNI',
-            'July' => 'JULAI',
-            'August' => 'AGOSTO',
-            'September' => 'SEPTEMBER',
-            'October' => 'OKTOBA',
-            'November' => 'NOVEMBER',
-            'December' => 'DECEMBER',
-        ];
-        $formattedMonth = $monthMap[$end->format('F')];
-        $formattedDates =
-            $start->format('d') . ' - ' . $end->format('d') . ' ' . $formattedMonth . ', ' . $end->format('Y');
-    @endphp
-
-    <div class="text-center font-bold mb-2">
-        <div>SHULE YA MARTIN LUTHER</div>
-        <div>MARTOKEO {{ $reportData['classId'] ?? 'DRS VII' }}</div>
-        <div>TATHIMINI YA MTIHANI WA {{ $reportData['examName'] ?? 'MOCK' }} WILAYA {{ $formattedDates }}</div>
-    </div>
-
-
 
     @php
         // Unpack precomputed data from $reportData
@@ -162,7 +130,39 @@
             $failThreshold = $classId > 4 ? $ranks[3]['rankRangeMax'] : $ranks[4]['rankRangeMax'];
             return $average <= $failThreshold ? 'FAIL' : 'PASS';
         }
+
+        // Parse start and end dates (assuming they are in Y-m-d format)
+        use Carbon\Carbon;
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+        // Map English month names to Swahili (adjust as needed)
+        $monthMap = [
+            'January' => 'JANUARI',
+            'February' => 'FEBRUARI',
+            'March' => 'MACHI',
+            'April' => 'APRILI',
+            'May' => 'MEI',
+            'June' => 'JUNI',
+            'July' => 'JULAI',
+            'August' => 'AGOSTO',
+            'September' => 'SEPTEMBER',
+            'October' => 'OKTOBA',
+            'November' => 'NOVEMBER',
+            'December' => 'DECEMBER',
+        ];
+        $formattedMonth = $monthMap[$end->format('F')];
+        $formattedDates =
+            $start->format('d') . ' - ' . $end->format('d') . ' ' . $formattedMonth . ', ' . $end->format('Y');
     @endphp
+
+    <div class="text-center font-bold mb-2">
+        <div>SHULE YA MARTIN LUTHER</div>
+        <div>MARTOKEO DRS {{ $reportData['classId'] ?? '' }}</div>
+        <div>TATHIMINI YA MTIHANI WA {{ $reportData['examName'] ?? '' }} WILAYA {{ $formattedDates }}</div>
+    </div>
+
+
+
 
     <!-- Filter/Summary Information -->
     <div>
