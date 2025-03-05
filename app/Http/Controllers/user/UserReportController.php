@@ -13,6 +13,7 @@ use App\Exports\MarksUserExport;
 use Session;
 use Excel;
 use DB;
+use Validator;
 
 class UserReportController extends Controller
 {
@@ -184,9 +185,26 @@ class UserReportController extends Controller
     }
     public function printAllReport(Request $request)
     {
-        // Decode the JSON data sent from the main report view
+        $schoolId = Session::get('userSchool');
+        $schoolName = DB::table('schools')->where('schoolId', $schoolId)->value('schoolName');
+        $districtId = Session::get('userDistrict');
+        $districtName = DB::table('districts')->where('districtId', $districtId)->value('districtName');
+
         $reportData = json_decode($request->input('reportData'), true);
-        // dd($request->input('reportData'),$reportData);
+
+        $reportData['schoolName'] = $schoolName;
+        $reportData['districtName'] = $districtName;
+
+        $validator = Validator::make($reportData, [
+            'marks' => 'required|array', // Marks should be an array and required
+            'marks.*' => 'required', // Each element of the marks array should be an array
+        ]);
+        if ($validator->fails()) {
+            return redirect()->route('user.reports')->withErrors($validator)->withInput(); // This would redirect as GET
+
+        }
+
+        // dd($request->input('reportData'), $reportData);
 
         // Load the PDF view and pass in the precomputed data
         $pdf = Pdf::loadView('pdf.report-all', ['reportData' => $reportData]);

@@ -113,12 +113,19 @@
             }
         }
 
+        // Retrieve the grade name based on selected classId
+        $selectedClass = collect($classes)->firstWhere('gradeId', $classId);
+        $selectedGradeName = $selectedClass ? $selectedClass['gradeName'] : 'Unknown Grade';
+        $selectedexam = collect($exams)->firstWhere('examId', $examId);
+        $selectedexamName = $selectedexam ? $selectedexam['examName'] : 'Unknown Exam';
+
         // --- PACK ALL CALCULATED DATA INTO A SINGLE ARRAY FOR THE PDF ---
         $reportData = [
             'classes' => $classes,
             'exams' => $exams,
             'classId' => $classId,
-            'examId' => $examId,
+            'className' => $selectedGradeName,
+            'examName' => $selectedexamName,
             'startDate' => $startDate,
             'endDate' => $endDate,
             'subjects' => $subjects,
@@ -154,6 +161,12 @@
 
     @endphp
     <div class="p-3">
+        <div id="toast-container" class="fixed top-0 right-0 z-50 space-y-4 p-4">
+            <!-- Toast message template -->
+            <div id="toast-message" class="hidden bg-red-500 text-white p-4 rounded-lg shadow-md">
+                <p id="toast-text"></p>
+            </div>
+        </div>
 
         <div class="flex justify-end">
             <form id="printReportForm" action="{{ url('/printReport') }}" method="post">
@@ -393,7 +406,7 @@
                                     }
 
                                     $gAver =
-                                        count($marks) && (count($marks) - $maleAbsent - $femaleAbsent) > 0
+                                        count($marks) && count($marks) - $maleAbsent - $femaleAbsent > 0
                                             ? $gATotal / (count($marks) - $maleAbsent - $femaleAbsent)
                                             : 0;
                                 @endphp
@@ -646,7 +659,7 @@
                                         {{ $gradeFemaleArray[$name][$grade] }}</td>
                                     <td class="text-center border border-black px-2">{{ $gradeArray[$name][$grade] }}</td>
                                 @endforeach
-                                @if (count($marks) > 0 && (count($marks) - $maleAbsent - $femaleAbsent))
+                                @if (count($marks) > 0 && count($marks) - $maleAbsent - $femaleAbsent)
                                     <td class="text-center border border-black">
                                         {{ number_format($gAverage[$g] / (count($marks) - $maleAbsent - $femaleAbsent), 2) }}
                                     </td>
@@ -711,6 +724,34 @@
         </div>
 
     </div>
+    @if ($errors->any())
+        <script>
+            // Collect errors and format them into a string to display in the toast
+            const errors = @json($errors->all());
+            const errorMessage = errors.join('<br>');
+
+            // Show the toast container and message
+            const toastContainer = document.getElementById('toast-container');
+            const toastMessage = document.getElementById('toast-message');
+            const toastText = document.getElementById('toast-text');
+
+            toastText.innerHTML = errorMessage;
+            toastMessage.classList.remove('hidden');
+
+            // Show the toast with a fade-in effect
+            setTimeout(() => {
+                toastMessage.classList.add('opacity-100');
+                toastMessage.classList.remove('opacity-0');
+            }, 100);
+
+            // Hide the toast after 5 seconds
+            setTimeout(() => {
+                toastMessage.classList.remove('opacity-100');
+                toastMessage.classList.add('opacity-0');
+            }, 5000);
+        </script>
+    @endif
+
     <script>
         document.getElementById('selectAll').addEventListener('change', function() {
             let checkboxes = document.querySelectorAll('.studentCheckbox');

@@ -92,7 +92,7 @@ Route::post('/downloadStudentData', [ReportController::class, 'downloadStudentDa
 Route::get('/dashboard', [UserDashboardController::class, 'adminDashboard']);
 Route::post('/dashboard/filter', [UserDashboardController::class, 'adminDashboardFilter']);
 
-Route::get('/dashboard/reports', [UserReportController::class, 'reports']);
+Route::get('/dashboard/reports', [UserReportController::class, 'reports'])->name('user.reports');
 Route::post('/filterUserReport', [UserReportController::class, 'filterReport']);
 Route::post('/printAllReport', [UserReportController::class, 'printAllReport']);
 Route::post('/downloadTeacherReport', [UserReportController::class, 'downloadTeacherReport']);

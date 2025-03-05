@@ -114,7 +114,7 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
     public function map($marks): array
     {
         $schoolData = Schools::find($marks['schoolId']);
-        $schoolName = ($schoolData) ? $schoolData['schoolName'] : "Not Found";
+        $schoolName = $schoolData ? $schoolData['schoolName'] : "Not Found";
 
         $total = array_sum(array_intersect_key($marks->toArray(), array_flip($this->subjects)));
 

@@ -82,7 +82,7 @@
         $classes = $reportData['classes'];
         $exams = $reportData['exams'];
         $classId = $reportData['classId'];
-        $examId = $reportData['examId'];
+        // $examId = $reportData['examId'];
         $startDate = $reportData['startDate'];
         $endDate = $reportData['endDate'];
         $subjects = $reportData['subjects'];
@@ -156,23 +156,18 @@
     @endphp
 
     <div class="text-center font-bold mb-2">
-        <div>SHULE YA MARTIN LUTHER</div>
-        <div>MARTOKEO DRS {{ $reportData['classId'] ?? '' }}</div>
-        <div>TATHIMINI YA MTIHANI WA {{ $reportData['examName'] ?? '' }} WILAYA {{ $formattedDates }}</div>
+        <div>OFISI YA RAIS - TAMISEMI</div>
+        <div>HALMASHAURI YA {{ $reportData['districtName'] ?? '_____________________' }}</div>
+        <div>SHULE YA MSINGI {{ $reportData['schoolName'] ?? '_____________________' }}</div>
+        <div>TATHIMINI YA MTIHANI WA {{ $reportData['examName'] ?? '_____________________' }} DARASA LA
+            {{ $reportData['className'] ?? '_________' }} ULIOFANYIKA
+            {{ $formattedDates ?? '_________________' }}</div>
     </div>
 
-
-
-
-    <!-- Filter/Summary Information -->
-    <div>
-        <p>Darasa: {{ $classId }}</p>
-        <p>Mtihani: {{ $examId }}</p>
-        <p>Tarehe: {{ $startDate }} hadi {{ $endDate }}</p>
-    </div>
+    <!-- School Summary Table -->
 
     <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
-        <div>
+        <div class="mb-2">
             <table class="w-full">
                 <thead>
                     <tr>
@@ -209,7 +204,7 @@
 
     <!-- TATHIMINI YA UFAULU Summary Table -->
     <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
-        <div>
+        <div class="mb-2">
             <table class="w-full">
                 <tr>
                     <th rowspan="2" class="text-center border border-black">TATHIMINI YA UFAULU</th>
