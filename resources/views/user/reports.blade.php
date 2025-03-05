@@ -181,7 +181,8 @@
             </form>
             <form id="printAllReportForm" action="{{ url('/printAllReport') }}" method="post" target="_blank">
                 @csrf
-                <input type="hidden" name="reportData" value='{!! json_encode($reportData) !!}'>
+                <input type="hidden" name="reportData" value='{!! json_encode($reportData, JSON_HEX_APOS) !!}'>
+
                 <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white mx-3 py-1 px-2 rounded-md">
                     <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha PDF</span>
                 </button>

@@ -185,6 +185,7 @@ class UserReportController extends Controller
     }
     public function printAllReport(Request $request)
     {
+        // dd($request->input('reportData'));
         $schoolId = Session::get('userSchool');
         $schoolName = DB::table('schools')->where('schoolId', $schoolId)->value('schoolName');
         $districtId = Session::get('userDistrict');
@@ -204,7 +205,6 @@ class UserReportController extends Controller
 
         }
 
-        // dd($request->input('reportData'), $reportData);
 
         // Load the PDF view and pass in the precomputed data
         $pdf = Pdf::loadView('pdf.report-all', ['reportData' => $reportData]);
