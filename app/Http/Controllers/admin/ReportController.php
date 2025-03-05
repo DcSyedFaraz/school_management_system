@@ -286,45 +286,55 @@ class ReportController extends Controller
             $gAverage = [0, 0, 0, 0, 0, 0];
             $subList = config('subjects.' . $classId, config('subjects.class_default'));
 
+            $gradeDistribution = [
+                'male' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'ABS' => 0],
+                'female' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'ABS' => 0]
+            ];
+
+            // Initialize subject grades with clearer structure
+            $subjectGradeCounts = array_fill_keys(
+                ['A', 'B', 'C', 'D', 'E'],
+                ['male' => array_fill(0, count($subjects), 0), 'female' => array_fill(0, count($subjects), 0)]
+            );
+
+            // Processing marks
             foreach ($allMarks as $mark) {
+                $gender = $mark['gender'] === 'M' ? 'male' : 'female';
+
                 if ($mark['average'] == 0) {
-                    ($mark['gender'] == 'M') ? $gradeArray[10]++ : $gradeArray[11]++;
-                } else {
-                    $gAverage[0] += $mark['kuhesabu'];
-                    $gAverage[1] += $mark['kusoma'];
-                    $gAverage[2] += $mark['kuandika'];
-                    $gAverage[3] += $mark['english'];
-                    $gAverage[4] += $mark['mazingira'];
-                    $gAverage[5] += $mark['michezo'];
+                    $gradeDistribution[$gender]['ABS']++;
+                    continue; // Skip subject processing for ABS students
+                }
 
-                    $grade = $this->assignGrade($mark['average']);
-                    if ($grade == 'A') {
-                        ($mark['gender'] == 'M') ? $gradeArray[0]++ : $gradeArray[5]++;
-                    } elseif ($grade == 'B') {
-                        ($mark['gender'] == 'M') ? $gradeArray[1]++ : $gradeArray[6]++;
-                    } elseif ($grade == 'C') {
-                        ($mark['gender'] == 'M') ? $gradeArray[2]++ : $gradeArray[7]++;
-                    } elseif ($grade == 'D') {
-                        ($mark['gender'] == 'M') ? $gradeArray[3]++ : $gradeArray[8]++;
-                    } else {
-                        ($mark['gender'] == 'M') ? $gradeArray[4]++ : $gradeArray[9]++;
-                    }
+                // Process subject averages
+                foreach ($subjects as $index => $subject) {
+                    $gAverage[$index] += $mark[$subject];
+                }
 
-                    foreach ($subList as $index => $subject) {
-                        $subjectGrade = $this->assignGrade($mark[$subject]);
-                        $subjectGrades[$subjectGrade][$mark['gender']][$index]++;
-                    }
+                // Process overall grade
+                $grade = $this->assignGrade($mark['average']);
+                $gradeDistribution[$gender][$grade]++;
+
+                // Process subject grades
+                foreach ($subjects as $index => $subject) {
+                    $subjectGrade = $this->assignGrade($mark[$subject]);
+                    $subjectGradeCounts[$subjectGrade][$gender][$index]++;
                 }
             }
+
+            // Update cache data
+            $processedData = [
+                'gradeDistribution' => $gradeDistribution,
+                'subjectGradeCounts' => $subjectGradeCounts,
+                'gAverage' => $gAverage
+            ];
 
             session(['pageTitle' => "Matokeo Kiwanafunzi"]);
             $data = compact(
                 'classes',
                 'allMarks',
-                'subjects',
-                'marks',
-                'gradeArray',
-                'subjectGrades',
+                'gradeDistribution',
+                'subjectGradeCounts',
                 'gAverage',
                 'exams',
                 'regions',
@@ -336,7 +346,9 @@ class ReportController extends Controller
                 'districtId',
                 'wardId',
                 'startDate',
-                'endDate'
+                'endDate',
+                'subjects',
+                'marks'
             );
 
             return view('admin.studentData')->with($data);
