@@ -2,18 +2,18 @@
 
 @section('content')
     @php
-        function assignGrade($marks)
+        function assignGrade($mark)
         {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
-
-            if ($rank) {
-                foreach ($rank as $r) {
-                    if ($r['rankRangeMin'] < $marks && $r['rankRangeMax'] >= $marks) {
-                        return $r['rankName'];
-                    }
+            $gradeBoundaries = [
+                'A' => [41, 50],
+                'B' => [31, 40],
+                'C' => [21, 30],
+                'D' => [11, 20],
+                'E' => [0, 10],
+            ];
+            foreach ($gradeBoundaries as $grade => $range) {
+                if ($mark >= $range[0] && $mark <= $range[1]) {
+                    return $grade;
                 }
             }
             return 'Null';
@@ -201,7 +201,6 @@
                             $startDate = $startDate == '' ? date('Y-m-d', strtotime('2023-01-01')) : $startDate;
                             $endDate = $endDate == '' ? date('Y-m-d') : $endDate;
                         @endphp
-                        {{-- @dd($marks) --}}
                         @foreach ($marks as $aMark)
                             @php
                                 $gradeArray = [];
@@ -342,6 +341,7 @@
                                 $g++;
                             @endphp
                         @endforeach
+                        {{-- @dd($marks) --}}
 
                         <tr class="font-bold">
                             <td class="text-center border-y border-l border-black px-2 text-white">Jumla</td>

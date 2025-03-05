@@ -181,26 +181,40 @@ class ReportController extends Controller
 
     function assignGrade($marks)
     {
-        $rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
+        $gradeBoundaries = [
+            'A' => [41, 50],
+            'B' => [31, 40],
+            'C' => [21, 30],
+            'D' => [11, 20],
+            'E' => [0, 10],
+        ];
 
-        if ($rank) {
-            if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
-                return $rank[0]['rankName'];
-            } else if ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
-                return $rank[1]['rankName'];
-            } else if ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
-                return $rank[2]['rankName'];
-            } else if ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
-                return $rank[3]['rankName'];
-            } else {
-                return $rank[4]['rankName'];
+        foreach ($gradeBoundaries as $grade => [$min, $max]) {
+            if ($marks >= $min && $marks <= $max) {
+                return $grade;
             }
-        } else {
-            return "Null";
         }
+        return 'E';
+        // $rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
+        //     ['isActive', '=', '1'],
+        //     ['isDeleted', '=', '0']
+        // ])->orderBy('rankName', 'asc')->get();
+
+        // if ($rank) {
+        //     if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
+        //         return $rank[0]['rankName'];
+        //     } else if ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
+        //         return $rank[1]['rankName'];
+        //     } else if ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
+        //         return $rank[2]['rankName'];
+        //     } else if ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
+        //         return $rank[3]['rankName'];
+        //     } else {
+        //         return $rank[4]['rankName'];
+        //     }
+        // } else {
+        //     return "Null";
+        // }
     }
 
     public function studentData()
@@ -647,49 +661,70 @@ class ReportController extends Controller
 
             $gAverage = array_fill(0, count($subjects), 0);
 
+            // Cache::clear();
             // Process marks
-            $cacheKey = "processed_marks_{$classId}_{$examId}_{$allMarks->count()}_{$regionId}_{$districtId}_{$wardId}_{$startDate}_{$endDate}";
+            $cacheKey = "processeds_marks_{$classId}_{$examId}_{$allMarks->count()}_{$regionId}_{$districtId}_{$wardId}_{$startDate}_{$endDate}";
             $processedData = Cache::get($cacheKey);
             // dd($cacheKey);
             if (!$processedData) {
                 // dd('hi');
+                $gradeDistribution = [
+                    'male' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'ABS' => 0],
+                    'female' => ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'ABS' => 0]
+                ];
+
+                // Initialize subject grades with clearer structure
+                $subjectGradeCounts = array_fill_keys(
+                    ['A', 'B', 'C', 'D', 'E'],
+                    ['male' => array_fill(0, count($subjects), 0), 'female' => array_fill(0, count($subjects), 0)]
+                );
+
+                // Processing marks
                 foreach ($allMarks as $mark) {
+                    $gender = $mark['gender'] === 'M' ? 'male' : 'female';
+
                     if ($mark['average'] == 0) {
-                        $gradeArray[$mark['gender'] == 'M' ? 10 : 11]++;
-                    } else {
-                        foreach ($subjects as $index => $subject) {
-                            $gAverage[$index] += $mark[$subject];
-                        }
+                        $gradeDistribution[$gender]['ABS']++;
+                        continue; // Skip subject processing for ABS students
+                    }
 
-                        $grade = $this->assignGrade($mark['average']);
-                        $genderIndex = $mark['gender'] == 'M' ? 0 : 5;
-                        $gradeArray[$this->getGradeIndex($grade) + $genderIndex]++;
+                    // Process subject averages
+                    foreach ($subjects as $index => $subject) {
+                        $gAverage[$index] += $mark[$subject];
+                    }
 
-                        foreach ($subjects as $index => $subject) {
-                            $subjectGrade = $this->assignGrade($mark[$subject]);
-                            $subjectGrades[$subjectGrade][$mark['gender']][$index]++;
-                        }
+                    // Process overall grade
+                    $grade = $this->assignGrade($mark['average']);
+                    $gradeDistribution[$gender][$grade]++;
+
+                    // Process subject grades
+                    foreach ($subjects as $index => $subject) {
+                        $subjectGrade = $this->assignGrade($mark[$subject]);
+                        $subjectGradeCounts[$subjectGrade][$gender][$index]++;
                     }
                 }
+
+                // Update cache data
                 $processedData = [
-                    'gradeArray' => $gradeArray,
-                    'gAverage' => $gAverage,
-                    'subjectGrades' => $subjectGrades
+                    'gradeDistribution' => $gradeDistribution,
+                    'subjectGradeCounts' => $subjectGradeCounts,
+                    'gAverage' => $gAverage
                 ];
                 Cache::put($cacheKey, $processedData, now()->addHours(24));
             } else {
-                $gradeArray = $processedData['gradeArray'];
+                $gradeDistribution = $processedData['gradeDistribution'];
+                $subjectGradeCounts = $processedData['subjectGradeCounts'];
                 $gAverage = $processedData['gAverage'];
-                $subjectGrades = $processedData['subjectGrades'];
             }
+            // dd($processedData);
 
             session(['pageTitle' => "Matokeo Kiwanafunzi"]);
 
             $data = compact(
                 'classes',
                 'allMarks',
-                'gradeArray',
-                'subjectGrades',
+                'gradeDistribution',
+                'subjectGradeCounts',
                 'gAverage',
                 'exams',
                 'regions',

@@ -43,14 +43,12 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         foreach ($rows as $row) {
 
             $gender = ($row['gender'] == 'M' || $row['gender'] == '1') ? "M" : "F";
-            $firstGrade = ($row['firstgrade'] == 'Y' || $row['firstgrade'] == '1') ? "1" : "0";
 
             $markData = new Marks;
             $markData['examDate'] = $this->requestData['examDate'];
             $markData['classId'] = $this->requestData['class'];
             $markData['studentName'] = $row['studentname'];
             $markData['gender'] = $gender;
-            $markData['firstGrade'] = $firstGrade;
 
             $subjects = [];
 
@@ -81,7 +79,6 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         $rules = [
             'studentname' => 'required|string',
             'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
-            'firstgrade' => ['required', Rule::in(['Y', 'N', '1', '2'])],
         ];
 
         // Retrieve the list of subjects for the given class.

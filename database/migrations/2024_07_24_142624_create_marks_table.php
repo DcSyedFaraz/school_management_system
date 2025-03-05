@@ -41,7 +41,6 @@ return new class extends Migration
             $table->integer('regionId');
             $table->integer('districtId');
             $table->integer('wardId')->nullable();
-            $table->string('firstGrade')->default(0);
             $table->integer('schoolId');
             $table->string('isActive')->default(1);
             $table->string('isDeleted')->default(0);

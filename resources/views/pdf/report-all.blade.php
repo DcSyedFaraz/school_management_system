@@ -225,7 +225,7 @@
                     <th class="border border-black uppercase">Jumla</th>
                 </tr>
                 <tr class="bg-white">
-                    <td class="border border-black text-center">1</td>
+                    <td class="border border-black text-center">WAV</td>
                     <td class="border border-black text-center">{{ $amCount }}</td>
                     <td class="border border-black text-center">{{ $bmCount }}</td>
                     <td class="border border-black text-center">{{ $cmCount }}</td>
@@ -235,7 +235,7 @@
                     <td class="border border-black text-center">{{ $gradeMaleCount + $maleAbsent }}</td>
                 </tr>
                 <tr class="bg-gray-200">
-                    <td class="border border-black text-center">2</td>
+                    <td class="border border-black text-center">WAS</td>
                     <td class="border border-black text-center">{{ $afCount }}</td>
                     <td class="border border-black text-center">{{ $bfCount }}</td>
                     <td class="border border-black text-center">{{ $cfCount }}</td>
@@ -269,13 +269,13 @@
                 </thead>
                 <tbody>
                     <tr class="bg-white text-center">
-                        <td class="border border-black px-2">1</td>
+                        <td class="border border-black px-2">WAV</td>
                         <td class="border border-black px-2">{{ $gradeMaleCount }}</td>
                         <td class="border border-black px-2">{{ $gradeMaleCount - $failMaleCount }}</td>
                         <td class="border border-black px-2">{{ $failMaleCount }}</td>
                     </tr>
                     <tr class="bg-gray-200 text-center">
-                        <td class="border border-black px-2">2</td>
+                        <td class="border border-black px-2">WAS</td>
                         <td class="border border-black px-2">{{ $gradeFemaleCount }}</td>
                         <td class="border border-black px-2">{{ $gradeFemaleCount - $failFemaleCount }}</td>
                         <td class="border border-black px-2">{{ $failFemaleCount }}</td>
@@ -321,8 +321,8 @@
                 </tr>
                 <tr>
                     @foreach (range(1, 5) as $dummy)
-                        <th>1</th>
-                        <th>2</th>
+                        <th>WAV</th>
+                        <th>WAS</th>
                         <th>JML</th>
                     @endforeach
                 </tr>

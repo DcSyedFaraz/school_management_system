@@ -72,14 +72,6 @@
                                     </select>
                                 </div>
 
-                                <div>
-                                    <label for="updatedFirstGrade">Joined First Grade in 2017?</label>
-                                    <select class="block w-full block p-2 rounded-md border border-black" name="updatedFirstGrade" id="updatedFirstGrade" required>
-                                        <option value="">--- SELECT OPTION ---</option>
-                                        <option value="0">No</option>
-                                        <option value="1">Yes</option>
-                                    </select>
-                                </div>
                             </div>
                         </div>
 

@@ -123,7 +123,6 @@ class UploadController extends Controller
                     'gender' => 'required',
                     'examDate' => 'required|date',
                     'class' => 'required|integer',
-                    'firstGrade' => 'required|integer',
                     'exam' => 'required|integer'
                 ]
             );
@@ -149,7 +148,6 @@ class UploadController extends Controller
             $mark['classId'] = $req['class'];
             $mark['studentName'] = $req['studentName'];
             $mark['gender'] = $req['gender'];
-            $mark['firstGrade'] = $req['firstGrade'];
 
             $total = 0;
             foreach ($subjects as $subject) {
@@ -191,7 +189,6 @@ class UploadController extends Controller
                     'updatedGender' => 'required',
                     'updatedExamDate' => 'required|date',
                     'updatedClass' => 'required|integer',
-                    'updatedFirstGrade' => 'required|integer',
                     'updatedExam' => 'required|integer',
 
                 ];
@@ -207,7 +204,6 @@ class UploadController extends Controller
                 $validMark['classId'] = $req['updatedClass'];
                 $validMark['studentName'] = $req['updatedStudentName'];
                 $validMark['gender'] = $req['updatedGender'];
-                $validMark['firstGrade'] = $req['updatedFirstGrade'];
                 $validMark['examId'] = $req['updatedExam'];
 
                 $totalMarks = 0;

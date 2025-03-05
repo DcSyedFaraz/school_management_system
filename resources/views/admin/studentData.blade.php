@@ -36,22 +36,39 @@
 
 @section('content')
     @php
-        function assignGrade($marks)
-        {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
 
-            if ($marks == 10) {
-                return 'E';
-            }
-            foreach ($rank as $r) {
-                if ($marks >= $r->rankRangeMin && $marks <= $r->rankRangeMax) {
-                    return $r->rankName;
+        // function assignGrade($marks)
+        // {
+        //     $ranks = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+        //         ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
+        //         ->orderBy('rankName', 'asc')
+        //         ->get();
+
+        //     if ($marks == 10) {
+        //         return 'E';
+        //     }
+        //     foreach ($ranks as $rank) {
+        //         if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
+        //             return $rank['rankName'];
+        //         }
+        //     }
+
+        //     return 'Null';
+        // }
+        function assignGrade($mark)
+        {
+            $gradeBoundaries = [
+                'A' => [41, 50],
+                'B' => [31, 40],
+                'C' => [21, 30],
+                'D' => [11, 20],
+                'E' => [0, 10],
+            ];
+            foreach ($gradeBoundaries as $grade => $range) {
+                if ($mark >= $range[0] && $mark <= $range[1]) {
+                    return $grade;
                 }
             }
-
             return 'Null';
         }
 
@@ -84,6 +101,10 @@
                 }
             }
         }
+
+        // Calculate total students who took the exam
+        $totalStudentsTookExam =
+            count($allMarks) - $gradeDistribution['male']['ABS'] - $gradeDistribution['female']['ABS'];
     @endphp
 
     <div class="p-3">
@@ -207,18 +228,18 @@
 
                 <div class="flex justify-end">
                     <a href="{{ url('/admin-dashboard/student-data') }}"><button type="button" form="filterForm"
-                        class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha
-                        Upya</button></a>
-                        <button type="submit" form="filterForm"
+                            class="mx-1 bg-green-500 hover:bg-green-600 px-2 py-1 text-white rounded-md mt-1">Onesha
+                            Upya</button></a>
+                    <button type="submit" form="filterForm"
                         class="bg-blue-500 hover:bg-blue-600 px-2 py-1 text-white rounded-md mt-1">Kichujio</button>
-                    </div>
-                </form>
+                </div>
+            </form>
         </div>
 
         <div class="overflow-x-auto">
             <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO KWA WANAFUNZI WOTE:</h2>
 
-            <table class=" bg-white">
+            <table class="bg-white">
                 <thead>
                     <tr>
                         <th rowspan="2" class="border border-black p-[15px]">S/N</th>
@@ -364,8 +385,7 @@
                             @endif
 
                             @if ($mark['average'] > 0)
-                                <td class="p-[15px] border border-black">{{ finalStatus($mark['average'], $classId) }}
-                                </td>
+                                <td class="p-[15px] border border-black">{{ finalStatus($mark['average']) }}</td>
                             @else
                                 <td class="p-[15px] border border-black"></td>
                             @endif
@@ -378,14 +398,12 @@
                 </tbody>
             </table>
             <div class="my-[5px]">
-
                 {{ $marks->links() }}
             </div>
         </div>
 
         <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
             <div>
-                {{-- <h2 class="text-2xl font-bold mb-2">School Average Grade</h2> --}}
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -398,18 +416,13 @@
                         <tr class="bg-white">
                             <td class="p-[15px] border border-black p-1 text-center">
                                 @php
-                                    $gATotal = 0;
-                                    foreach ($gAverage as $gA) {
-                                        $gATotal = $gATotal + $gA;
-                                    }
-
+                                    $gATotal = array_sum($gAverage);
                                     $gAver =
-                                        count($allMarks) > 0
-                                            ? $gATotal / (6 * (count($allMarks) - $gradeArray[10] - $gradeArray[11]))
+                                        $totalStudentsTookExam > 0
+                                            ? $gATotal / (count($subjects) * $totalStudentsTookExam)
                                             : 0;
                                     $schoolGrade = assignGrade($gAver);
                                 @endphp
-
                                 {{ number_format($gAver, 2) }}
                             </td>
                             <td class="p-[15px] border border-black p-1 text-center">{{ $schoolGrade }}</td>
@@ -419,7 +432,6 @@
             </div>
 
             <div>
-                {{-- <h2 class="text-2xl font-bold mb-2">School Average Passing</h2> --}}
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -432,17 +444,9 @@
                         <tr class="bg-white">
                             <td class="p-[15px] border border-black p-1 text-center">
                                 @php
-                                    $gATotal = 0;
-                                    foreach ($gAverage as $gA) {
-                                        $gATotal = $gATotal + $gA;
-                                    }
-
-                                    $gAver =
-                                        count($allMarks) > 0
-                                            ? $gATotal / (count($allMarks) - $gradeArray[10] - $gradeArray[11])
-                                            : 0;
+                                    $gATotal = array_sum($gAverage);
+                                    $gAver = $totalStudentsTookExam > 0 ? $gATotal / $totalStudentsTookExam : 0;
                                 @endphp
-                                {{-- @dd($gAver,$gAverage,$gATotal,count($allMarks),$gradeArray[10] - $gradeArray[11]) --}}
                                 {{ number_format($gAver, 2) }}
                             </td>
                             <td class="p-[15px] border border-black p-1 text-center">{{ $schoolGrade }}</td>
@@ -454,7 +458,6 @@
 
         <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2 mt-5">
             <div>
-                {{-- <h2 class="text-2xl font-bold mb-2">Average Grade Distribution</h2> --}}
                 <table class="w-full">
                     <tr>
                         <th rowspan="2" class="text-center border border-black">TATHIMINI YA UFAULU</th>
@@ -472,62 +475,80 @@
                     </tr>
 
                     @php
-                        if ($classId > 4) {
-                            $failCount = $gradeArray[3] + $gradeArray[4] + $gradeArray[8] + $gradeArray[9];
-                            $failMaleCount = $gradeArray[3] + $gradeArray[4];
-                            $failFemaleCount = $gradeArray[8] + $gradeArray[9];
-                        } else {
-                            $failCount = $gradeArray[4] + $gradeArray[9];
-                            $failMaleCount = $gradeArray[4];
-                            $failFemaleCount = $gradeArray[9];
-                        }
-                        // dd($gradeArray);
-                        $gradeCount = array_sum($gradeArray) - $gradeArray[10] - $gradeArray[11];
                         $gradeMaleCount =
-                            $gradeArray[0] + $gradeArray[1] + $gradeArray[2] + $gradeArray[3] + $gradeArray[4];
+                            $gradeDistribution['male']['A'] +
+                            $gradeDistribution['male']['B'] +
+                            $gradeDistribution['male']['C'] +
+                            $gradeDistribution['male']['D'] +
+                            $gradeDistribution['male']['E'];
                         $gradeFemaleCount =
-                            $gradeArray[5] + $gradeArray[6] + $gradeArray[7] + $gradeArray[8] + $gradeArray[9];
+                            $gradeDistribution['female']['A'] +
+                            $gradeDistribution['female']['B'] +
+                            $gradeDistribution['female']['C'] +
+                            $gradeDistribution['female']['D'] +
+                            $gradeDistribution['female']['E'];
+                        if ($classId > 4) {
+                            $failCount =
+                                $gradeDistribution['male']['D'] +
+                                $gradeDistribution['male']['E'] +
+                                $gradeDistribution['female']['D'] +
+                                $gradeDistribution['female']['E'];
+                            $failMaleCount = $gradeDistribution['male']['D'] + $gradeDistribution['male']['E'];
+                            $failFemaleCount = $gradeDistribution['female']['D'] + $gradeDistribution['female']['E'];
+                        } else {
+                            $failCount = $gradeDistribution['male']['E'] + $gradeDistribution['female']['E'];
+                            $failMaleCount = $gradeDistribution['male']['E'];
+                            $failFemaleCount = $gradeDistribution['female']['E'];
+                        }
+                        $gradeCount = $gradeMaleCount + $gradeFemaleCount;
                     @endphp
 
                     <tr class="bg-white">
                         <td class="p-[15px] border border-black text-center">1</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[0] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[1] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[2] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[3] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[4] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[10] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeMaleCount + $gradeArray[10] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['male']['A'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['male']['B'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['male']['C'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['male']['D'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['male']['E'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['male']['ABS'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ array_sum($gradeDistribution['male']) }}
+                        </td>
                     </tr>
 
                     <tr class="bg-gray-200">
                         <td class="p-[15px] border border-black text-center">2</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[5] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[6] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[7] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[8] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[9] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[11] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeFemaleCount + $gradeArray[11] }}
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['female']['A'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['female']['B'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['female']['C'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['female']['D'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['female']['E'] }}</td>
+                        <td class="p-[15px] border border-black text-center">{{ $gradeDistribution['female']['ABS'] }}
+                        </td>
+                        <td class="p-[15px] border border-black text-center">{{ array_sum($gradeDistribution['female']) }}
                         </td>
                     </tr>
 
                     <tr class="bg-white">
                         <td class="p-[15px] border border-black text-center">Jumla</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[0] + $gradeArray[5] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[1] + $gradeArray[6] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[2] + $gradeArray[7] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[3] + $gradeArray[8] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[4] + $gradeArray[9] }}</td>
-                        <td class="p-[15px] border border-black text-center">{{ $gradeArray[10] + $gradeArray[11] }}</td>
                         <td class="p-[15px] border border-black text-center">
-                            {{ $gradeMaleCount + $gradeFemaleCount + $gradeArray[10] + $gradeArray[11] }}</td>
+                            {{ $gradeDistribution['male']['A'] + $gradeDistribution['female']['A'] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ $gradeDistribution['male']['B'] + $gradeDistribution['female']['B'] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ $gradeDistribution['male']['C'] + $gradeDistribution['female']['C'] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ $gradeDistribution['male']['D'] + $gradeDistribution['female']['D'] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ $gradeDistribution['male']['E'] + $gradeDistribution['female']['E'] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ $gradeDistribution['male']['ABS'] + $gradeDistribution['female']['ABS'] }}</td>
+                        <td class="p-[15px] border border-black text-center">
+                            {{ array_sum($gradeDistribution['male']) + array_sum($gradeDistribution['female']) }}</td>
                     </tr>
                 </table>
             </div>
 
             <div>
-                {{-- <h2 class="text-2xl font-bold mb-2">Exam Participation & Results</h2> --}}
                 <table class="w-full">
                     <thead>
                         <tr>
@@ -636,161 +657,81 @@
 
                 <tbody>
                     @if (count($subjects) > 0)
-                        {{-- @php
-                            $i = 0;
-                            $rowColor = $i % 2 == 0 ? 'bg-white' : 'bg-gray-200';
-                            $failCount =
-                                $classId > 4
-                                    ? array_sum($dMaleGrade) +
-                                        array_sum($eMaleGrade) +
-                                        array_sum($dFemaleGrade) +
-                                        array_sum($eFemaleGrade)
-                                    : array_sum($eMaleGrade) + array_sum($dMaleGrade);
-                        @endphp --}}
-                        {{-- @foreach ($subjects as $name)
-                            @php
-                                $totalGradeCount =
-                                    $aMaleGrade[$i] +
-                                    $bMaleGrade[$i] +
-                                    $cMaleGrade[$i] +
-                                    $dMaleGrade[$i] +
-                                    $eMaleGrade[$i] +
-                                    $aFemaleGrade[$i] +
-                                    $bFemaleGrade[$i] +
-                                    $cFemaleGrade[$i] +
-                                    $dFemaleGrade[$i] +
-                                    $eFemaleGrade[$i];
-                            @endphp
-
-                            <tr class="{{ $rowColor }}">
-                                <td class="p-[15px] pl-2 border border-black capitalize">{{ $name }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $aMaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $aFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">
-                                    {{ $aMaleGrade[$i] + $aFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $bMaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $bFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">
-                                    {{ $bMaleGrade[$i] + $bFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $cMaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $cFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">
-                                    {{ $cMaleGrade[$i] + $cFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $dMaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $dFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">
-                                    {{ $dMaleGrade[$i] + $dFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $eMaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">{{ $eFemaleGrade[$i] }}</td>
-                                <td class="p-[15px] text-center border border-black px-2">
-                                    {{ $eMaleGrade[$i] + $eFemaleGrade[$i] }}</td>
-
-                                @if (count($marks) > 0)
-                                    <td class="p-[15px] text-center border border-black">
-                                        {{ number_format($gAverage[$i] / (count($marks) - $gradeArray[10] - $gradeArray[11]), 2) }}
-                                    </td>
-                                @else
-                                    <td class="p-[15px] text-center border border-black">0</td>
-                                @endif
-
-                                <td class="p-[15px] text-center border border-black">
-                                    {{ $totalGradeCount - $failedCount }}</td>
-                                <td class="p-[15px] text-center border border-black">
-                                    @if ($totalGradeCount > 0)
-                                        {{ number_format((($totalGradeCount - $failedCount) * 100) / $totalGradeCount, 2) }}
-                                    @else
-                                        <p>0</p>
-                                    @endif
-                                </td>
-                                <td class="p-[15px] text-center border border-black">{{ $failedCount }}</td>
-                                <td class="p-[15px] text-center border border-black">
-                                    @if ($totalGradeCount > 0)
-                                        {{ number_format(($failedCount * 100) / $totalGradeCount, 2) }}
-                                    @else
-                                        <p>0</p>
-                                    @endif
-                                </td>
-                            </tr>
-
-                            @php
-                                $i++;
-                            @endphp
-                        @endforeach --}}
                         @foreach ($subjects as $index => $subject)
                             <tr>
                                 <td class="p-[15px] border border-black capitalize">{{ $subject }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['A']['M'][$index] }}</td>
+                                    {{ $subjectGradeCounts['A']['male'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['A']['F'][$index] }}</td>
+                                    {{ $subjectGradeCounts['A']['female'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['A']['M'][$index] + $subjectGrades['A']['F'][$index] }}</td>
-
+                                    {{ $subjectGradeCounts['A']['male'][$index] + $subjectGradeCounts['A']['female'][$index] }}
+                                </td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['B']['M'][$index] }}</td>
+                                    {{ $subjectGradeCounts['B']['male'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['B']['F'][$index] }}</td>
+                                    {{ $subjectGradeCounts['B']['female'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['B']['M'][$index] + $subjectGrades['B']['F'][$index] }}</td>
-
+                                    {{ $subjectGradeCounts['B']['male'][$index] + $subjectGradeCounts['B']['female'][$index] }}
+                                </td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['C']['M'][$index] }}</td>
+                                    {{ $subjectGradeCounts['C']['male'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['C']['F'][$index] }}</td>
+                                    {{ $subjectGradeCounts['C']['female'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['C']['M'][$index] + $subjectGrades['C']['F'][$index] }}</td>
-
+                                    {{ $subjectGradeCounts['C']['male'][$index] + $subjectGradeCounts['C']['female'][$index] }}
+                                </td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['D']['M'][$index] }}</td>
+                                    {{ $subjectGradeCounts['D']['male'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['D']['F'][$index] }}</td>
+                                    {{ $subjectGradeCounts['D']['female'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['D']['M'][$index] + $subjectGrades['D']['F'][$index] }}</td>
-
+                                    {{ $subjectGradeCounts['D']['male'][$index] + $subjectGradeCounts['D']['female'][$index] }}
+                                </td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['E']['M'][$index] }}</td>
+                                    {{ $subjectGradeCounts['E']['male'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['E']['F'][$index] }}</td>
+                                    {{ $subjectGradeCounts['E']['female'][$index] }}</td>
                                 <td class="p-[15px] text-center border border-black">
-                                    {{ $subjectGrades['E']['M'][$index] + $subjectGrades['E']['F'][$index] }}</td>
+                                    {{ $subjectGradeCounts['E']['male'][$index] + $subjectGradeCounts['E']['female'][$index] }}
+                                </td>
 
                                 <!-- Calculate and display the average for each subject -->
-                                @php
-                                    // $subjectTotalMarks = $marks->pluck($subject)->sum();
-                                    $subjectTotalMarks = $gAverage[$index];
-                                    $averageSubjectMarks =
-                                        $allMarks->count() > 0 ? $subjectTotalMarks / $allMarks->count() : 0;
-                                @endphp
-                                <td class="p-[15px] text-center border border-black">
-                                    {{ number_format($averageSubjectMarks, 2) }} </td>
+                                @if ($totalStudentsTookExam > 0)
+                                    <td class="p-[15px] text-center border border-black">
+                                        {{ number_format($gAverage[$index] / $totalStudentsTookExam, 2) }}</td>
+                                @else
+                                    <td class="p-[15px] text-center border border-black">0</td>
+                                @endif
 
                                 <!-- Calculate and display the pass/fail rate for the subject -->
                                 @php
                                     if ($classId > 4) {
                                         $passCount =
-                                            $subjectGrades['A']['M'][$index] +
-                                            $subjectGrades['A']['F'][$index] +
-                                            $subjectGrades['B']['M'][$index] +
-                                            $subjectGrades['B']['F'][$index] +
-                                            $subjectGrades['C']['M'][$index] +
-                                            $subjectGrades['C']['F'][$index];
+                                            $subjectGradeCounts['A']['male'][$index] +
+                                            $subjectGradeCounts['A']['female'][$index] +
+                                            $subjectGradeCounts['B']['male'][$index] +
+                                            $subjectGradeCounts['B']['female'][$index] +
+                                            $subjectGradeCounts['C']['male'][$index] +
+                                            $subjectGradeCounts['C']['female'][$index];
                                         $failCount =
-                                            $subjectGrades['D']['M'][$index] +
-                                            $subjectGrades['D']['F'][$index] +
-                                            $subjectGrades['E']['M'][$index] +
-                                            $subjectGrades['E']['F'][$index];
+                                            $subjectGradeCounts['D']['male'][$index] +
+                                            $subjectGradeCounts['D']['female'][$index] +
+                                            $subjectGradeCounts['E']['male'][$index] +
+                                            $subjectGradeCounts['E']['female'][$index];
                                     } else {
                                         $passCount =
-                                            $subjectGrades['A']['M'][$index] +
-                                            $subjectGrades['A']['F'][$index] +
-                                            $subjectGrades['B']['M'][$index] +
-                                            $subjectGrades['B']['F'][$index] +
-                                            $subjectGrades['C']['M'][$index] +
-                                            $subjectGrades['C']['F'][$index] +
-                                            $subjectGrades['D']['M'][$index] +
-                                            $subjectGrades['D']['F'][$index];
+                                            $subjectGradeCounts['A']['male'][$index] +
+                                            $subjectGradeCounts['A']['female'][$index] +
+                                            $subjectGradeCounts['B']['male'][$index] +
+                                            $subjectGradeCounts['B']['female'][$index] +
+                                            $subjectGradeCounts['C']['male'][$index] +
+                                            $subjectGradeCounts['C']['female'][$index] +
+                                            $subjectGradeCounts['D']['male'][$index] +
+                                            $subjectGradeCounts['D']['female'][$index];
                                         $failCount =
-                                            $subjectGrades['E']['M'][$index] + $subjectGrades['E']['F'][$index];
+                                            $subjectGradeCounts['E']['male'][$index] +
+                                            $subjectGradeCounts['E']['female'][$index];
                                     }
 
                                     $totalStudents = $passCount + $failCount;
@@ -821,22 +762,12 @@
     </div>
     <script>
         $(document).ready(function() {
-            // Show the progress bar when the filter form is submitted
             $('#filterForm').submit(function() {
-                // $('.progress-bar').show();
-                // var progressBar = $('.progress-bar-inner');
-                // progressBar.css('width', '0%');
-                // progressBar.html('0%');
-
-                // Simulate a delay to show the progress bar (you can remove this if you want)
                 setTimeout(function() {
-                    // Update the progress bar every 100ms
+                    var progressBar = $('.progress-bar-inner');
                     var interval = setInterval(function() {
-                        var width = progressBar.width() + 10;
+                        var width = parseInt(progressBar.width()) + 10;
                         progressBar.css('width', width + '%');
-                        progressBar.html(width + '%');
-
-                        // Stop the interval when the progress bar reaches 100%
                         if (width >= 100) {
                             clearInterval(interval);
                         }
@@ -844,7 +775,6 @@
                 }, 500);
             });
 
-            // Hide the progress bar when the response comes
             $(document).ajaxStop(function() {
                 $('.progress-bar').hide();
             });
