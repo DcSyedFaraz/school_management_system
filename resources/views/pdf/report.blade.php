@@ -180,8 +180,8 @@
     <div class="report-container">
         <div class="header">
             <h2>OFISI YA RAIS - TAMISEMI</h2>
-            <h2>SHULE YA MSINGI {{ $student['schoolname'] }}</h2>
             <h2>HALMASHAURI YA {{ $student['districtName'] ?? '_____________________' }}</h2>
+            <h2>SHULE YA MSINGI {{ $student['schoolname'] }}</h2>
             <h2>RIPOTI YA MAENDELEO YA MWANAFUNZI</h2>
         </div>
 
