@@ -151,8 +151,7 @@
             'December' => 'DECEMBER',
         ];
         $formattedMonth = $monthMap[$end->format('F')];
-        $formattedDates =
-            $start->format('d') . ' - ' . $end->format('d') . ' ' . $formattedMonth . ', ' . $end->format('Y');
+        $formattedDates = $end->format('d') . ' ' . $formattedMonth . ', ' . $end->format('Y');
     @endphp
 
     <div class="text-center font-bold mb-2 uppercase">

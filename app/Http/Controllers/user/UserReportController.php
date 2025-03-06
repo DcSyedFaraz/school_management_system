@@ -233,6 +233,6 @@ class UserReportController extends Controller
         );
 
         // Return the PDF as a stream (you may also use ->download('report.pdf'))
-        return $pdf->stream('report.pdf');
+        return $pdf->stream('subjectwise.pdf');
     }
 }
