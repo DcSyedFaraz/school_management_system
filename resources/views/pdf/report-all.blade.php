@@ -155,7 +155,7 @@
             $start->format('d') . ' - ' . $end->format('d') . ' ' . $formattedMonth . ', ' . $end->format('Y');
     @endphp
 
-    <div class="text-center font-bold mb-2">
+    <div class="text-center font-bold mb-2 uppercase">
         <div>OFISI YA RAIS - TAMISEMI</div>
         <div>HALMASHAURI YA {{ $reportData['districtName'] ?? '_____________________' }}</div>
         <div>SHULE YA MSINGI {{ $reportData['schoolName'] ?? '_____________________' }}</div>

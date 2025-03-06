@@ -208,6 +208,29 @@ class UserReportController extends Controller
 
         // Load the PDF view and pass in the precomputed data
         $pdf = Pdf::loadView('pdf.report-all', ['reportData' => $reportData]);
+        $pdf->output(); // render the PDF
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->get_canvas();
+        // Add page number text to the bottom-right corner
+// Add the "Designed by" text in the center
+        $canvas->page_text(
+            ($canvas->get_width() / 2) - 70,  // Center the text horizontally
+            $canvas->get_height() - 30,       // Place it near the bottom of the page
+            "Created and Designed by rmstechnology.co.tz",
+            null,
+            8,
+            [0, 0, 0]  // Color (black)
+        );
+
+        // Add the page number on the left side
+        $canvas->page_text(
+            30,  // Place it near the left of the page
+            $canvas->get_height() - 30,  // Same Y-position to align with the "Designed by" text
+            "Page {PAGE_NUM} of {PAGE_COUNT}",
+            null,
+            8,
+            [0, 0, 0]  // Color (black)
+        );
 
         // Return the PDF as a stream (you may also use ->download('report.pdf'))
         return $pdf->stream('report.pdf');
