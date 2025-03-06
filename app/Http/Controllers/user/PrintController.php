@@ -5,7 +5,9 @@ namespace App\Http\Controllers\user;
 use App\Http\Controllers\Controller;
 use App\Models\Marks;
 use Barryvdh\DomPDF\Facade\Pdf;
+use DB;
 use Illuminate\Http\Request;
+use Session;
 use setasign\Fpdi\Fpdi;
 
 class PrintController extends Controller
@@ -42,10 +44,12 @@ class PrintController extends Controller
         }
         $pdfPaths = [];
 
+        $districtId = Session::get('userDistrict');
+        $districtName = DB::table('districts')->where('districtId', $districtId)->value('districtName');
         // Generate individual PDFs for each student
         foreach ($students as $student) {
             $mark = Marks::where('markId', $student['id'])->select('markId', 'classId', 'examId', 'schoolId', 'examDate')->first();
-            // dd(count($student['subjects']));
+            $student['districtName'] = $districtName;
             $student['schoolname'] = $mark->school->schoolName ?? 'NOT AVAILABLE';
             $student['classname'] = $mark->class->gradeName ?? 'NOT AVAILABLE';
             $student['date'] = $mark->examDate ?? 'NOT AVAILABLE';
@@ -84,12 +88,12 @@ class PrintController extends Controller
             foreach ($pdfPaths as $pdfPath) {
                 unlink($pdfPath);
             }
-            // return response()->file($mergedPdfPath, [
-            //     'Content-Type' => 'application/pdf',
-            //     'Content-Disposition' => 'inline; filename="Ripoti.pdf"',
-            // ]);
+            return response()->file($mergedPdfPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="Ripoti.pdf"',
+            ]);
 
-            return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
+            // return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             // Handle the exception
             \Log::error($e->getMessage());

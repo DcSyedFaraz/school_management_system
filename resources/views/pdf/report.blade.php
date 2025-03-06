@@ -133,6 +133,10 @@
             color: #fff;
         }
 
+        h2 {
+            font-size: 10px;
+        }
+
         .color-E,
         .color-Null {
             background-color: #FF0000;
@@ -177,6 +181,7 @@
         <div class="header">
             <h2>OFISI YA RAIS - TAMISEMI</h2>
             <h2>SHULE YA MSINGI {{ $student['schoolname'] }}</h2>
+            <h2>HALMASHAURI YA {{ $student['districtName'] ?? '_____________________' }}</h2>
             <h2>RIPOTI YA MAENDELEO YA MWANAFUNZI</h2>
         </div>
 
@@ -250,7 +255,8 @@
             <p style="margin-bottom: 10px;"></p>
             <p>
                 <span style="float: left; display: inline-block;">
-                    <strong>Tarehe ya kufunga:</strong> {{ $closingDate ?? '________________________________________' }}
+                    <strong>Tarehe ya kufunga:</strong>
+                    {{ $closingDate ?? '________________________________________' }}
                 </span>
                 <span style="display: block; text-align: center;">
                     <strong>Tarehe ya kufungua:</strong> {{ $openingDate ?? '_____________________________' }}
