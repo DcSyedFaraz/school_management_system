@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>RMS || Sign In</title>
     @include('admin.headerScripts')
+
     <style>
         .contact-info {
             position: absolute;
@@ -42,7 +43,6 @@
             align-items: center;
         }
 
-
         .phone-section i {
             margin-right: 5px;
         }
@@ -54,6 +54,29 @@
 
         .phone-section a:hover {
             color: #007bff;
+        }
+
+        /* Nav Links Style */
+        .nav-links {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            display: flex;
+            gap: 20px;
+            font-weight: bold;
+        }
+
+        .nav-links a {
+            color: #000;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #f1c40f;
         }
 
         /* WhatsApp Button Styles */
@@ -86,6 +109,21 @@
 
 <body>
     <div class="h-[100vh] relative">
+
+        <!-- Navigation Links (Left Top) -->
+        <div class="nav-links">
+            <a href="{{ url('/') }}">
+                <i class="material-symbols-outlined">home</i> Home
+            </a>
+            <a href="{{ url('/matokeo') }}">
+                <i class="material-symbols-outlined">school</i> Matokeo NECTA
+            </a>
+            <a href="{{ url('/msaada') }}">
+                <i class="material-symbols-outlined">help</i> Msaada
+            </a>
+        </div>
+
+        <!-- Contact Info (Right Top) -->
         <div class="contact-info">
             <div class="contact-item">
                 <i class="material-symbols-outlined">place</i>
@@ -97,24 +135,28 @@
             </div>
             <div class="phone-section">
                 <i class="material-symbols-outlined">call</i>
-                <span>Tupigie: <a href="tel:+255786283282">0786 283 282</a></span>
+                <span>Tupigie: <a href="tel:+255786283282">0744 950 150</a></span>
             </div>
         </div>
 
+        <!-- Main Content -->
         <div class="h-full">
             <div class="bg-blue-50 h-full">
                 <div class="flex items-center h-full">
                     <div class="w-full">
                         <div class="text-center mb-5">
                             <div>
-                                <div class="font-bold mb-2">MFUMO WA USIMAMIZI WA MATOKEO</div>
+                                <div class="font-bold mb-2">
+                                    MFUMO WA USIMAMIZI WA MATOKEO <br>(MUM)
+                                </div>
                                 <img class="w-[100px] mx-auto" src="{{ asset('img/logo.png') }}" alt="logo">
                             </div>
                         </div>
 
                         <div
                             class="lg:w-3/12 md:w-1/2 w-11/12 shadow-2xl rounded-xl shadow-green-800 p-5 mx-auto bg-white">
-                            <h1 class="font-bold text-center text-md mb-3">Tafadhali Andika E-mail Na Nywila Ili Kuingia
+                            <h1 class="font-bold text-center text-md mb-3">
+                                Tafadhali Andika E-mail Na Nywila Ili Kuingia
                             </h1>
 
                             @if (Session::has('accessDenied'))
@@ -133,16 +175,16 @@
                                 @csrf
                                 <div>
                                     <div class="my-3">
-                                        <label class="block" for="email">Jina la mtumiaje/Email:<span
-                                                class="text-red-500">*</span></label>
+                                        <label class="block" for="email">Jina la mtumiaje/Email:
+                                            <span class="text-red-500">*</span></label>
                                         <input class="block w-full rounded-md p-2 border border-gray-200" type="text"
                                             name="email" id="email" placeholder="Ingiza Barua Pepe"
                                             value="{{ Cookie::get('email') }}" required>
                                     </div>
 
                                     <div class="my-3">
-                                        <label class="block" for="password">Nywila:<span
-                                                class="text-red-500">*</span></label>
+                                        <label class="block" for="password">Nywila:
+                                            <span class="text-red-500">*</span></label>
                                         <div class="relative">
                                             <input class="block w-full rounded-md p-2 border border-gray-200"
                                                 type="password" name="password" id="password"
@@ -177,23 +219,24 @@
             </div>
         </div>
 
+        <!-- Footer -->
         <div class="bg-blue-50 py-3 text-center font-bold w-full absolute bottom-0">
+            Imewezeshwa na
             <a href="https://rmstechnology.co.tz/" target="blank"
-                class="text-blue-500 hover:text-blue-600 underline">RMS Technology</a> | Haki zote zimehifadhiwa © 2024
+                class="text-blue-500 hover:text-blue-600 underline">RMS Technology</a> |
+            Haki zote zimehifadhiwa © {{ date('Y') }}
         </div>
     </div>
 
     <!-- WhatsApp Button -->
-    <a href="https://wa.me/255786283282" class="whatsapp-button" target="_blank">
+    <a href="https://wa.me/255744950150" class="whatsapp-button" target="_blank">
         <i class="fa-brands fa-whatsapp text-2xl"></i>
-
-        Chat na sisi kupitia WhatsApp
+        Chati na sisi kupitia WhatsApp
     </a>
 
 </body>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
 <script>
     function showText(inputName, divName) {
         let inputType = $(`#${inputName}`).attr('type');
