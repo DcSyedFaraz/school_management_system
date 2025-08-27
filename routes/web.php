@@ -19,6 +19,7 @@ use App\Http\Controllers\user\UserDetailedReportController;
 use App\Http\Controllers\user\UserSubjectReportController;
 use App\Http\Controllers\user\UploadController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
