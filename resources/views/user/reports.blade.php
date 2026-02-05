@@ -42,48 +42,48 @@
         $femaleAbsent = 0;
 
         foreach ($marks as &$mark) {
-    $totalMarks = 0;
-    $validSubjectsCount = 0;
+            $totalMarks = 0;
+            $validSubjectsCount = 0;
 
-    foreach ($subjects as $index => $subject) {
-        if ($mark[$subject] > 0) { // Hesabu tu masomo yaliyo na alama
-            $totalMarks += $mark[$subject];
-            $validSubjectsCount++;
+            foreach ($subjects as $index => $subject) {
+                if ($mark[$subject] > 0) {
+                    // Hesabu tu masomo yaliyo na alama
+                    $totalMarks += $mark[$subject];
+                    $validSubjectsCount++;
 
-            // Jumlisha kwa gAverage ya somo (subject-wise total)
-            $gAverage[$index] += $mark[$subject];
+                    // Jumlisha kwa gAverage ya somo (subject-wise total)
+                    $gAverage[$index] += $mark[$subject];
+                }
+            }
+
+            // Hesabu average halisi kwa kuzingatia masomo yaliyo na alama tu
+            $mark['average'] = $validSubjectsCount > 0 ? $totalMarks / $validSubjectsCount : 0;
+
+            if ($mark['average'] == 0) {
+                $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
+            } else {
+                // Grade za average
+                $grade = assignGrade($mark['average'], $ranks);
+                switch ($grade) {
+                    case 'A':
+                        $mark['gender'] == 'M' ? $amCount++ : $afCount++;
+                        break;
+                    case 'B':
+                        $mark['gender'] == 'M' ? $bmCount++ : $bfCount++;
+                        break;
+                    case 'C':
+                        $mark['gender'] == 'M' ? $cmCount++ : $cfCount++;
+                        break;
+                    case 'D':
+                        $mark['gender'] == 'M' ? $dmCount++ : $dfCount++;
+                        break;
+                    case 'E':
+                        $mark['gender'] == 'M' ? $emCount++ : $efCount++;
+                        break;
+                }
+            }
         }
-    }
-
-    // Hesabu average halisi kwa kuzingatia masomo yaliyo na alama tu
-    $mark['average'] = $validSubjectsCount > 0 ? $totalMarks / $validSubjectsCount : 0;
-
-    if ($mark['average'] == 0) {
-        $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
-    } else {
-        // Grade za average
-        $grade = assignGrade($mark['average'], $ranks);
-        switch ($grade) {
-            case 'A':
-                $mark['gender'] == 'M' ? $amCount++ : $afCount++;
-                break;
-            case 'B':
-                $mark['gender'] == 'M' ? $bmCount++ : $bfCount++;
-                break;
-            case 'C':
-                $mark['gender'] == 'M' ? $cmCount++ : $cfCount++;
-                break;
-            case 'D':
-                $mark['gender'] == 'M' ? $dmCount++ : $dfCount++;
-                break;
-            case 'E':
-                $mark['gender'] == 'M' ? $emCount++ : $efCount++;
-                break;
-        }
-    }
-}
-unset($mark);
-
+        unset($mark);
 
         // Compute overall summary counts
         $gradeMaleCount = $amCount + $bmCount + $cmCount + $dmCount + $emCount;
@@ -182,58 +182,60 @@ unset($mark);
             </div>
         </div>
 
-    <div class="flex justify-end gap-2">
-    <!-- English Print Report -->
-    <form id="printReportFormEnglish" action="{{ url('/report.student.english') }}" method="post">
-    @csrf
-    <input type="hidden" name="openingDate" id="openingDateEnglish">
-    <input type="hidden" name="closingDate" id="closingDateEnglish">
-    <input type="hidden" name="selectedStudents" id="selectedStudentsEnglish">
-    <button type="button" onclick="openModalEnglish()"
-        class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md">
-        <i class="material-symbols-outlined text-sm">print</i> <span>Print Report ENG</span>
-    </button>
-</form>
+        <div class="flex justify-end gap-2">
+            <!-- English Print Report -->
+            <form id="printReportFormEnglish" action="{{ url('/report.student.english') }}" method="post" target="_blank">
+                @csrf
+                <input type="hidden" name="openingDate" id="openingDateEnglish">
+                <input type="hidden" name="closingDate" id="closingDateEnglish">
+                <input type="hidden" name="selectedStudents" id="selectedStudentsEnglish">
+                <button type="button" onclick="openModalEnglish()"
+                    class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
+                    disabled>
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Print Report ENG</span>
+                </button>
+            </form>
 
 
-    <form id="printAllReportFormEnglish" action="{{ url('/report.school.english') }}" method="post" target="_blank">
-        @csrf
-        <input type="hidden" name="reportData" value='{!! json_encode($reportData,JSON_HEX_APOS) !!}'>
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md">
-            <i class="material-symbols-outlined text-sm">print</i> <span>Print Results PDF-ENG</span>
-        </button>
-    </form>
+            <form id="printAllReportFormEnglish" action="{{ url('/report.school.english') }}" method="post"
+                target="_blank">
+                @csrf
+                <input type="hidden" name="reportData" value='{!! json_encode($reportData, JSON_HEX_APOS) !!}'>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md">
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Print Results PDF-ENG</span>
+                </button>
+            </form>
 
-    <form id="printReportForm" action="{{ url('/printReport') }}" method="post">
-        @csrf
-        <input type="hidden" name="openingDate" id="openingDate">
-        <input type="hidden" name="closingDate" id="closingDate">
-        <input type="hidden" name="selectedStudents" id="selectedStudents">
-        <button type="button" onclick="openModal()"
-            class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed">
-            <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha Ripoti</span>
-        </button>
-    </form>
+            <form id="printReportForm" action="{{ url('/printReport') }}" method="post" target="_blank">
+                @csrf
+                <input type="hidden" name="openingDate" id="openingDate">
+                <input type="hidden" name="closingDate" id="closingDate">
+                <input type="hidden" name="selectedStudents" id="selectedStudents">
+                <button type="button" onclick="openModal()"
+                    class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed">
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha Ripoti</span>
+                </button>
+            </form>
 
-    <form id="printAllReportForm" action="{{ url('/printAllReport') }}" method="post" target="_blank">
-        @csrf
-        <input type="hidden" name="reportData" value='{!! json_encode($reportData, JSON_HEX_APOS) !!}'>
-        <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md">
-            <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha Matokeo PDF</span>
-        </button>
-    </form>
+            <form id="printAllReportForm" action="{{ url('/printAllReport') }}" method="post" target="_blank">
+                @csrf
+                <input type="hidden" name="reportData" value='{!! json_encode($reportData, JSON_HEX_APOS) !!}'>
+                <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white py-1 px-2 rounded-md">
+                    <i class="material-symbols-outlined text-sm">print</i> <span>Chapisha Matokeo PDF</span>
+                </button>
+            </form>
 
-    <form action="{{ url('/downloadTeacherReport') }}" method="post">
-        @csrf
-        <input type="hidden" name="rClass" id="rClass" value="{{ $classId }}">
-        <input type="hidden" name="rExam" id="rExam" value="{{ $examId }}">
-        <input type="hidden" name="rStartDate" id="rStartDate" value="{{ $startDate }}">
-        <input type="hidden" name="rEndDate" id="rEndDate" value="{{ $endDate }}">
-        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded-md">
-            <i class="material-symbols-outlined text-sm">download</i> <span>Pakua Matokeo</span>
-        </button>
-    </form>
-</div>
+            <form action="{{ url('/downloadTeacherReport') }}" method="post">
+                @csrf
+                <input type="hidden" name="rClass" id="rClass" value="{{ $classId }}">
+                <input type="hidden" name="rExam" id="rExam" value="{{ $examId }}">
+                <input type="hidden" name="rStartDate" id="rStartDate" value="{{ $startDate }}">
+                <input type="hidden" name="rEndDate" id="rEndDate" value="{{ $endDate }}">
+                <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded-md">
+                    <i class="material-symbols-outlined text-sm">download</i> <span>Pakua Matokeo</span>
+                </button>
+            </form>
+        </div>
 
         <!-- FILTER FORM & TABLES (exactly as in your original code) -->
         <div class="my-3">
@@ -273,8 +275,9 @@ unset($mark);
                     <div>
                         <label for="startDate">Tarehe ya Kuanza:</label>
                         <input type="date" class="block w-full p-2 rounded-md border border-black"
-                            min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}" name="startDate"
-                            id="startDate" value="{{ date('Y-m-d', strtotime($startDate)) }}" onchange="setEndDate()">
+                            min="{{ date('Y-m-d', strtotime('2023-01-01')) }}" max="{{ date('Y-m-d') }}"
+                            name="startDate" id="startDate" value="{{ date('Y-m-d', strtotime($startDate)) }}"
+                            onchange="setEndDate()">
                     </div>
                     <div>
                         <label for="endDate">Tarehe ya Mwisho:</label>
@@ -300,104 +303,107 @@ unset($mark);
 
         <!-- The complete marks table, summaries, and detailed grade breakdown exactly as above -->
         <div class="overflow-x-auto">
-    <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO WA WANAFUNZI WOTE:</h2>
-    <input type="checkbox" id="selectAll"> Chagua Wote
-    <table class="myTable bg-white">
-        <thead>
-            <tr>
-                <th rowspan="2" class="border border-black text-center">S/N</th>
-                <th rowspan="2" class="border border-black uppercase text-center">Jina la Mwanafunzi</th>
-                @foreach ($subjects as $subject)
-                    <th colspan="3" class="border border-black uppercase text-center">{{ $subject }}</th>
-                @endforeach
-                <th rowspan="2" class="border border-black uppercase text-center">Jumla</th>
-                <th rowspan="2" class="border border-black uppercase text-center">Wastani</th>
-                <th rowspan="2" class="border border-black uppercase text-center">Daraja</th>
-                <th rowspan="2" class="border border-black uppercase text-center">Nafasi</th>
-                <th rowspan="2" class="border border-black uppercase text-center">Ufaulu</th>
-            </tr>
-            <tr>
-                @foreach ($subjects as $subject)
-                    <th class="border border-black text-center">AL</th>
-                    <th class="border border-black text-center">DRJ</th>
-                    <th class="border border-black text-center">NFS</th>
-                @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $i = 1;
-                $j = 0;
-                $storedAvg = '';
-            @endphp
-
-            @foreach ($marks as $mark)
-                <tr class="odd:bg-gray-200">
-                    <td class="border border-black text-center">
-                        <input type="checkbox" class="studentCheckbox"
-                            value="{{ json_encode([
-                                'id' => $mark['markId'],
-                                'studentName' => $mark['studentName'],
-                                'subjects' => collect($subjects)->map(function ($subject) use ($mark, $ranks, $marks) {
-                                    $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
-                                    $position = array_search($mark[$subject], $subjectScores) + 1;
-                                    return [
-                                        'name' => $subject,
-                                        'total' => $mark[$subject],
-                                        'grade' => assignGrade($mark[$subject], $ranks),
-                                        'position' => $position
-                                    ];
-                                })->all(),
-                                'totalMarks' => $mark['total'],
-                                'average' => $mark['average'],
-                                'grade' => assignGrade($mark['average'], $ranks),
-                                'position' => $loop->index + 1,
-                            ]) }}">
-                        {{ $i }}
-                    </td>
-                    <td class="capitalize border border-black text-center">{{ $mark['studentName'] }}</td>
-
-                    @foreach ($subjects as $subject)
-                        @php
-                            $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
-                            $subjectPosition = array_search($mark[$subject], $subjectScores) + 1;
-                        @endphp
-                        <td class="border border-black text-center">{{ $mark[$subject] }}</td>
-                        <td class="border border-black text-center">{{ assignGrade($mark[$subject], $ranks) }}</td>
-                        <td class="border border-black text-center">{{ $subjectPosition }}</td>
-                    @endforeach
-
-                    <td class="border border-black text-center">{{ $mark['total'] }}</td>
-                    <td class="border border-black text-center">{{ number_format($mark['average'], 2) }}</td>
-                    @if ($mark['average'] > 0)
-                        <td class="border border-black text-center">{{ assignGrade($mark['average'], $ranks) }}</td>
-                    @else
-                        <td class="border border-black text-center">ABS</td>
-                    @endif
-
+            <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO WA WANAFUNZI WOTE:</h2>
+            <input type="checkbox" id="selectAll"> Chagua Wote
+            <table class="myTable bg-white">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="border border-black text-center">S/N</th>
+                        <th rowspan="2" class="border border-black uppercase text-center">Jina la Mwanafunzi</th>
+                        @foreach ($subjects as $subject)
+                            <th colspan="3" class="border border-black uppercase text-center">{{ $subject }}</th>
+                        @endforeach
+                        <th rowspan="2" class="border border-black uppercase text-center">Jumla</th>
+                        <th rowspan="2" class="border border-black uppercase text-center">Wastani</th>
+                        <th rowspan="2" class="border border-black uppercase text-center">Daraja</th>
+                        <th rowspan="2" class="border border-black uppercase text-center">Nafasi</th>
+                        <th rowspan="2" class="border border-black uppercase text-center">Ufaulu</th>
+                    </tr>
+                    <tr>
+                        @foreach ($subjects as $subject)
+                            <th class="border border-black text-center">AL</th>
+                            <th class="border border-black text-center">DRJ</th>
+                            <th class="border border-black text-center">NFS</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
                     @php
-                        if ($storedAvg == $mark['average']) {
-                            $j++;
-                            $storedAvg = $mark['average'];
-                            $overallPosition = $i - $j;
-                        } else {
-                            $j = 0;
-                            $storedAvg = $mark['average'];
-                            $overallPosition = $i;
-                        }
+                        $i = 1;
+                        $j = 0;
+                        $storedAvg = '';
                     @endphp
-                    <td class="border border-black text-center">{{ $overallPosition }}</td>
-                    @if ($mark['average'] > 0)
-                        <td class="border border-black text-center">{{ finalStatus($mark['average'], $ranks, $classId) }}</td>
-                    @else
-                        <td class="border border-black text-center"></td>
-                    @endif
-                </tr>
-                @php $i++; @endphp
-            @endforeach
-        </tbody>
-    </table>
-</div>
+
+                    @foreach ($marks as $mark)
+                        <tr class="odd:bg-gray-200">
+                            <td class="border border-black text-center">
+                                <input type="checkbox" class="studentCheckbox"
+                                    value="{{ json_encode([
+                                        'id' => $mark['markId'],
+                                        'studentName' => $mark['studentName'],
+                                        'subjects' => collect($subjects)->map(function ($subject) use ($mark, $ranks, $marks) {
+                                                $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
+                                                $position = array_search($mark[$subject], $subjectScores) + 1;
+                                                return [
+                                                    'name' => $subject,
+                                                    'total' => $mark[$subject],
+                                                    'grade' => assignGrade($mark[$subject], $ranks),
+                                                    'position' => $position,
+                                                ];
+                                            })->all(),
+                                        'totalMarks' => $mark['total'],
+                                        'average' => $mark['average'],
+                                        'grade' => assignGrade($mark['average'], $ranks),
+                                        'position' => $loop->index + 1,
+                                    ]) }}">
+                                {{ $i }}
+                            </td>
+                            <td class="capitalize border border-black text-center">{{ $mark['studentName'] }}</td>
+
+                            @foreach ($subjects as $subject)
+                                @php
+                                    $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
+                                    $subjectPosition = array_search($mark[$subject], $subjectScores) + 1;
+                                @endphp
+                                <td class="border border-black text-center">{{ $mark[$subject] }}</td>
+                                <td class="border border-black text-center">{{ assignGrade($mark[$subject], $ranks) }}
+                                </td>
+                                <td class="border border-black text-center">{{ $subjectPosition }}</td>
+                            @endforeach
+
+                            <td class="border border-black text-center">{{ $mark['total'] }}</td>
+                            <td class="border border-black text-center">{{ number_format($mark['average'], 2) }}</td>
+                            @if ($mark['average'] > 0)
+                                <td class="border border-black text-center">{{ assignGrade($mark['average'], $ranks) }}
+                                </td>
+                            @else
+                                <td class="border border-black text-center">ABS</td>
+                            @endif
+
+                            @php
+                                if ($storedAvg == $mark['average']) {
+                                    $j++;
+                                    $storedAvg = $mark['average'];
+                                    $overallPosition = $i - $j;
+                                } else {
+                                    $j = 0;
+                                    $storedAvg = $mark['average'];
+                                    $overallPosition = $i;
+                                }
+                            @endphp
+                            <td class="border border-black text-center">{{ $overallPosition }}</td>
+                            @if ($mark['average'] > 0)
+                                <td class="border border-black text-center">
+                                    {{ finalStatus($mark['average'], $ranks, $classId) }}</td>
+                            @else
+                                <td class="border border-black text-center"></td>
+                            @endif
+                        </tr>
+                        @php $i++; @endphp
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
 
 
@@ -764,24 +770,28 @@ unset($mark);
                                 </div>
                             </div>
 
-                            <div id="dateModalEnglish" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+                            <div id="dateModalEnglish"
+                                class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
                                 <div class="bg-white rounded-lg p-6">
                                     <h2 class="text-lg font-bold mb-4">Enter Dates (English)</h2>
                                     <div class="mb-4">
                                         <label class="block text-gray-700">Opening Date</label>
-                                        <input type="date" id="modalOpeningDateEnglish" class="mt-1 block w-full border-gray-300 rounded-md">
+                                        <input type="date" id="modalOpeningDateEnglish"
+                                            class="mt-1 block w-full border-gray-300 rounded-md">
                                     </div>
                                     <div class="mb-4">
                                         <label class="block text-gray-700">Closing Date</label>
-                                        <input type="date" id="modalClosingDateEnglish" class="mt-1 block w-full border-gray-300 rounded-md">
+                                        <input type="date" id="modalClosingDateEnglish"
+                                            class="mt-1 block w-full border-gray-300 rounded-md">
                                     </div>
                                     <div class="flex justify-end">
-                                        <button type="button" onclick="confirmDatesEnglish()" class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md">Confirm</button>
-                                        <button type="button" onclick="closeModalEnglish()" class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 py-1 px-2 rounded-md">Close</button>
+                                        <button type="button" onclick="confirmDatesEnglish()"
+                                            class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded-md">Confirm</button>
+                                        <button type="button" onclick="closeModalEnglish()"
+                                            class="ml-2 bg-gray-300 hover:bg-gray-400 text-gray-800 py-1 px-2 rounded-md">Close</button>
                                     </div>
                                 </div>
                             </div>
-
                         @endforeach
                     @else
                         <tr>
@@ -822,101 +832,107 @@ unset($mark);
     @endif
 
     <script>
-    // ================= Select All for student checkboxes =================
-    document.getElementById('selectAll').addEventListener('change', function() {
-        let checkboxes = document.querySelectorAll('.studentCheckbox');
-        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        checkEnglishCheckboxes();
-        checkCheckboxes(); // Kiswahili button check
-    });
-
-    // ================= Kiswahili Modal Functions =================
-    function openModal() {
-        document.getElementById('dateModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-        document.getElementById('dateModal').classList.add('hidden');
-    }
-
-    function confirmDates() {
-        const openingDate = document.getElementById('modalOpeningDate').value;
-        const closingDate = document.getElementById('modalClosingDate').value;
-        if (!openingDate || !closingDate) {
-            alert('Please fill both dates.');
-            return;
-        }
-        document.getElementById('openingDate').value = openingDate;
-        document.getElementById('closingDate').value = closingDate;
-        closeModal();
-        submitPrintReportForm();
-    }
-
-    function submitPrintReportForm() {
-        let selectedStudents = [];
-        let checkboxes = document.querySelectorAll('.studentCheckbox:checked');
-        checkboxes.forEach(checkbox => selectedStudents.push(JSON.parse(checkbox.value)));
-
-        document.getElementById('selectedStudents').value = JSON.stringify(selectedStudents);
-        document.getElementById('printReportForm').submit();
-    }
-
-    const checkboxes = document.querySelectorAll('.studentCheckbox');
-    const printReportButton = document.querySelector('#printReportForm button');
-
-    function checkCheckboxes() {
-        const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
-        printReportButton.disabled = !anyChecked;
-    }
-
-    checkCheckboxes();
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', checkCheckboxes);
-    });
-
-    // ================= English Modal & Button Functions =================
-    function openModalEnglish() {
-        document.getElementById('dateModalEnglish').classList.remove('hidden');
-    }
-
-    function closeModalEnglish() {
-        document.getElementById('dateModalEnglish').classList.add('hidden');
-    }
-
-    function confirmDatesEnglish() {
-        const openingDate = document.getElementById('modalOpeningDateEnglish').value;
-        const closingDate = document.getElementById('modalClosingDateEnglish').value;
-        if (!openingDate || !closingDate) {
-            alert('Please fill both dates.');
-            return;
-        }
-        document.getElementById('openingDateEnglish').value = openingDate;
-        document.getElementById('closingDateEnglish').value = closingDate;
-        closeModalEnglish();
-        submitPrintReportFormEnglish();
-    }
-
-    function submitPrintReportFormEnglish() {
-        let selectedStudents = [];
-        let checkboxes = document.querySelectorAll('.studentCheckbox:checked');
-        checkboxes.forEach(checkbox => selectedStudents.push(JSON.parse(checkbox.value)));
-
-        document.getElementById('selectedStudentsEnglish').value = JSON.stringify(selectedStudents);
-        document.getElementById('printReportFormEnglish').submit();
-    }
-
-    // Optional: disable English print button if no student selected
-    function checkEnglishCheckboxes() {
-        const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+        // ================= Select All for student checkboxes =================
+        const selectAll = document.getElementById('selectAll');
+        const printReportButton = document.querySelector('#printReportForm button');
         const printEnglishButton = document.querySelector('#printReportFormEnglish button');
-        if(printEnglishButton) printEnglishButton.disabled = !anyChecked;
-    }
 
-    checkEnglishCheckboxes();
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', checkEnglishCheckboxes);
-    });
-</script>
+        function getStudentCheckboxes() {
+            return Array.from(document.querySelectorAll('.studentCheckbox'));
+        }
+
+        function updatePrintButtons() {
+            const checkboxes = getStudentCheckboxes();
+            const selectedCount = checkboxes.filter(checkbox => checkbox.checked).length;
+
+            if (printReportButton) printReportButton.disabled = selectedCount === 0;
+            if (printEnglishButton) printEnglishButton.disabled = selectedCount !== 1;
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                let checkboxes = getStudentCheckboxes();
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+                updatePrintButtons();
+            });
+        }
+
+        // ================= Kiswahili Modal Functions =================
+        function openModal() {
+            document.getElementById('dateModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('dateModal').classList.add('hidden');
+        }
+
+        function confirmDates() {
+            const openingDate = document.getElementById('modalOpeningDate').value;
+            const closingDate = document.getElementById('modalClosingDate').value;
+            if (!openingDate || !closingDate) {
+                alert('Please fill both dates.');
+                return;
+            }
+            document.getElementById('openingDate').value = openingDate;
+            document.getElementById('closingDate').value = closingDate;
+            closeModal();
+            submitPrintReportForm();
+        }
+
+        function submitPrintReportForm() {
+            let selectedStudents = [];
+            let checkboxes = document.querySelectorAll('.studentCheckbox:checked');
+            checkboxes.forEach(checkbox => selectedStudents.push(JSON.parse(checkbox.value)));
+
+            document.getElementById('selectedStudents').value = JSON.stringify(selectedStudents);
+            document.getElementById('printReportForm').submit();
+        }
+
+        updatePrintButtons();
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList && e.target.classList.contains('studentCheckbox')) {
+                updatePrintButtons();
+            }
+        });
+
+        // ================= English Modal & Button Functions =================
+        function openModalEnglish() {
+            document.getElementById('dateModalEnglish').classList.remove('hidden');
+        }
+
+        function closeModalEnglish() {
+            document.getElementById('dateModalEnglish').classList.add('hidden');
+        }
+
+        function confirmDatesEnglish() {
+            const openingDate = document.getElementById('modalOpeningDateEnglish').value;
+            const closingDate = document.getElementById('modalClosingDateEnglish').value;
+            if (!openingDate || !closingDate) {
+                alert('Please fill both dates.');
+                return;
+            }
+            document.getElementById('openingDateEnglish').value = openingDate;
+            document.getElementById('closingDateEnglish').value = closingDate;
+            closeModalEnglish();
+            submitPrintReportFormEnglish();
+        }
+
+        function submitPrintReportFormEnglish() {
+            let selectedStudents = [];
+            let checkboxes = document.querySelectorAll('.studentCheckbox:checked');
+            checkboxes.forEach(checkbox => selectedStudents.push(JSON.parse(checkbox.value)));
+
+            if (selectedStudents.length !== 1) {
+                alert('Please select exactly one student.');
+                return;
+            }
+
+            document.getElementById('selectedStudentsEnglish').value = JSON.stringify(selectedStudents);
+            document.getElementById('printReportFormEnglish').submit();
+        }
+
+        updatePrintButtons();
+    </script>
 
 
 @endsection

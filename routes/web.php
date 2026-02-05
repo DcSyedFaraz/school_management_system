@@ -138,6 +138,7 @@ Route::post('/dashboard/filter', [UserDashboardController::class, 'adminDashboar
 Route::get('/dashboard/reports', [UserReportController::class, 'reports'])->name('user.reports');
 Route::post('/filterUserReport', [UserReportController::class, 'filterReport']);
 Route::post('/printAllReport', [UserReportController::class, 'printAllReport']);
+Route::post('/report.school.english', [UserReportController::class, 'printAllReportEnglish']);
 Route::post('/downloadTeacherReport', [UserReportController::class, 'downloadTeacherReport']);
 
 Route::get('/dashboard/teacher-detailed-report', [UserDetailedReportController::class, 'reports']);
@@ -167,3 +168,4 @@ Route::post('/uploads/update', [UploadController::class, 'updateUpload']);
 Route::post('/uploads/file', [UploadController::class, 'fileUpload']);
 
 Route::post('/printReport', [PrintController::class, 'printReport']);
+Route::post('/report.student.english', [PrintController::class, 'printReportEnglish']);

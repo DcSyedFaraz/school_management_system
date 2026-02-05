@@ -235,4 +235,50 @@ class UserReportController extends Controller
         // Return the PDF as a stream (you may also use ->download('report.pdf'))
         return $pdf->stream('subjectwise.pdf');
     }
+
+    public function printAllReportEnglish(Request $request)
+    {
+        $schoolId = Session::get('userSchool');
+        $schoolName = DB::table('schools')->where('schoolId', $schoolId)->value('schoolName');
+        $districtId = Session::get('userDistrict');
+        $districtName = DB::table('districts')->where('districtId', $districtId)->value('districtName');
+
+        $reportData = json_decode($request->input('reportData'), true);
+
+        $reportData['schoolName'] = $schoolName;
+        $reportData['districtName'] = $districtName;
+
+        $validator = Validator::make($reportData, [
+            'marks' => 'required|array',
+            'marks.*' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return redirect()->route('user.reports')->withErrors($validator)->withInput();
+        }
+
+        $pdf = Pdf::loadView('pdf.english.report-all', ['reportData' => $reportData]);
+        $pdf->output();
+        $dompdf = $pdf->getDomPDF();
+        $canvas = $dompdf->get_canvas();
+
+        $canvas->page_text(
+            ($canvas->get_width() / 2) - 70,
+            $canvas->get_height() - 30,
+            "Created and Designed by rmstechnology.co.tz",
+            null,
+            8,
+            [0, 0, 0]
+        );
+
+        $canvas->page_text(
+            30,
+            $canvas->get_height() - 30,
+            "Page {PAGE_NUM} of {PAGE_COUNT}",
+            null,
+            8,
+            [0, 0, 0]
+        );
+
+        return $pdf->stream('subjectwise-english.pdf');
+    }
 }
