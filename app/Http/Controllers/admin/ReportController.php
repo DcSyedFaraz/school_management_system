@@ -879,4 +879,15 @@ class ReportController extends Controller
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
     }
+    public function studentReportEnglish(Request $request){
+    $openingDate = $request->input('openingDate');
+    $closingDate = $request->input('closingDate');
+
+    return view('pdf.english.student-report', compact('openingDate','closingDate'));
+}
+
+public function schoolReportEnglish(){
+    return view('pdf.english.school-report');
+}
+
 }

@@ -30,18 +30,6 @@
             overflow: hidden;
             transition: height 0.35s ease-in-out;
         }
-        
-        .animate-bounce {
-        animation: bounce 1.3s infinite;
-    }
-    @keyframes bounce {
-        0%, 100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-6px);
-        }
-    }
     </style>
 </head>
 
@@ -200,113 +188,69 @@
 </script>
 
 
-<!-- MAIN SECTION -->
-<main class="flex-1 flex flex-col items-center justify-center px-4">
-    <div class="text-center mb-6">
-        <h1 class="font-extrabold text-xl md:text-2xl text-gray-800 leading-snug">
-            MFUMO WA USIMAMIZI WA MATOKEO <br> (MUM)
-        </h1>
-        <div class="relative w-fit mx-auto mt-3">
+    <!-- Main Section -->
+    <section class="flex-grow flex flex-col items-center justify-center px-4 py-10">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8">Matokeo ya NECTA</h2>
 
-            <!-- LOGO -->
-            <img src="{{ asset('img/logo.png') }}" alt="logo" class="w-28 mx-auto drop-shadow-md">
-        
-        </div>
+        <div class="grid md:grid-cols-2 gap-8 result-link-container max-w-4xl w-full">
+            
 
+            <!-- Darasa la Nne (IV) -->
+<div class="bg-white shadow-lg rounded-2xl p-8 text-center">
+    <h3 class="text-2xl font-bold text-gray-700 mb-4">Matokeo Darasa la Nne (IV)</h3>
+    
+    <!-- Link ya matokeo ya miaka mitatu -->
+    <div class="flex flex-col space-y-3 mt-4">
+        <a href="https://matokeo.necta.go.tz/results/2025/sfna/sfna.htm" 
+           class="block bg-blue-100 hover:bg-orange-500 text-orange-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2025
+        </a>
+        <a href="https://onlinesys.necta.go.tz/results/2024/sfna/sfna.htm" 
+           class="block bg-blue-100 hover:bg-blue-500 text-blue-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2024
+        </a>
+        <a href="https://onlinesys.necta.go.tz/results/2023/sfna/sfna.htm" 
+           class="block bg-green-100 hover:bg-green-500 text-green-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2023
+        </a>
+        <a href="https://onlinesys.necta.go.tz/results/2022/sfna/sfna.htm" 
+           class="block bg-yellow-100 hover:bg-yellow-500 text-yellow-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2022
+        </a>
     </div>
-
-    <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6">
-
-        <h2 class="text-center font-bold text-gray-700 mb-4">
-            Tafadhali andika Jina la Mtumiaji na Nywila ili kuingia
-        </h2>
-
-        @if (Session::has('accessDenied'))
-        <div class="alert alert-danger text-center text-red-500 font-bold mb-3">
-        {!! nl2br(e(Session::get('accessDenied'))) !!}
-        </div>
-        @endif
+</div>
 
 
-        @if (Session::has('success'))
-            <p class="text-center font-semibold text-green-600 mb-3">{{ Session::get('success') }}</p>
-        @endif
-
-        <form action="{{ url('/signIn') }}" method="post" class="space-y-4">
-            @csrf
-
-            <!-- USERNAME -->
-            <div>
-                <label for="email" class="block font-medium text-gray-600">
-                    Jina la mtumiaji/Email: <span class="text-red-500">*</span>
-                </label>
-
-                <div class="relative">
-                    <input type="text" id="email" name="email"
-                        value="{{ Cookie::get('email') }}"
-                        required placeholder="Ingiza Jina la Mtumiaji/barua pepe"
-                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-400
-                               focus:border-blue-400 p-2 pr-8">
-                </div>
-            </div>
-
-            <!-- PASSWORD -->
-            <div>
-                <label for="password" class="block font-medium text-gray-600">
-                    Nywila: <span class="text-red-500">*</span>
-                </label>
-
-                <div class="relative">
-                    <input type="password" id="password" name="password"
-                        value="{{ Cookie::get('password') }}"
-                        required placeholder="Ingiza Nywila"
-                        class="block w-full rounded-md p-2 border border-gray-200">
-
-                    <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer"
-                       id="eye"
-                       onclick="togglePassword()">visibility</i>
-                </div>
-            </div>
-
-            <script>
-                function togglePassword() {
-                    const pwd = document.getElementById("password");
-                    const icon = document.getElementById("eye");
-
-                    if (pwd.type === "password") {
-                        pwd.type = "text";
-                        icon.textContent = "visibility_off";
-                    } else {
-                        pwd.type = "password";
-                        icon.textContent = "visibility";
-                    }
-                }
-            </script>
-
-            <!-- REMEMBER + FORGOT -->
-            <div class="flex justify-between items-center text-sm">
-                <label class="flex items-center gap-1">
-                    <input type="checkbox" name="rememberMe" id="rememberMe" class="rounded-sm">
-                    Nikumbuke
-                </label>
-
-                <a href="{{ url('/forgotPassword') }}" class="text-blue-500 hover:underline">
-                    Nimesahau nywila?
-                </a>
-            </div>
-
-            <!-- SUBMIT -->
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500
-                       hover:to-blue-600 text-white py-2 rounded-lg font-bold shadow-md transition-all">
-                Ingia
-            </button>
-
-        </form>
+            
+<div class="bg-white shadow-lg rounded-2xl p-8 text-center">
+    <h3 class="text-2xl font-bold text-gray-700 mb-4">Matokeo Darasa la Saba (VII)</h3>
+    
+    <!-- Link ya matokeo ya miaka mitatu -->
+    <div class="flex flex-col space-y-3 mt-4">
+        <a href="https://matokeo.necta.go.tz/results/2025/psle/psle.htm" 
+           class="block bg-blue-100 hover:bg-orange-500 text-orange-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2025
+        </a>
+        <a href="https://onlinesys.necta.go.tz/results/2024/psle/psle.htm" 
+           class="block bg-blue-100 hover:bg-blue-500 text-blue-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2024
+        </a>
+        <a href="https://onlinesys.necta.go.tz/results/2023/psle/psle.htm" 
+           class="block bg-green-100 hover:bg-green-500 text-green-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2023
+        </a>
+        <a href="https://onlinesys.necta.go.tz/results/2022/psle/psle.htm" 
+           class="block bg-yellow-100 hover:bg-yellow-500 text-yellow-800 hover:text-white rounded-md p-3 transition font-semibold">
+           Matokeo 2022
+        </a>
     </div>
-</main>
+</div>
 
-<!-- FOOTER -->
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
 <footer class="footer bg-white/80 backdrop-blur-sm text-sm font-bold shadow-inner
               flex justify-between items-center px-6 h-12">
 

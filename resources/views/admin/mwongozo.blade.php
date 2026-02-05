@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RMS || Sign In</title>
+    <title>RMS || Mwongozo</title>
 
     @include('admin.headerScripts')
 
@@ -24,24 +24,46 @@
             animation: pulse 2s infinite;
         }
 
-        /* Mobile menu animation (smooth & stable) */
+        /* Mobile menu animation */
         #mobile-menu {
             height: 0;
             overflow: hidden;
             transition: height 0.35s ease-in-out;
         }
-        
-        .animate-bounce {
-        animation: bounce 1.3s infinite;
-    }
-    @keyframes bounce {
-        0%, 100% {
-            transform: translateY(0);
+
+        /* Download buttons */
+        .download-btn {
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            max-width: 300px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
         }
-        50% {
-            transform: translateY(-6px);
+        .download-btn-blue {
+            background-color: #3b82f6;
+            color: white;
         }
-    }
+        .download-btn-blue:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+        .download-btn-green {
+            background-color: #10b981;
+            color: white;
+        }
+        .download-btn-green:hover {
+            background-color: #059669;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
@@ -164,146 +186,44 @@
 
 </header>
 
+<!-- MAIN CONTENT -->
+<main class="flex-1 flex flex-col items-center justify-center px-4 py-8">
 
-<!-- MENU BUTTON CSS -->
-<style>
-    .menu-btn {
-        @apply inline-flex items-center gap-1 font-bold text-white bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-2 rounded-lg transition-all hover:from-blue-500 hover:to-blue-600 active:scale-95;
-    }
-    .menu-btn-mobile {
-        @apply inline-flex items-center gap-2 font-bold text-gray-700 bg-gray-100 px-4 py-2 rounded-lg transition-all hover:bg-gray-200 active:scale-95;
-    }
-</style>
-
-
-
-<!-- MOBILE MENU JS -->
-<script>
-    const toggleBtn = document.getElementById("menu-toggle");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const menuIcon = document.getElementById("menu-icon");
-
-    toggleBtn.addEventListener("click", () => {
-
-        // If open → close
-        if (mobileMenu.style.height && mobileMenu.style.height !== "0px") {
-            mobileMenu.style.height = "0px";
-            menuIcon.textContent = "menu";
-        }
-
-        // If closed → open
-        else {
-            mobileMenu.style.height = mobileMenu.scrollHeight + "px";
-            menuIcon.textContent = "close";
-        }
-    });
-</script>
-
-
-<!-- MAIN SECTION -->
-<main class="flex-1 flex flex-col items-center justify-center px-4">
     <div class="text-center mb-6">
         <h1 class="font-extrabold text-xl md:text-2xl text-gray-800 leading-snug">
-            MFUMO WA USIMAMIZI WA MATOKEO <br> (MUM)
+            Karibu kwenye mwongozo wa utumiaji wa mfumo wa MUM
         </h1>
-        <div class="relative w-fit mx-auto mt-3">
-
-            <!-- LOGO -->
-            <img src="{{ asset('img/logo.png') }}" alt="logo" class="w-28 mx-auto drop-shadow-md">
-        
-        </div>
-
     </div>
 
-    <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6">
-
-        <h2 class="text-center font-bold text-gray-700 mb-4">
-            Tafadhali andika Jina la Mtumiaji na Nywila ili kuingia
+    <div class="mb-6 text-center max-w-xl">
+        <h2 class="font-bold text-gray-700 mb-4">
+            Huu ni mwongozo rasmi wa matumizi ya mfumo uliotengenezwa kwa shule za msingi nchini Tanzania.
+            Mwongozo huu utakusaidia kuelewa jinsi ya kutumia vipengele mbalimbali vya mfumo kwa usahihi na ufanisi.
+            Ikiwa wewe ni mtumiaji mpya au unahitaji rejea ya haraka, mwongozo huu umeandaliwa kwa lugha rahisi na hatua kwa hatua.
         </h2>
-
-        @if (Session::has('accessDenied'))
-        <div class="alert alert-danger text-center text-red-500 font-bold mb-3">
-        {!! nl2br(e(Session::get('accessDenied'))) !!}
-        </div>
-        @endif
-
-
-        @if (Session::has('success'))
-            <p class="text-center font-semibold text-green-600 mb-3">{{ Session::get('success') }}</p>
-        @endif
-
-        <form action="{{ url('/signIn') }}" method="post" class="space-y-4">
-            @csrf
-
-            <!-- USERNAME -->
-            <div>
-                <label for="email" class="block font-medium text-gray-600">
-                    Jina la mtumiaji/Email: <span class="text-red-500">*</span>
-                </label>
-
-                <div class="relative">
-                    <input type="text" id="email" name="email"
-                        value="{{ Cookie::get('email') }}"
-                        required placeholder="Ingiza Jina la Mtumiaji/barua pepe"
-                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-400
-                               focus:border-blue-400 p-2 pr-8">
-                </div>
-            </div>
-
-            <!-- PASSWORD -->
-            <div>
-                <label for="password" class="block font-medium text-gray-600">
-                    Nywila: <span class="text-red-500">*</span>
-                </label>
-
-                <div class="relative">
-                    <input type="password" id="password" name="password"
-                        value="{{ Cookie::get('password') }}"
-                        required placeholder="Ingiza Nywila"
-                        class="block w-full rounded-md p-2 border border-gray-200">
-
-                    <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer"
-                       id="eye"
-                       onclick="togglePassword()">visibility</i>
-                </div>
-            </div>
-
-            <script>
-                function togglePassword() {
-                    const pwd = document.getElementById("password");
-                    const icon = document.getElementById("eye");
-
-                    if (pwd.type === "password") {
-                        pwd.type = "text";
-                        icon.textContent = "visibility_off";
-                    } else {
-                        pwd.type = "password";
-                        icon.textContent = "visibility";
-                    }
-                }
-            </script>
-
-            <!-- REMEMBER + FORGOT -->
-            <div class="flex justify-between items-center text-sm">
-                <label class="flex items-center gap-1">
-                    <input type="checkbox" name="rememberMe" id="rememberMe" class="rounded-sm">
-                    Nikumbuke
-                </label>
-
-                <a href="{{ url('/forgotPassword') }}" class="text-blue-500 hover:underline">
-                    Nimesahau nywila?
-                </a>
-            </div>
-
-            <!-- SUBMIT -->
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500
-                       hover:to-blue-600 text-white py-2 rounded-lg font-bold shadow-md transition-all">
-                Ingia
-            </button>
-
-        </form>
+        <h2 class="font-bold text-gray-700 mb-4">
+            Unaweza kufungua au kuhifadhi faili kwenye kifaa chako kwa matumizi ya baadaye.
+        </h2>
+        <h2 class="font-bold text-gray-700 mb-4">
+            Ukitaka kuingia kwenye mfumo sasa, bonyeza ukurasa umeandikwa Nyumbani au Ingia.
+        </h2>
     </div>
+
+    <!-- Download buttons -->
+    <div class="text-center mb-6 space-y-4 w-full flex flex-col items-center">
+        <a href="{{ asset('storage/mwongozo.pdf') }}" 
+           class="download-btn download-btn-blue"
+           target="_blank" download>
+            📥 Pakua Mwongozo wa 1 (PDF)
+        </a>
+
+        <a href="{{ asset('storage/mwongozo2.pdf') }}" 
+           class="download-btn download-btn-green"
+           target="_blank" download>
+            📥 Pakua Mwongozo wa 2 (PDF)
+        </a>
+    </div>
+
 </main>
 
 <!-- FOOTER -->
@@ -321,6 +241,23 @@
     </div>
 
 </footer>
+
+<!-- MOBILE MENU JS -->
+<script>
+    const toggleBtn = document.getElementById("menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const menuIcon = document.getElementById("menu-icon");
+
+    toggleBtn.addEventListener("click", () => {
+        if (mobileMenu.style.height && mobileMenu.style.height !== "0px") {
+            mobileMenu.style.height = "0px";
+            menuIcon.textContent = "menu";
+        } else {
+            mobileMenu.style.height = mobileMenu.scrollHeight + "px";
+            menuIcon.textContent = "close";
+        }
+    });
+</script>
 
 </body>
 </html>

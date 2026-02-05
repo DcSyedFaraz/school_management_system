@@ -35,9 +35,9 @@
                     ->get();
 
                 if ($average <= $rank[3]['rankRangeMax']) {
-                    return 'FAIL';
+                    return 'FELI';
                 } else {
-                    return 'PASS';
+                    return 'FAULU';
                 }
             }
         } else {
@@ -49,9 +49,9 @@
                     ->get();
 
                 if ($average <= $rank[4]['rankRangeMax']) {
-                    return 'FAIL';
+                    return 'FELI';
                 } else {
-                    return 'PASS';
+                    return 'FAULU';
                 }
             }
         }
@@ -177,7 +177,7 @@
                         <th class="border border-black uppercase">Wastani</th>
                         <th class="border border-black uppercase">Daraja</th>
                         <th class="border border-black uppercase">Ufaulu</th>
-                        <th class="border border-black uppercase">Action</th>
+                        <th class="border border-black uppercase">Kitendo</th>
                     </tr>
                 </thead>
 

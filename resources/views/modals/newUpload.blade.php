@@ -5,7 +5,7 @@
         <div class="relative bg-white rounded-lg shadow">
             <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold">
-                    Add Marks:
+                    Ingiza Alama:
                 </h3>
                 <button type="button"
                     class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
@@ -25,13 +25,13 @@
                         @csrf
 
                         <div>
-                            <h2 class="font-bold text-2xl">Student Details:</h2>
+                            <h2 class="font-bold text-2xl">Taarifa za Mwanafunzi:</h2>
 
                             <div class="mb-3">
-                                <label class="block" for="studentName">Student Name:<span
+                                <label class="block" for="studentName">Jina La Mwanafunzi:<span
                                         class="text-red-500">*</span></label>
                                 <input type="text" class="block border border-black rounded-md p-2 w-full"
-                                    name="studentName" id="studentName" placeholder="Enter Student Name" required />
+                                    name="studentName" id="studentName" placeholder="Andika Jina la Mwanafunzi" required />
                                 @error('studentName')
                                     <span class="text-red-500 text-sm italic">{{ $message }}</span>
                                 @enderror
@@ -39,11 +39,11 @@
 
                             <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2">
                                 <div>
-                                    <label class="block" for="gender">Gender:<span
+                                    <label class="block" for="gender">Jinsia:<span
                                             class="text-red-500">*</span></label>
                                     <select class="block border border-black rounded-md p-2 w-full" name="gender"
                                         id="gender" required>
-                                        <option value="">--- SELECT GENDER ---</option>
+                                        <option value="">--- CHAGUA JINSIA ---</option>
                                         <option value="M">Male</option>
                                         <option value="F">Female</option>
                                     </select>
@@ -53,10 +53,10 @@
                                 </div>
 
                                 <div>
-                                    <label class="block" for="selectedclass">Class:</label>
+                                    <label class="block" for="selectedclass">Darasa:</label>
                                     <select class="block w-full block p-2 rounded-md border border-black" name="class"
                                         id="selectedclass" required onchange="loadSubjects()">
-                                        <option value="">--- SELECT CLASS ---</option>
+                                        <option value="">--- CHAGUA DARASA ---</option>
                                         @if (count($classes) > 0)
                                             @foreach ($classes as $class)
                                                 <option value="{{ $class['gradeId'] }}">{{ $class['gradeName'] }}
@@ -69,10 +69,10 @@
                                 </div>
 
                                 <div>
-                                    <label for="exam">Exam:</label>
+                                    <label for="exam">Mtihani:</label>
                                     <select class="block w-full block p-2 rounded-md border border-black" name="exam"
                                         id="exam" required>
-                                        <option value="">--- SELECT EXAM ---</option>
+                                        <option value="">--- CHAGUA MTIHANI ---</option>
                                         @if (count($exams) > 0)
                                             @foreach ($exams as $exam)
                                                 <option value="{{ $exam['examId'] }}">{{ $exam['examName'] }}</option>
@@ -88,10 +88,10 @@
                         </div>
 
                         <div class="mt-3">
-                            <h2 class="font-bold text-2xl">Subject Details:</h2>
+                            <h2 class="font-bold text-2xl">Taarifa za Masomo:</h2>
 
                             <div class="mb-3">
-                                <label class="block" for="examDate">Exam Date:<span
+                                <label class="block" for="examDate">Tarehe ya Mtihani:<span
                                         class="text-red-500">*</span></label>
                                 <input type="date" class="block border border-black rounded-md p-2 w-full"
                                     name="examDate" id="examDate" placeholder="Enter Exam Date"
@@ -113,9 +113,9 @@
 
             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
                 <button type="submit" form="newEntryForm"
-                    class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
+                    class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Hifadhi</button>
                 <button data-modal-hide="newEntryModal" type="button"
-                    class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Close</button>
+                    class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Funga</button>
             </div>
         </div>
     </div>

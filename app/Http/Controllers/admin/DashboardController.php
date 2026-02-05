@@ -173,8 +173,16 @@ class DashboardController extends Controller
             }
 
             if ($user->isActive == 0) {
-                return back()->with(['accessDenied' => 'Akaunti imefungwa. Lipia Tsh 300 kwa mtoto kwa mwaka. NMB: 52910003854']);
+                return back()->with([
+                    'accessDenied' =>
+                        "Akaunti imefungwa\n" .
+                        "Lipia Tsh 5,000 kwa mwezi\n" .
+                        "(5,000 x 3 = 15,000/= Miezi Mitatu)\n" .
+                        "Benki: NMB\n" .
+                        "Akaunti Namba: 52910003854"
+                ]);
             }
+
 
             if ($validatedData['password'] == $user->otp) {
                 // Redirect to change password page if password matches OTP
@@ -233,7 +241,7 @@ class DashboardController extends Controller
 
     //     if ($users) {
     //         if ($users['isActive'] == 0) {
-    //             return back()->with('accessDenied', 'Akaunti imefungwa. Lipia Tsh 300 kwa mtoto kwa mwaka. NMB: 52910003854');
+    //             return back()->with('accessDenied', 'Akaunti imefungwa. Lipia Tsh 5,000 kwa mwezi. (5,000 x 3 = 15,000/= Miezi Mitatu.) Benki NMB: Akaunti Namba: 52910003854');
     //         } else {
     //             if (Hash::check($req['password'], $users['password'])) {
     //                 session(['userType' => $users['userType']]);

@@ -12,66 +12,125 @@ use setasign\Fpdi\Fpdi;
 
 class PrintController extends Controller
 {
+    // Function ya kurudisha maelezo ya grade
     private function getGradeDescription($grade)
     {
         switch ($grade) {
-            case 'A':
-                return 'Bora';
-            case 'B':
-                return 'Nzuri sana';
-            case 'C':
-                return 'Nzuri';
-            case 'D':
-                return 'Inaridhisha';
-            case 'E':
-                return 'Dhaifu';
-            default:
-                return 'Hajafanya';
+            case 'A': return 'Bora';
+            case 'B': return 'Nzuri sana';
+            case 'C': return 'Nzuri';
+            case 'D': return 'Inaridhisha';
+            case 'E': return 'Dhaifu';
+            default: return 'Hajafanya';
         }
     }
+
+    // Function ya kuhesabu position kwa wanafunzi wote walioteuliwa
+    private function calculatePositions($students)
+    {
+        // Hesabu jumla ya alama kwa kila mwanafunzi
+        foreach ($students as &$student) {
+            $subjects = $student['subjects'] ?? [];
+            $totalMarks = 0;
+            foreach ($subjects as $sub) {
+                if(isset($sub['total']) && $sub['grade'] != 'Null') {
+                    $totalMarks += $sub['total'];
+                }
+            }
+            $student['totalMarks'] = $totalMarks;
+        }
+
+        // Panga descending kwa totalMarks
+        usort($students, function($a, $b) {
+            return $b['totalMarks'] <=> $a['totalMarks'];
+        });
+
+        // Toa position
+        $position = 1;
+        $prevTotal = null;
+        $sameRankCount = 0;
+        foreach ($students as $index => &$student) {
+            if ($prevTotal === $student['totalMarks']) {
+                $student['position'] = $position;
+                $sameRankCount++;
+            } else {
+                $position += $sameRankCount;
+                $student['position'] = $position;
+                $sameRankCount = 1;
+            }
+            $prevTotal = $student['totalMarks'];
+        }
+
+        return $students;
+    }
+
     public function printReport(Request $request)
     {
         $openingDate = $request->input('openingDate');
         $closingDate = $request->input('closingDate');
 
-        $students = json_decode($request->input('selectedStudents'), true);
+        // Wanafunzi walioteuliwa
+        $students = json_decode($request->input('selectedStudents'), true) ?? [];
+        if(empty($students)) {
+            return redirect()->back()->withErrors('Hakuna mwanafunzi aliyechaguliwa.');
+        }
 
+        // Idadi ya wanafunzi waliotumia mtihani
+        $studentsTakenExam = count($students);
+
+        // Andika folder ya reports kama haipo
         $reportsDirectory = storage_path('app/reports');
-
-        // Create the directory if it doesn't exist
         if (!is_dir($reportsDirectory)) {
             mkdir($reportsDirectory, 0777, true);
         }
         $pdfPaths = [];
 
+        // Pata jina la wilaya kutoka session
         $districtId = Session::get('userDistrict');
-        $districtName = DB::table('districts')->where('districtId', $districtId)->value('districtName');
-        // Generate individual PDFs for each student
+        $districtName = DB::table('districts')
+            ->where('districtId', $districtId)
+            ->value('districtName') ?? 'UNKNOWN';
+
+        // Hesabu positions
+        $students = $this->calculatePositions($students);
+
         foreach ($students as $student) {
-            $mark = Marks::where('markId', $student['id'])->select('markId', 'classId', 'examId', 'schoolId', 'examDate')->first();
+            $mark = Marks::where('markId', $student['id'])->first();
+            if (!$mark) continue;
+
+            // Info za mwanafunzi
             $student['districtName'] = $districtName;
             $student['schoolname'] = $mark->school->schoolName ?? 'NOT AVAILABLE';
             $student['classname'] = $mark->class->gradeName ?? 'NOT AVAILABLE';
             $student['date'] = $mark->examDate ?? 'NOT AVAILABLE';
             $student['examname'] = $mark->exam->examName ?? 'NOT AVAILABLE';
 
+            $student['subjects'] = $student['subjects'] ?? [];
+
             foreach ($student['subjects'] as &$subject) {
                 $subject['gradeDescription'] = $this->getGradeDescription($subject['grade']);
-                // dd($subject);
+                $subject['position'] = $subject['position'] ?? '-';
             }
 
-            $pdf = PDF::loadView('pdf.report', compact('student', 'openingDate', 'closingDate'))->setPaper('a5', 'portrait');
+            // Generate PDF ya mwanafunzi
+            $pdf = PDF::loadView('pdf.report', compact('student', 'openingDate', 'closingDate', 'studentsTakenExam'))
+                      ->setPaper('a5', 'portrait');
+
             $path = storage_path("app/reports/{$student['id']}.pdf");
             $pdf->save($path);
             $pdfPaths[] = $path;
         }
 
-
-
+        // Merge PDFs kwa FPDI
         try {
-            // Merge PDFs
+            if (count($pdfPaths) === 0) {
+                return redirect()->back()->withErrors('No valid PDF to merge.');
+            }
+
             $pdfMerger = new Fpdi();
             foreach ($pdfPaths as $pdfPath) {
+                if (!file_exists($pdfPath)) continue;
+
                 $pageCount = $pdfMerger->setSourceFile($pdfPath);
                 for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                     $pdfMerger->AddPage();
@@ -80,25 +139,44 @@ class PrintController extends Controller
                 }
             }
 
-            // Output the merged PDF
             $mergedPdfPath = storage_path('app/reports/Ripoti.pdf');
             $pdfMerger->Output($mergedPdfPath, 'F');
 
-            // Delete individual PDFs
+            // Futa PDF za mwanafunzi mmoja mmoja
             foreach ($pdfPaths as $pdfPath) {
-                unlink($pdfPath);
+                if (file_exists($pdfPath)) unlink($pdfPath);
             }
+
             return response()->file($mergedPdfPath, [
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'inline; filename="Ripoti.pdf"',
             ]);
 
-            // return response()->download($mergedPdfPath)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            // Handle the exception
             \Log::error($e->getMessage());
-            return redirect()->back()->withErrors('An error occured' . $$e->getMessage());
+            return redirect()->back()->withErrors('Tatizo limetokea: ' . $e->getMessage());
         }
-        // Return the merged PDF for download
     }
+
+    public function studentEnglishReport(Request $request)
+{
+    $studentId = $request->input('selectedStudents'); // au unavyopokea
+    $openingDate = $request->input('openingDate');
+    $closingDate = $request->input('closingDate');
+
+    // Pata student data kutoka DB
+    $student = Student::with('marks.subjects')->find($studentId);
+
+    $data = [
+        'student' => $student,
+        'openingDate' => $openingDate,
+        'closingDate' => $closingDate,
+    ];
+
+    // Pdf library kama dompdf
+    $pdf = \PDF::loadView('pdf.english.student-report', $data);
+
+    return $pdf->stream('student-report.pdf'); // au download()
+}
+
 }

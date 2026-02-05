@@ -1,6 +1,7 @@
 <?php
 namespace App\Exports;
 
+
 use App\Models\Marks;
 use App\Models\Ranks;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -8,167 +9,238 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Session;
-use DB;
+
 
 class MarksUserExport implements FromCollection, WithHeadings, WithMapping, WithColumnWidths
 {
-    protected $examId;
-    protected $classId;
-    protected $startDate;
-    protected $endDate;
-    protected $rank;
-    protected $subjects;
+protected $examId;
+protected $classId;
+protected $startDate;
+protected $endDate;
+protected $rank;
+protected $subjects;
 
-    public function __construct($examId, $classId, $startDate, $endDate)
-    {
-        $this->examId = $examId;
-        $this->classId = $classId;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
-        $this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
 
-        // Get subjects based on class
-        $this->subjects = config('subjects.' . $classId, config('subjects.class_default'));
+private $previousAvg = null;
+private $previousRank = 0;
+private $serial = 0;
+protected $subjectPositionsCache = null;
+
+
+public function __construct($examId, $classId, $startDate, $endDate)
+{
+$this->examId = $examId;
+$this->classId = $classId;
+$this->startDate = $startDate;
+$this->endDate = $endDate;
+
+
+$this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
+->where([
+['isActive', '=', '1'],
+['isDeleted', '=', '0']
+])->orderBy('rankName', 'asc')->get();
+
+
+$this->subjects = config('subjects.' . $classId, config('subjects.class_default'));
+}
+
+
+public function collection()
+{
+$classCondition = ($this->classId == '') ? ['classId', '!=', null] : ['classId', '=', $this->classId];
+$examCondition = ($this->examId == '') ? ['examId', '!=', null] : ['examId', '=', $this->examId];
+
+
+$selectColumns = array_merge(['markId', 'studentName', 'gender'], $this->subjects);
+
+
+$marks = Marks::select($selectColumns)
+->where([
+['isActive', '=', '1'],
+['isDeleted', '=', '0'],
+$classCondition,
+$examCondition,
+['userId', '=', Session::get('userId')]
+])
+->whereBetween('examDate', [$this->startDate, $this->endDate])
+->get();
+
+
+// Sort by computed average
+$marks = $marks->sortByDesc(function ($m) {
+$valid = 0;
+$total = 0;
+foreach ($this->subjects as $sub) {
+if ($m->$sub > 0) {
+$total += $m->$sub;
+$valid++;
+}
+}
+return $valid ? round($total / $valid, 2) : 0;
+})->values();
+
+
+return $marks;
+}
+
+
+public function columnWidths(): array
+{
+$widths = [];
+foreach (range('A', 'Z') as $col) {
+$widths[$col] = 20;
+}
+return $widths;
+}
+
+
+public function headings(): array
+{
+    $headings = ['Sr.No', 'Jina la Mwanafunzi'];
+
+    foreach ($this->subjects as $subject) {
+        $headings[] = ucfirst($subject);
+        $headings[] = 'Grade';
+        $headings[] = 'Nafasi';
     }
 
-    public function collection()
-    {
-        $classCondition = ($this->classId == '') ? ['classId', '!=', null] : ['classId', '=', $this->classId];
-        $examCondition = ($this->examId == '') ? ['examId', '!=', null] : ['examId', '=', $this->examId];
+    $headings = array_merge($headings, ['Jumla', 'Wastani', 'Daraja', 'Nafasi', 'Ufaulu']);
 
-        $selectColumns = array_merge(['markId', 'studentName', 'gender', 'total'], $this->subjects, [
-            DB::raw('ROUND(((' . implode(' + ', $this->subjects) . ') / ' . count($this->subjects) . '), 2) as averageMarks')
-        ]);
+    return $headings;
+}
 
-        $marks = Marks::select($selectColumns)
-            ->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0'],
-                $classCondition,
-                $examCondition,
-                ['userId', '=', Session::get('userId')]
-            ])->whereBetween('examDate', [$this->startDate, $this->endDate])->orderBy('averageMarks', 'desc')->get();
-
-        return $marks;
+private function assignGrade($marks)
+{
+    if ($marks === null || $marks === '' || $marks < 0) {
+        return '-';
     }
 
-    public function columnWidths(): array
-    {
-        return [
-            'A' => 20,
-            'B' => 20,
-            'C' => 20,
-            'D' => 20,
-            'E' => 20,
-            'F' => 20,
-            'G' => 20,
-            'H' => 20,
-            'I' => 20,
-            'J' => 20,
-            'K' => 20,
-            'L' => 20,
-            'M' => 20,
-            'N' => 20,
-            'O' => 20,
-            'P' => 20,
-            'Q' => 20,
-            'R' => 20,
-            'S' => 20,
-        ];
+    if ($marks >= 41) return 'A';
+    if ($marks >= 31) return 'B';
+    if ($marks >= 21) return 'C';
+    if ($marks >= 11) return 'D';
+    
+    return 'E';
+}
+
+private function finalStatus($average)
+{
+    if ($average === null || $average === '' || $average < 0) {
+        return '-';
     }
 
-    public function headings(): array
-    {
-        $headings = ['Sr.No', 'Jinala Mwanafunzi'];
+    // Pass mark inategemea classId
+    $passMark = ($this->classId > 4) ? 21 : 11;
+
+    // Round average before checking
+    $roundedAverage = round($average);
+
+    return ($roundedAverage >= $passMark) ? 'FAULU' : 'FELI';
+}
+
+public function map($marks): array
+{
+    if ($this->subjectPositionsCache === null) {
+        $this->subjectPositionsCache = [];
         foreach ($this->subjects as $subject) {
-            $headings[] = ucfirst($subject);
-            $headings[] = 'Grade';
+            $this->subjectPositionsCache[$subject] = $this->calculatePositions($subject);
         }
-        $headings = array_merge($headings, ['Jumla', 'Wastani', 'Daraja', 'Nafasi', 'Ufaulu']);
-        return $headings;
     }
 
-    public function map($marks): array
-    {
-        $total = array_reduce($this->subjects, function ($carry, $subject) use ($marks) {
-            return $carry + $marks->$subject;
-        }, 0);
+    $gradesFlattened = [];
+    foreach ($this->subjects as $subject) {
+    $value = $marks->$subject;
 
-        $grades = array_map(function ($subject) use ($marks) {
-            $subjectMark = $marks->$subject;
-            // Cast to string so that even 0 becomes "0"
-            $subjectMark = (string) $subjectMark;
-            return [$subjectMark, $this->assignGrade($marks->$subject)];
-        }, $this->subjects);
-        // if ($marks->studentName == 'ABDALLAH MASUDI IBRAHIMU') {
-        //     dd($grades);
-        // }
-        $gradesFlattened = [];
-        foreach ($grades as $grade) {
-            $gradesFlattened[] = $grade[0];
-            $gradesFlattened[] = $grade[1];
+    // Ikiwa value = 0, weka blank
+    $displayValue = ($value > 0) ? $value : '';
+
+    $grade = ($value > 0) ? $this->assignGrade($value) : '';
+    $position = ($value > 0) ? ($this->subjectPositionsCache[$subject][$marks->markId] ?? '-') : '';
+
+    $gradesFlattened[] = $displayValue;
+    $gradesFlattened[] = $grade;
+    $gradesFlattened[] = $position;
+}
+
+
+    // Calculate Average
+    $valid = 0;
+    $total = 0;
+    foreach ($this->subjects as $subject) {
+        if ($marks->$subject > 0) {
+            $total += $marks->$subject;
+            $valid++;
         }
+    }
+    $average = $valid ? round($total / $valid, 2) : 0;
 
-        $gradeStatus = ($marks->averageMarks > 0) ? $this->assignGrade($marks->averageMarks) : "ABS";
-        $resultStatus = ($marks->averageMarks > 0) ? $this->finalStatus($marks->averageMarks) : "";
+    // Ranking
+    $this->serial++;
+    if ($this->previousAvg === $average) {
+        $rank = $this->previousRank;
+    } else {
+        $rank = $this->serial;
+    }
 
-        static $storedAvg = '';
-        static $serialNumber = 0;
-        static $j = 0;
+    $this->previousAvg = $average;
+    $this->previousRank = $rank;
 
-        $serialNumber++;
+    $gradeStatus = $this->assignGrade($average);
+    $resultStatus = $this->finalStatus($average);
+    $totalMarks = $total;
 
-        if ($storedAvg == $marks->averageMarks) {
-            $j++;
-            $rank = $serialNumber - $j;
-            $storedAvg = $marks->averageMarks;
+    return array_merge([
+        $this->serial,
+        $marks->studentName
+    ], $gradesFlattened, [
+        $totalMarks,
+        $average,
+        $gradeStatus,
+        $rank,
+        $resultStatus
+    ]);
+}
+
+private function calculatePositions($subject)
+{
+    $classCondition = ($this->classId == '') ? ['classId', '!=', null] : ['classId', '=', $this->classId];
+    $examCondition = ($this->examId == '') ? ['examId', '!=', null] : ['examId', '=', $this->examId];
+
+    // Get student marks for this subject only
+    $records = Marks::select('markId', $subject)
+        ->where([
+            ['isActive', '=', '1'],
+            ['isDeleted', '=', '0'],
+            $classCondition,
+            $examCondition,
+            ['userId', '=', Session::get('userId')]
+        ])
+        ->whereBetween('examDate', [$this->startDate, $this->endDate])
+        ->orderBy($subject, 'desc')
+        ->get();
+
+    // Assign ranks for this subject
+    $positions = [];
+    $rank = 0;
+    $previousValue = null;
+    $counter = 0;
+
+    foreach ($records as $rec) {
+        $counter++;
+
+        if ($rec->$subject === $previousValue) {
+            // Same marks → same rank
+            $positions[$rec->markId] = $rank;
         } else {
-            $j = 0;
-            $rank = $serialNumber;
-            $storedAvg = $marks->averageMarks;
-        }
-
-        return array_merge([
-            $serialNumber,
-            $marks->studentName
-        ], $gradesFlattened, [
-            $total,
-            $marks->averageMarks,
-            $gradeStatus,
-            $rank,
-            $resultStatus
-        ]);
-    }
-
-    function assignGrade($marks)
-    {
-        if ($this->rank) {
-            foreach ($this->rank as $rank) {
-                if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
-                    return $rank['rankName'];
-                }
-            }
-        }
-        return "Null";
-    }
-
-    function finalStatus($average)
-    {
-        if ($this->classId > 4) {
-            if ($average < $this->rank[3]['rankRangeMax']) {
-                return "FAIL";
-            } else {
-                return "PASS";
-            }
-        } else {
-            if ($average < $this->rank[4]['rankRangeMax']) {
-                return "FAIL";
-            } else {
-                return "PASS";
-            }
+            // New marks → new rank
+            $rank = $counter;
+            $positions[$rec->markId] = $rank;
+            $previousValue = $rec->$subject;
         }
     }
+
+    return $positions;
+}
+
 }

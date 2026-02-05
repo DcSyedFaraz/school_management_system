@@ -4,7 +4,7 @@
         <div class="relative bg-white rounded-lg shadow">
             <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold">
-                    Upload File:
+                    Pakia Faili:
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="uploadModal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -21,9 +21,9 @@
                         
                         <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2">
                             <div>
-                                <label for="class">Class:<span class="text-red-500">*</span></label>
+                                <label for="class">Darasa:<span class="text-red-500">*</span></label>
                                 <select class="block border border-black rounded-md p-2 w-full" name="class" id="class" required>
-                                    <option value="">--- SELECT CLASS ---</option>
+                                    <option value="">--- CHAGUA DARASA ---</option>
                                     @if (count($classes)>0)
                                         @foreach ($classes as $class)
                                             <option value="{{ $class['gradeId'] }}">{{ $class['gradeName'] }}</option>
@@ -38,9 +38,9 @@
                             </div>
     
                             <div>
-                                <label for="exam">Exam:<span class="text-red-500">*</span></label>
+                                <label for="exam">Mtihani:<span class="text-red-500">*</span></label>
                                 <select class="block w-full block p-2 rounded-md border border-black" name="exam" id="exam" required>
-                                    <option value="">--- SELECT EXAM ---</option>
+                                    <option value="">--- CHAGUA MTIHANI ---</option>
                                     @if (count($exams)>0)
                                         @foreach ($exams as $exam)
                                             <option value="{{ $exam['examId'] }}">{{ $exam['examName'] }}</option>
@@ -52,14 +52,14 @@
                             </div>
 
                             <div>
-                                <label for="examDate">Exam Date:<span class="text-red-500">*</span></label>
+                                <label for="examDate">Tarehe ya Mtihani:<span class="text-red-500">*</span></label>
                                 <input type="date" class="block w-full block p-2 rounded-md border border-black" name="examDate" id="examDate" max="{{ date('Y-m-d') }}" required>
                             </div>
 
                             <div>
-                                <label for="excelFile">File:<span class="text-red-500">*</span></label>
+                                <label for="excelFile">Faili:<span class="text-red-500">*</span></label>
                                 <input class="block w-full text-sm text-gray-900 border border-black rounded-lg cursor-pointer bg-gray-50 p-2 focus:outline-none" name="excelFile" id="excelFile" type="file">
-                                <span class="text-red-500 text-sm italic">Only Excel File Accepted!</span>
+                                <span class="text-red-500 text-sm italic">Faili la Excel pekee linakubaliwa!</span>
                             </div>
                         </div>
                     </form>
@@ -67,8 +67,8 @@
             </div>
           
             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
-                <button type="submit" form="uploadForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Upload</button>
-                <button data-modal-hide="uploadModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Close</button>
+                <button type="submit" form="uploadForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Pakia</button>
+                <button data-modal-hide="uploadModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Funga</button>
             </div>
         </div>
     </div>

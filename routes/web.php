@@ -19,7 +19,6 @@ use App\Http\Controllers\user\UserDetailedReportController;
 use App\Http\Controllers\user\UserSubjectReportController;
 use App\Http\Controllers\user\UploadController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +34,49 @@ Route::get('/done', function () {
 
     return 'done';
 });
+
+Route::get('/help', function () {
+    return view('admin.help'); // admin/help.blade.php
+})->name('help');
+
+Route::get('/index', function () {
+    return view('admin.index'); // admin/help.blade.php
+})->name('index');
+
+Route::get('/mwongozo', function () {
+    return view('admin.mwongozo'); // admin/help.blade.php
+})->name('mwongozo');
+
+Route::get('/mwongozo', function () {
+    return view('admin.mwongozo'); // admin/help.blade.php
+})->name('mwongozo');
+
+// Route ya Matokeo NECTA
+Route::get('/results', function() {
+    return view('admin.results'); // Blade ya Matokeo NECTA
+})->name('results');
+
+// Matokeo kwa Darasa la Nne (IV)
+Route::get('/results/class4', function() {
+    return "Hapa ni Matokeo kwa Darasa la Nne (IV)"; // baadaye unaweza badilisha na view halisi
+})->name('results.class4');
+
+// Matokeo kwa Darasa la Saba (VII)
+Route::get('/results/class7', function() {
+    return "Hapa ni Matokeo kwa Darasa la Saba (VII)"; // baadaye unaweza badilisha na view halisi
+})->name('results.class7');
+
+// Matokeo kwa Darasa la Nne (IV) miaka mitatu nyuma
+Route::get('/results/class4/2022', function() {
+    return "Hapa ni Matokeo Darasa la Nne (IV) 2022";
+});
+Route::get('/results/class4/2021', function() {
+    return "Hapa ni Matokeo Darasa la Nne (IV) 2021";
+});
+Route::get('/results/class4/2020', function() {
+    return "Hapa ni Matokeo Darasa la Nne (IV) 2020";
+});
+
 
 Route::get('/', [DashboardController::class, 'signIn'])->name('login');
 Route::view('/password-change', 'admin.changepassword')->name('password.change');

@@ -47,7 +47,7 @@
                     lab_profile
                 </span>
 
-                <p class="inline-block -translate-y-[2px]">PSLE/SFNA Ripoti</p>
+                <p class="inline-block -translate-y-[2px]">Tathimini A - E</p>
             </a>
 
             <a href="{{ url('/admin-dashboard/subject-report') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
@@ -55,7 +55,7 @@
                     lab_profile
                 </span>
 
-                <p class="inline-block -translate-y-[2px]">Kimasomo Ripoti</p>
+                <p class="inline-block -translate-y-[2px]">Tathimini Kimasomo</p>
             </a>
 
             <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="hover:bg-blue-50 w-full focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg px-5 py-2.5 flex items-center justify-between" type="button">
@@ -137,7 +137,7 @@
                     lab_profile
                 </span>
 
-                <p class="inline-block -translate-y-[2px]">PSLE/SFNA Ripoti</p>
+                <p class="inline-block -translate-y-[2px]">Tathimini A - E</p>
             </a>
 
             <a href="{{ url('/dashboard/teacher-subject-report') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
@@ -145,7 +145,7 @@
                     lab_profile
                 </span>
 
-                <p class="inline-block -translate-y-[2px]">Kimasomo Ripoti</p>
+                <p class="inline-block -translate-y-[2px]">Tathimini Kimasomo</p>
             </a>
 
             <a href="{{ url('/dashboard/uploads') }}" class="rounded-2xl hover:bg-blue-50 p-3 w-full font-bold my-2 block">
@@ -161,8 +161,9 @@
     <div class="absolute bottom-0 py-3">
         <div>
             <b>Kwa Msaada Piga:</b>
-            <a class="text-blue-500 hover:text-blue-600 hover:underline italic block" href="tel:+255 736 102 030">+255 736 102 030</a>
-            <a class="text-blue-500 hover:text-blue-600 hover:underline italic block" href="tel:+255 786 283 282">+255 786 283 282</a>
+            <a class="text-blue-500 hover:text-blue-600 hover:underline italic block" href="tel:+255 736 102 030">+255 786 283 282</a>
+            <a class="text-blue-500 hover:text-blue-600 hover:underline italic block" href="tel:+255 736 102 030">+255 744 950 150</a>
+            <a class="text-black-500 hover:text-blue-600 hover:underline italic block" href="tel:+255 736 102 030">info@rmstechnology.co.tz</a>
         </div>
 
         <div class="mt-2">
@@ -170,7 +171,7 @@
             <p class="italic">02:00 asb - 11:00 jion</p>
         </div>
         <div class="mt-2">
-            <p class=" text-blue-500 hover:text-blue-600 italic"><b>Hati Miliki © 2024</b></p>
+            <p class=" text-blue-500 hover:text-blue-600 italic"><b>Hati Miliki ya RMS &copy {{ date('Y') }}</b></p>
         </div>
     </div>
 </div>

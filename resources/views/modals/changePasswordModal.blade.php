@@ -22,25 +22,25 @@
                         <input type="hidden" name="userId" id="userId" value="{{ Session::get('userId') }}">
 
                         <div class="my-3">
-                            <label class="block" for="currentPassword">Current Password:<span class="text-red-500">*</span></label>
+                            <label class="block" for="currentPassword">Nywila ya Sasa:<span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <input type="password" class="block border border-black rounded-md p-2 w-full" name="currentPassword" id="currentPassword" placeholder="Enter Current Password" required/>
+                                <input type="password" class="block border border-black rounded-md p-2 w-full" name="currentPassword" id="currentPassword" placeholder="Ingiza Nywila ya Sasa" required/>
                                 <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer" id="cEye" onclick="showText('currentPassword', 'cEye')">visibility</i>
                             </div>
                         </div>
 
                         <div class="my-3">
-                            <label class="block" for="newPassword">New Password:<span class="text-red-500">*</span></label>
+                            <label class="block" for="newPassword">Nywila Mpya:<span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <input type="password" class="block border border-black rounded-md p-2 w-full" name="newPassword" id="newPassword" placeholder="Enter New Password" required/>
+                                <input type="password" class="block border border-black rounded-md p-2 w-full" name="newPassword" id="newPassword" placeholder="Ingiza Nywila Mpya" required/>
                                 <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer" id="nEye" onclick="showText('newPassword', 'nEye')">visibility</i>
                             </div>
                         </div>
 
                         <div class="my-3">
-                            <label class="block" for="confirmPassword">Confirm Password:<span class="text-red-500">*</span></label>
+                            <label class="block" for="confirmPassword">Rudia Nywila Mpya:<span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <input type="password" class="block border border-black rounded-md p-2 w-full" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password" required/>
+                                <input type="password" class="block border border-black rounded-md p-2 w-full" name="confirmPassword" id="confirmPassword" placeholder="Rudia Nywila Mpya" required/>
                                 <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer" id="cfEye" onclick="showText('confirmPassword', 'cfEye')">visibility</i>
                             </div>
                         </div>
@@ -49,8 +49,8 @@
             </div>
 
             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
-                <button type="submit" form="passwordForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
-                <button data-modal-hide="changePasswordModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Close</button>
+                <button type="submit" form="passwordForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Hifadhi</button>
+                <button data-modal-hide="changePasswordModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Funga</button>
             </div>
         </div>
     </div>

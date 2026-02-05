@@ -1,0 +1,54 @@
+[06-Mar-2025 06:21:28 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:21:28 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:21:28 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/rmstechn/public_html/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php81/root/usr/share/pear') in /home/rmstechn/public_html/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:05 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:05 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:05 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/rmstechn/public_html/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php81/root/usr/share/pear') in /home/rmstechn/public_html/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:44 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:44 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:44 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/rmstechn/public_html/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php81/root/usr/share/pear') in /home/rmstechn/public_html/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:49 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:49 UTC] PHP Warning:  require(/home/rmstechn/public_html/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:23:49 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/rmstechn/public_html/public/../vendor/autoload.php' (include_path='.:/opt/cpanel/ea-php81/root/usr/share/pear') in /home/rmstechn/public_html/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/rmstechn/public_html/public/index.php on line 34
+[06-Mar-2025 06:27:46 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes) in /home/rmstechn/public_html/vendor/dompdf/dompdf/src/Css/Style.php on line 867
+[06-Mar-2025 06:29:27 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes) in /home/rmstechn/public_html/vendor/dompdf/dompdf/src/Css/Style.php on line 1471
+[06-Mar-2025 06:30:31 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 1048576 bytes) in /home/rmstechn/public_html/vendor/dompdf/dompdf/src/FrameDecorator/Block.php on line 52
+[02-May-2025 16:20:24 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 16:20:46 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 16:22:46 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 16:29:12 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 16:41:16 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 17:17:07 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 17:19:25 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[02-May-2025 19:36:31 UTC] PHP Fatal error:  Out of memory (allocated 1264582656) (tried to allocate 20971520 bytes) in /home/rmstechn/public_html/vendor/laravel/framework/src/Illuminate/Collections/Arr.php on line 116
+[20-Jun-2025 11:12:16 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 11:13:00 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 11:14:22 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 11:15:59 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 11:17:49 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 17:55:55 UTC] PHP Fatal error:  Out of memory (allocated 1161822208) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[20-Jun-2025 17:56:39 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 17:57:33 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[20-Jun-2025 17:59:38 UTC] PHP Fatal error:  Allowed memory size of 1342177280 bytes exhausted (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/maatwebsite/excel/src/Cache/MemoryCache.php on line 97
+[09-Aug-2025 15:24:52 UTC] PHP Fatal error:  Out of memory (allocated 1159725056) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[09-Aug-2025 15:25:47 UTC] PHP Fatal error:  Out of memory (allocated 1153433600) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[09-Aug-2025 17:41:20 UTC] PHP Fatal error:  Out of memory (allocated 1159725056) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[09-Aug-2025 17:44:03 UTC] PHP Fatal error:  Out of memory (allocated 1159725056) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[10-Aug-2025 05:17:40 UTC] PHP Fatal error:  Out of memory (allocated 1153433600) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[10-Aug-2025 09:15:04 UTC] PHP Fatal error:  Out of memory (allocated 1153433600) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[10-Aug-2025 09:22:03 UTC] PHP Fatal error:  Out of memory (allocated 1159725056) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[10-Aug-2025 09:31:37 UTC] PHP Fatal error:  Out of memory (allocated 1153433600) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[10-Aug-2025 09:48:40 UTC] PHP Fatal error:  Out of memory (allocated 1155530752) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395
+[10-Aug-2025 12:14:03 UTC] PHP Fatal error:  Out of memory (allocated 1155530752) (tried to allocate 167772160 bytes) in /home/rmstechn/public_html/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/Collection/Cells.php on line 395

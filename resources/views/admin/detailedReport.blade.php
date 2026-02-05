@@ -465,7 +465,7 @@
                                     <td class="border border-black">0</td>
                                 @else
                                     <td class="border border-black">
-                                        {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                        {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale) / $totalstudent) * 100, 2) }}
                                     </td>
                                 @endif
                                 <td class="border border-black dGradeMale">{{ $dGradeMale }}</td>
@@ -482,8 +482,7 @@
                                     <td class="border border-black">0</td>
                                 @else
                                     <td class="border border-black">
-                                        {{ number_format(($gradess / $totalstudent) * 100, 2) }}
-                                        {{-- {{ number_format((($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / ($totalMale + $totalFemale)) * 100, 2) }} --}}
+                                        {{ number_format((($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / $totalstudent) * 100, 2) }}
                                     </td>
                                 @endif
                             @else

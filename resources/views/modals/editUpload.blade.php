@@ -4,7 +4,7 @@
         <div class="relative bg-white rounded-lg shadow">
             <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                 <h3 class="text-xl font-semibold">
-                    Edit Marks:
+                    Hariri Alama:
                 </h3>
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editEntryModal">
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
@@ -21,10 +21,10 @@
                         <input type="hidden" name="entryId" id="entryId">
 
                         <div>
-                            <h2 class="font-bold text-2xl">Student Details:</h2>
+                            <h2 class="font-bold text-2xl">Taarifa za Mwanafunzi:</h2>
 
                             <div class="mb-3">
-                                <label class="block" for="updatedStudentName">Student Name:<span class="text-red-500">*</span></label>
+                                <label class="block" for="updatedStudentName">Jina la Mwanafunzi:<span class="text-red-500">*</span></label>
                                 <input type="text" class="block border border-black rounded-md p-2 w-full" name="updatedStudentName" id="updatedStudentName" placeholder="Enter Student Name" required/>
                                 @error('updatedStudentName')
                                     <span class="text-red-500 text-sm italic">{{ $message }}</span>
@@ -33,9 +33,9 @@
 
                             <div class="grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-2">
                                 <div>
-                                    <label class="block" for="updatedGender">Gender:<span class="text-red-500">*</span></label>
+                                    <label class="block" for="updatedGender">Jinsia:<span class="text-red-500">*</span></label>
                                     <select class="block border border-black rounded-md p-2 w-full" name="updatedGender" id="updatedGender" required>
-                                        <option value="">--- SELECT GENDER ---</option>
+                                        <option value="">--- CHAGUA JINSIA ---</option>
                                         <option value="M">Male</option>
                                         <option value="F">Female</option>
                                     </select>
@@ -45,9 +45,9 @@
                                 </div>
 
                                 <div>
-                                    <label for="updatedClass">Class:</label>
+                                    <label for="updatedClass">Darasa:</label>
                                     <select class="block w-full block p-2 rounded-md border border-black" name="updatedClass" id="updatedClass" required>
-                                        <option value="">--- SELECT CLASS ---</option>
+                                        <option value="">--- CHAGUA DARASA ---</option>
                                         @if (count($classes)>0)
                                             @foreach ($classes as $class)
                                                 <option value="{{ $class['gradeId'] }}">{{ $class['gradeName'] }}</option>
@@ -59,9 +59,9 @@
                                 </div>
 
                                 <div>
-                                    <label for="updatedExam">Exam:</label>
+                                    <label for="updatedExam">Mtihani:</label>
                                     <select class="block w-full block p-2 rounded-md border border-black" name="updatedExam" id="updatedExam" required>
-                                        <option value="">--- SELECT EXAM ---</option>
+                                        <option value="">--- CHAGUA MTIHANI ---</option>
                                         @if (count($exams)>0)
                                             @foreach ($exams as $exam)
                                                 <option value="{{ $exam['examId'] }}">{{ $exam['examName'] }}</option>
@@ -76,10 +76,10 @@
                         </div>
 
                         <div class="mt-3">
-                            <h2 class="font-bold text-2xl">Subject Details:</h2>
+                            <h2 class="font-bold text-2xl">Taarifa za Masomo:</h2>
 
                             <div class="mb-3">
-                                <label class="block" for="updatedExamDate">Exam Date:<span class="text-red-500">*</span></label>
+                                <label class="block" for="updatedExamDate">Tarehe ya Mtihani:<span class="text-red-500">*</span></label>
                                 <input type="date" class="block border border-black rounded-md p-2 w-full" name="updatedExamDate" id="updatedExamDate" placeholder="Enter Exam Date" max="{{ date('Y-m-d') }}" required/>
                                 @error('updatedExamDate')
                                     <span class="text-red-500 text-sm italic">{{ $message }}</span>
@@ -96,8 +96,8 @@
 
 
             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b">
-                <button type="submit" form="updateEntryForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Save</button>
-                <button data-modal-hide="editEntryModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Close</button>
+                <button type="submit" form="updateEntryForm" class="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Hifadhi</button>
+                <button data-modal-hide="editEntryModal" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Funga</button>
             </div>
         </div>
     </div>

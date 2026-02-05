@@ -30,18 +30,6 @@
             overflow: hidden;
             transition: height 0.35s ease-in-out;
         }
-        
-        .animate-bounce {
-        animation: bounce 1.3s infinite;
-    }
-    @keyframes bounce {
-        0%, 100% {
-            transform: translateY(0);
-        }
-        50% {
-            transform: translateY(-6px);
-        }
-    }
     </style>
 </head>
 
@@ -200,113 +188,52 @@
 </script>
 
 
-<!-- MAIN SECTION -->
-<main class="flex-1 flex flex-col items-center justify-center px-4">
-    <div class="text-center mb-6">
-        <h1 class="font-extrabold text-xl md:text-2xl text-gray-800 leading-snug">
-            MFUMO WA USIMAMIZI WA MATOKEO <br> (MUM)
-        </h1>
-        <div class="relative w-fit mx-auto mt-3">
+  <!-- Help Section -->
+  <section class="flex-grow flex flex-col items-center justify-center text-center px-4 mt-6">
+    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+      Mawasiliano ya Msaada
+    </h2>
 
-            <!-- LOGO -->
-            <img src="{{ asset('img/logo.png') }}" alt="logo" class="w-28 mx-auto drop-shadow-md">
-        
-        </div>
+    <div class="bg-white shadow-lg rounded-2xl p-8 max-w-md w-full space-y-6">
+      
+      <!-- Simu -->
+      <div class="flex items-center space-x-3 text-gray-700">
+        <i class="fa-solid fa-phone text-blue-600 text-xl"></i>
+        <span>Tupigie: 
+          <a href="tel:0744950150" class="text-blue-600 font-semibold hover:text-yellow-400 transition">0744 950 150</a>
+        </span>
+      </div>
 
+      <!-- Email -->
+      <div class="flex items-center space-x-3 text-gray-700">
+        <i class="fa-solid fa-envelope text-blue-600 text-xl"></i>
+        <span>Email: 
+          <a href="mailto:info@rmstechnology.co.tz" class="text-blue-600 font-semibold hover:text-yellow-400 transition">info@rmstechnology.co.tz</a>
+        </span>
+      </div>
+
+      <!-- Location -->
+      <div class="flex items-center space-x-3 text-gray-700">
+        <i class="fa-solid fa-location-dot text-blue-600 text-xl"></i>
+        <span>Location: Dodoma, Tanzania</span>
+      </div>
+
+      <!-- WhatsApp -->
+      <div class="flex items-center space-x-3 text-gray-700">
+        <i class="fa-brands fa-whatsapp text-green-600 text-xl"></i>
+        <span>Chat WhatsApp: 
+          <a href="https://wa.me/255786283282" target="_blank" class="text-green-600 font-semibold hover:text-yellow-400 transition">Anza Mazungumzo</a>
+        </span>
+      </div>
     </div>
 
-    <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6">
-
-        <h2 class="text-center font-bold text-gray-700 mb-4">
-            Tafadhali andika Jina la Mtumiaji na Nywila ili kuingia
-        </h2>
-
-        @if (Session::has('accessDenied'))
-        <div class="alert alert-danger text-center text-red-500 font-bold mb-3">
-        {!! nl2br(e(Session::get('accessDenied'))) !!}
-        </div>
-        @endif
-
-
-        @if (Session::has('success'))
-            <p class="text-center font-semibold text-green-600 mb-3">{{ Session::get('success') }}</p>
-        @endif
-
-        <form action="{{ url('/signIn') }}" method="post" class="space-y-4">
-            @csrf
-
-            <!-- USERNAME -->
-            <div>
-                <label for="email" class="block font-medium text-gray-600">
-                    Jina la mtumiaji/Email: <span class="text-red-500">*</span>
-                </label>
-
-                <div class="relative">
-                    <input type="text" id="email" name="email"
-                        value="{{ Cookie::get('email') }}"
-                        required placeholder="Ingiza Jina la Mtumiaji/barua pepe"
-                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-400
-                               focus:border-blue-400 p-2 pr-8">
-                </div>
-            </div>
-
-            <!-- PASSWORD -->
-            <div>
-                <label for="password" class="block font-medium text-gray-600">
-                    Nywila: <span class="text-red-500">*</span>
-                </label>
-
-                <div class="relative">
-                    <input type="password" id="password" name="password"
-                        value="{{ Cookie::get('password') }}"
-                        required placeholder="Ingiza Nywila"
-                        class="block w-full rounded-md p-2 border border-gray-200">
-
-                    <i class="material-symbols-outlined absolute right-2 top-2.5 cursor-pointer"
-                       id="eye"
-                       onclick="togglePassword()">visibility</i>
-                </div>
-            </div>
-
-            <script>
-                function togglePassword() {
-                    const pwd = document.getElementById("password");
-                    const icon = document.getElementById("eye");
-
-                    if (pwd.type === "password") {
-                        pwd.type = "text";
-                        icon.textContent = "visibility_off";
-                    } else {
-                        pwd.type = "password";
-                        icon.textContent = "visibility";
-                    }
-                }
-            </script>
-
-            <!-- REMEMBER + FORGOT -->
-            <div class="flex justify-between items-center text-sm">
-                <label class="flex items-center gap-1">
-                    <input type="checkbox" name="rememberMe" id="rememberMe" class="rounded-sm">
-                    Nikumbuke
-                </label>
-
-                <a href="{{ url('/forgotPassword') }}" class="text-blue-500 hover:underline">
-                    Nimesahau nywila?
-                </a>
-            </div>
-
-            <!-- SUBMIT -->
-            <button type="submit"
-                class="w-full bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500
-                       hover:to-blue-600 text-white py-2 rounded-lg font-bold shadow-md transition-all">
-                Ingia
-            </button>
-
-        </form>
+    <!-- Google Map -->
+    <div class="mt-8 w-full max-w-md">
+      <div id="map"></div>
     </div>
-</main>
+  </section>
 
-<!-- FOOTER -->
+  <!-- FOOTER -->
 <footer class="footer bg-white/80 backdrop-blur-sm text-sm font-bold shadow-inner
               flex justify-between items-center px-6 h-12">
 
@@ -321,6 +248,22 @@
     </div>
 
 </footer>
+
+  <!-- Google Maps Script -->
+  <script>
+    function initMap() {
+      const location = { lat: -6.1630, lng: 35.7516 }; // Dodoma coordinates
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 14,
+        center: location,
+      });
+      const marker = new google.maps.Marker({
+        position: location,
+        map: map,
+      });
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
 
 </body>
 </html>
