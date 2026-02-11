@@ -29,16 +29,16 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ asset('excel/class_four.xlsx') }}" target="_blank" download
+                        <a href="{{ asset('excel/class_four_and_five.xlsx') }}" target="_blank" download
                             class="flex items-center justify-between py-2 px-4 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <span>Darasa la Nne</span>
+                            <span>Darasa la Nne na la Tano</span>
                             <i class="material-symbols-outlined text-sm text-gray-400">file_download</i>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ asset('excel/class_five_and_six.xlsx') }}" target="_blank" download
+                        <a href="{{ asset('excel/class_six.xlsx') }}" target="_blank" download
                             class="flex items-center justify-between py-2 px-4 rounded-md text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100">
-                            <span>Darasa la Tano na la Sita</span>
+                            <span>Darasa la Sita</span>
                             <i class="material-symbols-outlined text-sm text-gray-400">file_download</i>
                         </a>
                     </li>

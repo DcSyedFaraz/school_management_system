@@ -120,9 +120,9 @@
 
 <div class="text-center font-bold mb-2 uppercase">
     <div>PRIME MINISTER'S OFFICE - TAMISEMI</div>
-    <div>DISTRICT COUNCIL OF {{ $reportData['districtName'] ?? '_____________________' }}</div>
-    <div>PRIMARY SCHOOL {{ $reportData['schoolName'] ?? '_____________________' }}</div>
-    <div>EXAMINATION ASSESSMENT OF {{ $reportData['examName'] ?? '_____________________' }} CLASS
+    <div>{{ $reportData['districtName'] ?? '_____________________' }} DISTRICT COUNCIL</div>
+    <div>{{ $reportData['schoolName'] ?? '_____________________' }} PRIMARY SCHOOL</div>
+    <div style="text-transform: uppercase;">EXAMINATION ASSESSMENT OF {{ $reportData['examName'] ?? '_____________________' }} CLASS
         {{ $reportData['className'] ?? '_________' }} HELD ON {{ $formattedDates ?? '_________________' }}</div>
 </div>
 

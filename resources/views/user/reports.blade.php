@@ -846,7 +846,7 @@
             const selectedCount = checkboxes.filter(checkbox => checkbox.checked).length;
 
             if (printReportButton) printReportButton.disabled = selectedCount === 0;
-            if (printEnglishButton) printEnglishButton.disabled = selectedCount !== 1;
+            if (printEnglishButton) printEnglishButton.disabled = selectedCount === 0;
         }
 
         if (selectAll) {
@@ -922,8 +922,8 @@
             let checkboxes = document.querySelectorAll('.studentCheckbox:checked');
             checkboxes.forEach(checkbox => selectedStudents.push(JSON.parse(checkbox.value)));
 
-            if (selectedStudents.length !== 1) {
-                alert('Please select exactly one student.');
+            if (selectedStudents.length === 0) {
+                alert('Please select at least one student.');
                 return;
             }
 
