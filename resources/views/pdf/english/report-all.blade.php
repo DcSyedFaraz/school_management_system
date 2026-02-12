@@ -75,6 +75,27 @@
     $marks = $reportData['marks'];
     $ranks = $reportData['ranks'];
     $gAverage = $reportData['gAverage'];
+
+    // Subject mapping from Swahili to English
+    $subjectMapping = [
+        'hisabati' => 'Mathematics',
+        'sayansi' => 'Science',
+        'jiographia' => 'Geography',
+        'historia' => 'History of Tanzania',
+        'mazingira' => 'Health and Environment',
+        'michezo' => 'Arts and Sports',
+        'utamaduni' => 'Culture, Arts and Sports',
+        'jamii' => 'Social Studies',
+        'maadili' => 'Civics and Morals',
+        's_kazi' => 'Vocational Skills',
+    ];
+
+    // Exam mapping from Swahili to English
+    $examMapping = [
+        'MWISHO MUHULA WA I' => 'TERMINAL EXAM',
+        'MWISHO MUHULA WA II' => 'ANNUAL EXAM',
+    ];
+
     $maleAbsent = $reportData['maleAbsent'];
     $femaleAbsent = $reportData['femaleAbsent'];
     $schoolAverage = $reportData['schoolAverage'];
@@ -122,7 +143,7 @@
     <div>PRIME MINISTER'S OFFICE - TAMISEMI</div>
     <div>{{ $reportData['districtName'] ?? '_____________________' }} DISTRICT COUNCIL</div>
     <div>{{ $reportData['schoolName'] ?? '_____________________' }} PRIMARY SCHOOL</div>
-    <div style="text-transform: uppercase;">EXAMINATION ASSESSMENT OF {{ $reportData['examName'] ?? '_____________________' }} CLASS
+    <div style="text-transform: uppercase;">EXAMINATION ASSESSMENT OF {{ $examMapping[strtoupper($reportData['examName'] ?? '')] ?? $reportData['examName'] ?? '_____________________' }} CLASS
         {{ $reportData['className'] ?? '_________' }} HELD ON {{ $formattedDates ?? '_________________' }}</div>
 </div>
 
@@ -199,7 +220,7 @@
                         $failedCount = $classId>4 ? $gradeArray[$name]['D']+$gradeArray[$name]['E'] : $gradeArray[$name]['E'];
                     @endphp
                     <tr class="{{ $g%2==0?'bg-white':'bg-gray-200' }}">
-                        <td>{{ strtoupper($name) }}</td>
+                        <td>{{ strtoupper($subjectMapping[strtolower($name)] ?? $name) }}</td>
                         @foreach(['A','B','C','D','E'] as $grade)
                             <td>{{ $gradeMaleArray[$name][$grade] }}</td>
                             <td>{{ $gradeFemaleArray[$name][$grade] }}</td>
@@ -230,7 +251,7 @@
                 <th rowspan="2" class="tiny-col">S/N</th>
                 <th rowspan="2" class="student-name">STUDENT NAME</th>
                 @foreach($subjects as $subject)
-                    <th colspan="3" class="subject_headings">{{ strtoupper($subject) }}</th>
+                    <th colspan="3" class="subject_headings">{{ strtoupper($subjectMapping[strtolower($subject)] ?? $subject) }}</th>
                 @endforeach
                 <th rowspan="2" class="small-col">TOTAL</th>
                 <th rowspan="2" class="small-col">AVERAGE</th>

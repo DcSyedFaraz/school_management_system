@@ -55,7 +55,7 @@
     }
 
     /* Optional: color classes for grades */
-    .color-A { color: #006400; /* dark green */ font-weight: bold; } 
+    .color-A { color: #006400; /* dark green */ font-weight: bold; }
     .color-B { color: #00008B; /* dark blue */ font-weight: bold; }
     .color-C { color: #FF8C00; /* dark orange */ font-weight: bold; }
     .color-D { color: #8B4513; /* saddle brown */ font-weight: bold; }
@@ -176,10 +176,13 @@
             <p><strong>Maoni ya Mzazi:</strong> ___________________________________________________________________________________</p>
             <p>__________________________________________________________________________________________________</p>
             <p>__________________________________________________________________________________________________</p>
-            <p style="text-align: right;"><strong>Saini ya Mzazi:</strong> _____________________</p>
+            <p style="overflow: auto;">
+                <span style="float: left;"><strong>Namba ya Shule:</strong> {{ $schoolContact ?? '_____________________' }}</span>
+                <span style="float: right;"><strong>Saini ya Mzazi:</strong> _____________________</span>
+            </p>
         </div>
 
-        
+
         <hr style="margin-top: 3rem; border-style: dashed">
         <div style="text-align: center">
             <p><strong>Designed by:</strong> rmstechnology.co.tz +255 786 283 282 / +255 736 102 030</p>

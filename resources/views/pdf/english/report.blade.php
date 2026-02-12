@@ -168,10 +168,13 @@
         $term =
             isset($student['date']) && $student['date'] ? (date('m', strtotime($student['date'])) <= 6 ? 1 : 2) : '-';
         $subjectMapping = [
+            'hisabati' => 'Mathematics',
+            'sayansi' => 'Science and Technology',
+            'jiographia' => 'Geography and Environment',
+            'historia' => 'History of Tanzania',
             'mazingira' => 'Health and Environment',
             'michezo' => 'Arts and Sports',
             'utamaduni' => 'Culture, Arts and Sports',
-            'jiographia' => 'Geography and Environment',
             'jamii' => 'Social Studies',
             'maadili' => 'Civics and Morals',
             's_kazi' => 'Vocational Skills',
@@ -185,6 +188,11 @@
             'TANO' => 'FIVE',
             'SITA' => 'SIX',
             'SABA' => 'SEVEN',
+        ];
+
+        $examMapping = [
+            'MWISHO MUHULA WA I' => 'TERMINAL EXAM',
+            'MWISHO MUHULA WA II' => 'ANNUAL EXAM',
         ];
 
         $gradeComments = [
@@ -211,7 +219,7 @@
             <h2>{{ $student['districtName'] ?? '_____________________' }} DISTRICT COUNCIL</h2>
             <h2>{{ $student['schoolname'] ?? '_____________________' }} PRIMARY SCHOOL</h2>
             <h2>STUDENT PROGRESS REPORT</h2>
-            <h2>EXAMINATION: {{ strtoupper($student['examname'] ?? '_____________________') }}</h2>
+            <h2>EXAMINATION: {{ $examMapping[strtoupper($student['examname'] ?? '')] ?? strtoupper($student['examname'] ?? '_____________________') }}</h2>
         </div>
 
         <div class="student-info compact">

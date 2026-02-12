@@ -112,8 +112,11 @@ class PrintController extends Controller
                 $subject['position'] = $subject['position'] ?? '-';
             }
 
+            // School contact from logged-in user's mobile
+            $schoolContact = DB::table('users')->where('userId', Session::get('userId'))->value('mobile') ?? '';
+
             // Generate PDF ya mwanafunzi
-            $pdf = PDF::loadView('pdf.report', compact('student', 'openingDate', 'closingDate', 'studentsTakenExam'))
+            $pdf = PDF::loadView('pdf.report', compact('student', 'openingDate', 'closingDate', 'studentsTakenExam', 'schoolContact'))
                       ->setPaper('a5', 'portrait');
 
             $path = storage_path("app/reports/{$student['id']}.pdf");
