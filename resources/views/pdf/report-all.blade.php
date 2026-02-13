@@ -140,8 +140,19 @@
         }
 
         use Carbon\Carbon;
-        $start = Carbon::parse($startDate);
-        $end = Carbon::parse($endDate);
+        // Get exam date from the first mark record
+        $examDate = null;
+        if (count($marks) > 0) {
+            $firstMarkId = $marks[0]['markId'] ?? null;
+            if ($firstMarkId) {
+                $markRecord = \App\Models\Marks::where('markId', $firstMarkId)->first();
+                $examDate = $markRecord->examDate ?? null;
+            }
+        }
+        // Fallback to endDate if examDate not found
+        $dateToUse = $examDate ?? $endDate;
+        $dateCarbon = Carbon::parse($dateToUse);
+
         $monthMap = [
             'January' => 'JANUARI',
             'February' => 'FEBRUARI',
@@ -156,8 +167,8 @@
             'November' => 'NOVEMBER',
             'December' => 'DECEMBER',
         ];
-        $formattedMonth = $monthMap[$end->format('F')];
-        $formattedDates = $end->format('d') . ' ' . $formattedMonth . ', ' . $end->format('Y');
+        $formattedMonth = $monthMap[$dateCarbon->format('F')];
+        $formattedDates = $dateCarbon->format('d') . ' ' . $formattedMonth . ', ' . $dateCarbon->format('Y');
     @endphp
 
     <div class="text-center font-bold mb-2 uppercase">
