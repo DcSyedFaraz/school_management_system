@@ -306,7 +306,8 @@
                                 <td>{{ $gradeFemaleArray[$name][$grade] }}</td>
                                 <td>{{ $gradeArray[$name][$grade] }}</td>
                             @endforeach
-                            <td>{{ number_format($gAverage[$g] / (count($marks) - $maleAbsent - $femaleAbsent), 2) }}</td>
+                            <td>{{ number_format($gAverage[$g] / (count($marks) - $maleAbsent - $femaleAbsent), 2) }}
+                            </td>
                             <td>{{ $totalGradeCount - $failedCount }}</td>
                             <td>{{ $totalGradeCount > 0 ? number_format((($totalGradeCount - $failedCount) * 100) / $totalGradeCount, 2) : 0 }}
                             </td>
@@ -383,7 +384,8 @@
                         @endforeach
                         <td class="small-col">{{ $mark['total'] }}</td>
                         <td class="small-col">{{ number_format($mark['average'], 2) }}</td>
-                        <td class="small-col">{{ $mark['average'] > 0 ? assignGrade($mark['average'], $ranks) : 'HYP' }}
+                        <td class="small-col">
+                            {{ $mark['average'] > 0 ? assignGrade($mark['average'], $ranks) : 'HYP' }}
                         </td>
                         <td class="small-col">{{ $position }}</td>
                         <td class="small-col">

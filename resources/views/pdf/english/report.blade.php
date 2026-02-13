@@ -191,8 +191,10 @@
         ];
 
         $examMapping = [
+            'NUSU MUHULA' => 'MID-TERM EXAM',
             'MWISHO MUHULA WA I' => 'TERMINAL EXAM',
             'MWISHO MUHULA WA II' => 'ANNUAL EXAM',
+            'WIKI' => 'WEEKLY EXAM',
         ];
 
         $gradeComments = [
@@ -219,7 +221,9 @@
             <h2>{{ $student['districtName'] ?? '_____________________' }} DISTRICT COUNCIL</h2>
             <h2>{{ $student['schoolname'] ?? '_____________________' }} PRIMARY SCHOOL</h2>
             <h2>STUDENT PROGRESS REPORT</h2>
-            <h2>EXAMINATION: {{ $examMapping[strtoupper($student['examname'] ?? '')] ?? strtoupper($student['examname'] ?? '_____________________') }}</h2>
+            <h2>EXAMINATION:
+                {{ $examMapping[strtoupper($student['examname'] ?? '')] ?? strtoupper($student['examname'] ?? '_____________________') }}
+            </h2>
         </div>
 
         <div class="student-info compact">
@@ -304,7 +308,8 @@
 
         <div class="footer">
             <p><strong>Parent Name:</strong> ___________________________________________________
-                <strong>Date:</strong>_____________________</p>
+                <strong>Date:</strong>_____________________
+            </p>
             <p><strong>Student Name:</strong>
                 __________________________________________________<strong>Class:</strong>_____________________</p>
             <p><strong>Parent's Remarks:</strong>
