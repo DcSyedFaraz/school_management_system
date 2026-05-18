@@ -193,7 +193,7 @@
                             // $totalMarks=$mark['hisabati']+$mark['kiswahili']+$mark['sayansi']+$mark['english']+$mark['jamii']+$mark['maadili'];
                             // $average=number_format(($totalMarks/6), 2, '.', '');
 
-                            if($mark['average']==0){
+                            if($mark['average']===null){
                                 ($mark['gender']=='M')?$maleAbsent++:$femaleAbsent++;
                             }
                             else{
@@ -225,22 +225,19 @@
                         <tr class="odd:bg-gray-200">
                             <td class="border border-black text-right">{{ $i }}</td>
                             <td class="capitalize border border-black">{{ $mark['studentName'] }}</td>
-                            <td class="border border-black text-right">{{ $mark['hisabati'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['hisabati']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['kiswahili'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['kiswahili']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['sayansi'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['sayansi']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['english'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['english']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['jamii'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['jamii']) }}</td>
-                            <td class="border border-black text-right">{{ $mark['maadili'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['maadili']) }}</td>
+                            @foreach (['hisabati','kiswahili','sayansi','english','jamii','maadili'] as $sub)
+                                @if ($mark[$sub] === null)
+                                    <td class="border border-black text-center italic text-gray-400">ABS</td>
+                                    <td class="border border-black text-center italic text-gray-400">ABS</td>
+                                @else
+                                    <td class="border border-black text-right">{{ $mark[$sub] }}</td>
+                                    <td class="border border-black">{{ assignGrade($mark[$sub]) }}</td>
+                                @endif
+                            @endforeach
                             <td class="border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="border border-black text-right">{{ $mark['average'] }}</td>
 
-                            @if ($mark['average']>0)
+                            @if ($mark['average'] !== null)
                                 <td class="border border-black">{{ assignGrade($mark['average']) }}</td>
                             @else
                                 <td class="border border-black">ABS</td>

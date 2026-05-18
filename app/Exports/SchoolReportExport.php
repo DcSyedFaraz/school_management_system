@@ -284,7 +284,7 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
         foreach ($avgMarks as $avg) {
             ($avg['gender'] == 'M') ? $totalMale++ : $totalFemale++;
 
-            if ($avg['averageMarks'] == 0) {
+            if ($avg['averageMarks'] === null) {
                 if ($avg['gender'] == 'M') {
                     $maleAbsent++;
                 } else {

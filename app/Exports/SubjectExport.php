@@ -170,7 +170,7 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
             $wardCondition,
             ['schoolId', '=', $markData['schoolId']],
         ])
-            ->whereRaw('ROUND(((' . implode('+', $this->subjects) . ') / ' . count($this->subjects) . '), 2) != ?', [0])
+            ->whereNotNull('average')
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->count();
 
@@ -185,14 +185,13 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
             $wardCondition,
             ['schoolId', '=', $markData['schoolId']],
         ])
-            ->whereRaw('ROUND(((' . implode('+', $this->subjects) . ') / ' . count($this->subjects) . '), 2) != ?', [0])
+            ->whereNotNull('average')
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->count();
 
         $gradeArray = [];
         foreach ($marks as $aMark) {
-            $totalMarks = array_sum($aMark->toArray());
-            if ($totalMarks != 0) {
+            if ($aMark->average !== null) {
                 foreach ($this->subjects as $subject) {
                     $grade = $this->assignGrade($aMark[$subject]);
                     // dump($subject . $grade);

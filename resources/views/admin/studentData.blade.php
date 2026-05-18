@@ -356,13 +356,18 @@
                                 <p>{!! $wardName !!}</p>
                             </td>
                             @foreach ($subjects as $subject)
-                                <td class="p-[15px] border border-black text-right">{{ $mark[$subject] }}</td>
-                                <td class="p-[15px] border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                                @if ($mark[$subject] === null)
+                                    <td class="p-[15px] border border-black text-center italic text-gray-400">ABS</td>
+                                    <td class="p-[15px] border border-black text-center italic text-gray-400">ABS</td>
+                                @else
+                                    <td class="p-[15px] border border-black text-right">{{ $mark[$subject] }}</td>
+                                    <td class="p-[15px] border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                                @endif
                             @endforeach
                             <td class="p-[15px] border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="p-[15px] border border-black text-right">{{ $mark['average'] }}</td>
 
-                            @if ($mark['average'] > 0)
+                            @if ($mark['average'] !== null)
                                 <td class="p-[15px] border border-black">{{ assignGrade($mark['average']) }}</td>
                             @else
                                 <td class="p-[15px] border border-black">ABS</td>
@@ -384,7 +389,7 @@
                                 <td class="p-[15px] border border-black text-right">{{ $i }}</td>
                             @endif
 
-                            @if ($mark['average'] > 0)
+                            @if ($mark['average'] !== null)
                                 <td class="p-[15px] border border-black">{{ finalStatus($mark['average']) }}</td>
                             @else
                                 <td class="p-[15px] border border-black"></td>

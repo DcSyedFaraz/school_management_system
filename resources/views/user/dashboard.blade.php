@@ -102,7 +102,7 @@
                                         </td>
                                         <td class="border border-black p-2">
                                             {{-- @dd($schoolRank['average']) --}}
-                                            @if ($schoolRank['average'] == 0)
+                                            @if ($schoolRank['average'] === null)
                                                 <p class="text-blue-500 italic">Hayupo</p>
                                             @elseif($schoolRank['average'] <= $borderLine)
                                                 <p class="text-red-500 italic">Feli</p>

@@ -175,7 +175,7 @@ public function __construct($examId, $classId, $startDate, $endDate, $borderLine
         ['schoolId', '=', $markData['schoolId']],
         ['classId', '=', $this->classId],
         ['examId', '=', $this->examId]
-    ])->whereRaw('ROUND(((' . implode('+', $this->subjects) . ') / ' . count($this->subjects) . '), 2) != ?', [0])
+    ])->whereNotNull('average')
         ->whereBetween('examDate', [$startDate, $endDate])->count();
 
     $femalePassed = \App\Models\Marks::where([
@@ -185,12 +185,12 @@ public function __construct($examId, $classId, $startDate, $endDate, $borderLine
         ['schoolId', '=', $markData['schoolId']],
         ['classId', '=', $this->classId],
         ['examId', '=', $this->examId]
-    ])->whereRaw('ROUND(((' . implode('+', $this->subjects) . ') / ' . count($this->subjects) . '), 2) != ?', [0])
+    ])->whereNotNull('average')
         ->whereBetween('examDate', [$startDate, $endDate])->count();
 
     $gradeArray = [];
     foreach ($marks as $aMark) {
-        if (array_sum($aMark->toArray()) != 0) {
+        if ($aMark->average !== null) {
             foreach ($this->subjects as $subject) {
                 $grade = $this->assignGrade($aMark[$subject]);
                 $gradeArray[] = $subject . $grade;

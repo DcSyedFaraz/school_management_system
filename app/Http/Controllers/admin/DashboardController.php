@@ -341,7 +341,7 @@ class DashboardController extends Controller
             $femaleRanks = [0, 0, 0, 0, 0];
 
             foreach ($maleAveargeMarks as $average) {
-                if ($average['average'] != 0) {
+                if ($average['average'] !== null) {
                     if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
                         $maleRanks[0] = $maleRanks[0] + 1;
                     } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
@@ -357,7 +357,7 @@ class DashboardController extends Controller
             }
 
             foreach ($femaleAveargeMarks as $average) {
-                if ($average['average'] != 0) {
+                if ($average['average'] !== null) {
                     if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
                         $femaleRanks[0] = $femaleRanks[0] + 1;
                     } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
@@ -372,7 +372,7 @@ class DashboardController extends Controller
                 }
             }
 
-            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as average')
+            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as average')
                 ->join('schools', 'schools.schoolId', '=', 'marks.schoolId')->where([
                         ['marks.isActive', '=', '1'],
                         ['marks.isDeleted', '=', '0'],
@@ -468,7 +468,7 @@ class DashboardController extends Controller
             $femaleRanks = [0, 0, 0, 0, 0];
 
             foreach ($maleAveargeMarks as $average) {
-                if ($average['average'] != 0) {
+                if ($average['average'] !== null) {
                     if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
                         $maleRanks[0] = $maleRanks[0] + 1;
                     } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
@@ -484,7 +484,7 @@ class DashboardController extends Controller
             }
 
             foreach ($femaleAveargeMarks as $average) {
-                if ($average['average'] != 0) {
+                if ($average['average'] !== null) {
                     if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
                         $femaleRanks[0] = $femaleRanks[0] + 1;
                     } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
@@ -499,7 +499,7 @@ class DashboardController extends Controller
                 }
             }
 
-            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as average')
+            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as average')
                 ->join('schools', 'schools.schoolId', '=', 'marks.schoolId')->where([
                         ['marks.isActive', '=', '1'],
                         ['marks.isDeleted', '=', '0'],

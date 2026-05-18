@@ -139,7 +139,7 @@ class UploadController extends Controller
 
             $validationRules = [];
             foreach ($subjects as $subject) {
-                $validationRules["{$subject}Marks"] = 'required|numeric|min:0|max:50';
+                $validationRules["{$subject}Marks"] = 'nullable|numeric|min:0|max:50';
             }
             $req->validate($validationRules);
 
@@ -150,14 +150,19 @@ class UploadController extends Controller
             $mark['gender'] = $req['gender'];
 
             $total = 0;
+            $subjectCount = 0;
             foreach ($subjects as $subject) {
                 $subjectKey = "{$subject}Marks";
-                $mark[$subject] = $req[$subjectKey];
-                $total += $req[$subjectKey];
+                $val = ($req[$subjectKey] !== null && $req[$subjectKey] !== '') ? (int) $req[$subjectKey] : null;
+                $mark[$subject] = $val;
+                if ($val !== null) {
+                    $total += $val;
+                    $subjectCount++;
+                }
             }
 
             $mark['total'] = $total;
-            $mark['average'] = number_format(($total / count($subjects)), 2);
+            $mark['average'] = $subjectCount > 0 ? number_format($total / $subjectCount, 2) : null;
             $mark['examId'] = $req['exam'];
             $mark['userId'] = Session::get('userId');
             $mark['regionId'] = Session::get('userRegion');
@@ -195,7 +200,7 @@ class UploadController extends Controller
 
                 foreach ($subjects as $subject) {
                     $subjectKey = strtolower($subject);
-                    $validationRules["updated{$subjectKey}Marks"] = 'required|numeric|min:0|max:50';
+                    $validationRules["updated{$subjectKey}Marks"] = 'nullable|numeric|min:0|max:50';
                 }
 
                 $req->validate($validationRules);
@@ -207,14 +212,20 @@ class UploadController extends Controller
                 $validMark['examId'] = $req['updatedExam'];
 
                 $totalMarks = 0;
+                $subjectCount = 0;
                 foreach ($subjects as $subject) {
                     $subjectKey = strtolower($subject);
-                    $validMark[$subjectKey] = $req["updated{$subjectKey}Marks"];
-                    $totalMarks += $req["updated{$subjectKey}Marks"];
+                    $rawVal = $req["updated{$subjectKey}Marks"];
+                    $val = ($rawVal !== null && $rawVal !== '') ? (int) $rawVal : null;
+                    $validMark[$subjectKey] = $val;
+                    if ($val !== null) {
+                        $totalMarks += $val;
+                        $subjectCount++;
+                    }
                 }
 
                 $validMark['total'] = $totalMarks;
-                $validMark['average'] = number_format($totalMarks / count($subjects), 2);
+                $validMark['average'] = $subjectCount > 0 ? number_format($totalMarks / $subjectCount, 2) : null;
                 $validMark->save();
 
                 Session::flash('success', 'Data Updated Successfully!');

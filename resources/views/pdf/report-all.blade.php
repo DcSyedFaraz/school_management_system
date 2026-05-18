@@ -375,21 +375,27 @@
                         <td class="student-name">{{ $mark['studentName'] }}</td>
                         @foreach ($subjects as $subject)
                             @php
-                                $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
-                                $subjectPosition = array_search($mark[$subject], $subjectScores) + 1;
+                                $subjectScores = collect($marks)->pluck($subject)->filter(fn($v) => $v !== null)->sortDesc()->values()->all();
+                                $subjectPosition = $mark[$subject] !== null ? (array_search($mark[$subject], $subjectScores) + 1) : '-';
                             @endphp
-                            <td class="tiny-col">{{ $mark[$subject] }}</td>
-                            <td class="tiny-col">{{ assignGrade($mark[$subject], $ranks) }}</td>
-                            <td class="tiny-col">{{ $subjectPosition }}</td>
+                            @if ($mark[$subject] === null)
+                                <td class="tiny-col" style="color:#999;font-style:italic">ABS</td>
+                                <td class="tiny-col" style="color:#999;font-style:italic">ABS</td>
+                                <td class="tiny-col">-</td>
+                            @else
+                                <td class="tiny-col">{{ $mark[$subject] }}</td>
+                                <td class="tiny-col">{{ assignGrade($mark[$subject], $ranks) }}</td>
+                                <td class="tiny-col">{{ $subjectPosition }}</td>
+                            @endif
                         @endforeach
                         <td class="small-col">{{ $mark['total'] }}</td>
                         <td class="small-col">{{ number_format($mark['average'], 2) }}</td>
                         <td class="small-col">
-                            {{ $mark['average'] > 0 ? assignGrade($mark['average'], $ranks) : 'HYP' }}
+                            {{ $mark['average'] !== null ? assignGrade($mark['average'], $ranks) : 'HYP' }}
                         </td>
                         <td class="small-col">{{ $position }}</td>
                         <td class="small-col">
-                            {{ $mark['average'] > 0 ? finalStatus($mark['average'], $ranks, $classId) : '' }}</td>
+                            {{ $mark['average'] !== null ? finalStatus($mark['average'], $ranks, $classId) : '' }}</td>
                     </tr>
                     @php $i++; @endphp
                 @endforeach

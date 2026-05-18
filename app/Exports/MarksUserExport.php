@@ -72,7 +72,7 @@ $marks = $marks->sortByDesc(function ($m) {
 $valid = 0;
 $total = 0;
 foreach ($this->subjects as $sub) {
-if ($m->$sub > 0) {
+if ($m->$sub !== null) {
 $total += $m->$sub;
 $valid++;
 }
@@ -152,11 +152,11 @@ public function map($marks): array
     foreach ($this->subjects as $subject) {
     $value = $marks->$subject;
 
-    // Ikiwa value = 0, weka blank
-    $displayValue = ($value > 0) ? $value : '';
+    // Ikiwa value ni null, weka blank (absent); 0 ni alama halisi
+    $displayValue = ($value !== null) ? $value : '';
 
-    $grade = ($value > 0) ? $this->assignGrade($value) : '';
-    $position = ($value > 0) ? ($this->subjectPositionsCache[$subject][$marks->markId] ?? '-') : '';
+    $grade = ($value !== null) ? $this->assignGrade($value) : '';
+    $position = ($value !== null) ? ($this->subjectPositionsCache[$subject][$marks->markId] ?? '-') : '';
 
     $gradesFlattened[] = $displayValue;
     $gradesFlattened[] = $grade;
@@ -168,12 +168,12 @@ public function map($marks): array
     $valid = 0;
     $total = 0;
     foreach ($this->subjects as $subject) {
-        if ($marks->$subject > 0) {
+        if ($marks->$subject !== null) {
             $total += $marks->$subject;
             $valid++;
         }
     }
-    $average = $valid ? round($total / $valid, 2) : 0;
+    $average = $valid ? round($total / $valid, 2) : null;
 
     // Ranking
     $this->serial++;
