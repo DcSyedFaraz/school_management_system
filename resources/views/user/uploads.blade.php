@@ -239,8 +239,12 @@
                             </td>
                             @foreach ($subjects as $subject)
                                 <td class="border border-black text-center">
-                                    <p>{{ $mark[$subject] }}</p>
-                                    <p>{{ assignGrade($mark[$subject]) }}</p>
+                                    @if ($mark[$subject] === null)
+                                        <p class="italic text-gray-400">ABS</p>
+                                    @else
+                                        <p>{{ $mark[$subject] }}</p>
+                                        <p>{{ assignGrade($mark[$subject]) }}</p>
+                                    @endif
                                 </td>
                             @endforeach
                             <td class="border border-black text-right">{{ $mark['total'] }}</td>

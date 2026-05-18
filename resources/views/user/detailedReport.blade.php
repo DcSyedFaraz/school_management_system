@@ -13,9 +13,6 @@
                 ->orderBy('rankName', 'asc')
                 ->get();
 
-            if ($marks == 10) {
-                return 'E';
-            }
             foreach ($ranks as $rank) {
                 if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
                     return $rank['rankName'];
@@ -352,7 +349,7 @@
                             foreach ($avgMarks as $avg) {
                                 $avg['gender'] == 'M' ? $totalMale++ : $totalFemale++;
 
-                                if ($avg['averageMarks'] == 0) {
+                                if ($avg['averageMarks'] === null) {
                                     if ($avg['gender'] == 'M') {
                                         $maleAbsent++;
                                     } else {

@@ -184,7 +184,7 @@ public function map($marks): array
         $storedAvg = $marks->average;
     }
 
-    $gradeVal = ($marks->average > 0) ? $this->assignGrade($marks->average) : "ABS";
+    $gradeVal = ($marks->average !== null) ? $this->assignGrade($marks->average) : "ABS";
 
     $mappedData = [
         $serialNumber,
@@ -198,14 +198,14 @@ public function map($marks): array
     ];
 
     foreach ($this->subjects as $subject) {
-        $subjectMarks = $marks->$subject > 0 ? $marks->$subject : "0";
-        $mappedData[] = $subjectMarks;
-        $mappedData[] = $this->assignGrade($subjectMarks);
+        $subjectMarks = $marks->$subject !== null ? $marks->$subject : "ABS";
+        $mappedData[] = $subjectMarks !== "ABS" ? $subjectMarks : "";
+        $mappedData[] = $subjectMarks !== "ABS" ? $this->assignGrade($subjectMarks) : "ABS";
     }
 
     $mappedData = array_merge($mappedData, [
-        $marks->total > 0 ? $marks->total : "0",
-        $marks->average > 0 ? $marks->average : "0",
+        $marks->total,
+        $marks->average,
         $gradeVal,
         $rank,
         $this->finalStatus($marks->average)

@@ -46,8 +46,8 @@
             $validSubjectsCount = 0;
 
             foreach ($subjects as $index => $subject) {
-                if ($mark[$subject] > 0) {
-                    // Hesabu tu masomo yaliyo na alama
+                if ($mark[$subject] !== null) {
+                    // Hesabu tu masomo yaliyo na alama (0 ni alama halisi)
                     $totalMarks += $mark[$subject];
                     $validSubjectsCount++;
 
@@ -57,9 +57,9 @@
             }
 
             // Hesabu average halisi kwa kuzingatia masomo yaliyo na alama tu
-            $mark['average'] = $validSubjectsCount > 0 ? $totalMarks / $validSubjectsCount : 0;
+            $mark['average'] = $validSubjectsCount > 0 ? $totalMarks / $validSubjectsCount : null;
 
-            if ($mark['average'] == 0) {
+            if ($mark['average'] === null) {
                 $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
             } else {
                 // Grade za average
@@ -362,18 +362,23 @@
 
                             @foreach ($subjects as $subject)
                                 @php
-                                    $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
-                                    $subjectPosition = array_search($mark[$subject], $subjectScores) + 1;
+                                    $subjectScores = collect($marks)->pluck($subject)->filter(fn($v) => $v !== null)->sortDesc()->values()->all();
+                                    $subjectPosition = $mark[$subject] !== null ? (array_search($mark[$subject], $subjectScores) + 1) : '-';
                                 @endphp
-                                <td class="border border-black text-center">{{ $mark[$subject] }}</td>
-                                <td class="border border-black text-center">{{ assignGrade($mark[$subject], $ranks) }}
-                                </td>
-                                <td class="border border-black text-center">{{ $subjectPosition }}</td>
+                                @if ($mark[$subject] === null)
+                                    <td class="border border-black text-center italic text-gray-400">ABS</td>
+                                    <td class="border border-black text-center italic text-gray-400">ABS</td>
+                                    <td class="border border-black text-center">-</td>
+                                @else
+                                    <td class="border border-black text-center">{{ $mark[$subject] }}</td>
+                                    <td class="border border-black text-center">{{ assignGrade($mark[$subject], $ranks) }}</td>
+                                    <td class="border border-black text-center">{{ $subjectPosition }}</td>
+                                @endif
                             @endforeach
 
                             <td class="border border-black text-center">{{ $mark['total'] }}</td>
                             <td class="border border-black text-center">{{ number_format($mark['average'], 2) }}</td>
-                            @if ($mark['average'] > 0)
+                            @if ($mark['average'] !== null)
                                 <td class="border border-black text-center">{{ assignGrade($mark['average'], $ranks) }}
                                 </td>
                             @else
@@ -392,7 +397,7 @@
                                 }
                             @endphp
                             <td class="border border-black text-center">{{ $overallPosition }}</td>
-                            @if ($mark['average'] > 0)
+                            @if ($mark['average'] !== null)
                                 <td class="border border-black text-center">
                                     {{ finalStatus($mark['average'], $ranks, $classId) }}</td>
                             @else

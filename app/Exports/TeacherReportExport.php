@@ -247,7 +247,7 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
             $examCondition
         ])->whereBetween('examDate', [$this->startDate, $this->endDate])->count();
 
-        $avgMarks = Marks::selectRaw('gender, ROUND((' . implode(' + ', $this->subjects) . ') / ' . count($this->subjects) . ', 2) as averageMarks')->where([
+        $avgMarks = Marks::selectRaw('gender, ROUND(average, 2) as averageMarks')->where([
             ['isActive', '=', '1'],
             ['isDeleted', '=', '0'],
             ['classId', '=', $this->classId],
@@ -273,7 +273,7 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
         foreach ($avgMarks as $avg) {
             ($avg['gender'] == 'M') ? $totalMale++ : $totalFemale++;
 
-            if ($avg['averageMarks'] == 0) {
+            if ($avg['averageMarks'] === null) {
                 if ($avg['gender'] == 'M') {
                     $maleAbsent++;
                 } else {

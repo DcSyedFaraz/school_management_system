@@ -56,13 +56,18 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             ;
 
             $total = 0;
+            $subjectCount = 0;
             foreach ($subjects as $subject) {
-                $markData[$subject] = $row[$subject] ?? 0;
-                $total += $markData[$subject];
+                $val = (isset($row[$subject]) && $row[$subject] !== null && $row[$subject] !== '') ? (int) $row[$subject] : null;
+                $markData[$subject] = $val;
+                if ($val !== null) {
+                    $total += $val;
+                    $subjectCount++;
+                }
             }
 
             $markData['total'] = $total;
-            $markData['average'] = number_format($total / count($subjects), 2);
+            $markData['average'] = $subjectCount > 0 ? number_format($total / $subjectCount, 2) : null;
             $markData['examId'] = $this->requestData['exam'];
             $markData['userId'] = $this->userId;
             $markData['regionId'] = $this->userRegion;
@@ -88,7 +93,7 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
 
         // Loop through each subject and add the same numeric validation rule.
         foreach ($subjects as $subject) {
-            $rules[$subject] = 'required|numeric|min:0|max:50';
+            $rules[$subject] = 'nullable|numeric|min:0|max:50';
         }
 
         return $rules;

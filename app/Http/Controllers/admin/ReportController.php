@@ -35,11 +35,11 @@ class ReportController extends Controller
             $subjects = config('subjects.' . $classId, config('subjects.class_default'));
 
             // Start with the base select fields.
-            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks';
+            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as averageMarks';
 
             // Loop over each subject and append the respective AVG calculation.
             foreach ($subjects as $subject) {
-                $selectFields .= ", ROUND(AVG(CASE WHEN {$subject} > 0 THEN {$subject} END), 2) as {$subject}";
+                $selectFields .= ", ROUND(AVG(CASE WHEN {$subject} IS NOT NULL THEN {$subject} END), 2) as {$subject}";
             }
 
             $marks = Marks::selectRaw($selectFields)
@@ -107,11 +107,11 @@ class ReportController extends Controller
             $subjects = config('subjects.' . $classId, config('subjects.class_default'));
 
             // Start with the base select fields.
-            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks';
+            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as averageMarks';
 
             // Loop over each subject and append the respective AVG calculation.
             foreach ($subjects as $subject) {
-                $selectFields .= ", ROUND(AVG(CASE WHEN {$subject} > 0 THEN {$subject} END), 2) as {$subject}";
+                $selectFields .= ", ROUND(AVG(CASE WHEN {$subject} IS NOT NULL THEN {$subject} END), 2) as {$subject}";
             }
 
             $marks = Marks::selectRaw($selectFields)
@@ -301,7 +301,7 @@ class ReportController extends Controller
             foreach ($allMarks as $mark) {
                 $gender = $mark['gender'] === 'M' ? 'male' : 'female';
 
-                if ($mark['average'] == 0) {
+                if ($mark['average'] === null) {
                     $gradeDistribution[$gender]['ABS']++;
                     continue; // Skip subject processing for ABS students
                 }

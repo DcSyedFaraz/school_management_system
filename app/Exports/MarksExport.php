@@ -47,8 +47,8 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
         $districtCondition = ($this->districtId == '') ? ['districtId', '!=', null] : ['districtId', '=', $this->districtId];
 
         $marks = Marks::selectRaw('schoolId, ' . implode(', ', array_map(function ($subject) {
-            return "ROUND(AVG(CASE WHEN $subject > 0 THEN $subject END), 2) as $subject";
-        }, $this->subjects)) . ', ROUND(AVG(CASE WHEN average > 0 THEN average END), 2) as averageMarks')
+            return "ROUND(AVG(CASE WHEN $subject IS NOT NULL THEN $subject END), 2) as $subject";
+        }, $this->subjects)) . ', ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as averageMarks')
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],

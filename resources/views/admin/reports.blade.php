@@ -229,8 +229,13 @@
                                 <p>{!! $schoolName !!}</p>
                             </td>
                             @foreach ($subjects as $subject)
-                                <td class="border border-black text-right">{{ number_format($mark[$subject], 2) }}</td>
-                                <td class="border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                                @if ($mark[$subject] === null)
+                                    <td class="border border-black text-center italic text-gray-400">ABS</td>
+                                    <td class="border border-black text-center italic text-gray-400">ABS</td>
+                                @else
+                                    <td class="border border-black text-right">{{ number_format($mark[$subject], 2) }}</td>
+                                    <td class="border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                                @endif
                             @endforeach
                             <td class="border border-black text-right">{{ number_format($totalMarks, 2) }}</td>
                             <td class="border border-black text-right">{{ $mark['averageMarks'] }}</td>
