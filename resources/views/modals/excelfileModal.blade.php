@@ -6,7 +6,8 @@
             <div class="p-6 text-lg">
                 <h5 class="text-lg font-medium leading-relaxed text-gray-800 ">Pakua Kiolezo</h5>
                 <p class="text-sm text-gray-500 ">Chagua darasa la kupakua Kiolezo:</p>
-                <p class="text-xs text-gray-400 mb-2">Kiolezo kimoja kwa madarasa yote. Acha seli tupu kwa wanafunzi waliohudhuria. Weka 0 kwa aliyepata sifuri.</p>
+                <p class="text-xs text-gray-400 mb-2">Kiolezo kimoja kwa madarasa yote. Acha seli tupu kwa wanafunzi
+                    wasiohudhuira mtihani. Weka 0 kwa aliyepata sifuri.</p>
                 <ul class="list-none mb-0">
                     <li>
                         <a href="{{ asset('excel/marks_template.xlsx') }}" target="_blank" download
