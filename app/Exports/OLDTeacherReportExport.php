@@ -392,16 +392,16 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
 
     function assignGrade($marks){
         if($this->rank){
-            if($this->rank[0]['rankRangeMin']<$marks && $this->rank[0]['rankRangeMax']>=$marks){
+            if($marks >= $this->rank[0]['rankRangeMin'] && $marks < $this->rank[0]['rankRangeMax'] + 1){
                 return $this->rank[0]['rankName'];
             }
-            else if($this->rank[1]['rankRangeMin']<$marks && $this->rank[1]['rankRangeMax']>=$marks){
+            else if($marks >= $this->rank[1]['rankRangeMin'] && $marks < $this->rank[1]['rankRangeMax'] + 1){
                 return $this->rank[1]['rankName'];
             }
-            else if($this->rank[2]['rankRangeMin']<$marks && $this->rank[2]['rankRangeMax']>=$marks){
+            else if($marks >= $this->rank[2]['rankRangeMin'] && $marks < $this->rank[2]['rankRangeMax'] + 1){
                 return $this->rank[2]['rankName'];
             }
-            else if($this->rank[3]['rankRangeMin']<$marks && $this->rank[3]['rankRangeMax']>=$marks){
+            else if($marks >= $this->rank[3]['rankRangeMin'] && $marks < $this->rank[3]['rankRangeMax'] + 1){
                 return $this->rank[3]['rankName'];
             }
             else{

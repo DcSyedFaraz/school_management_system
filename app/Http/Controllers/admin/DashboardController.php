@@ -342,13 +342,13 @@ class DashboardController extends Controller
 
             foreach ($maleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
+                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
                         $maleRanks[0] = $maleRanks[0] + 1;
-                    } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
                         $maleRanks[1] = $maleRanks[1] + 1;
-                    } else if ($rank[2]['rankRangeMin'] < $average['average'] && $rank[2]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
                         $maleRanks[2] = $maleRanks[2] + 1;
-                    } else if ($rank[3]['rankRangeMin'] < $average['average'] && $rank[3]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
                         $maleRanks[3] = $maleRanks[3] + 1;
                     } else {
                         $maleRanks[4] = $maleRanks[4] + 1;
@@ -358,13 +358,13 @@ class DashboardController extends Controller
 
             foreach ($femaleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
+                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
                         $femaleRanks[0] = $femaleRanks[0] + 1;
-                    } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
                         $femaleRanks[1] = $femaleRanks[1] + 1;
-                    } else if ($rank[2]['rankRangeMin'] < $average['average'] && $rank[2]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
                         $femaleRanks[2] = $femaleRanks[2] + 1;
-                    } else if ($rank[3]['rankRangeMin'] < $average['average'] && $rank[3]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
                         $femaleRanks[3] = $femaleRanks[3] + 1;
                     } else {
                         $femaleRanks[4] = $femaleRanks[4] + 1;
@@ -469,13 +469,13 @@ class DashboardController extends Controller
 
             foreach ($maleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
+                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
                         $maleRanks[0] = $maleRanks[0] + 1;
-                    } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
                         $maleRanks[1] = $maleRanks[1] + 1;
-                    } else if ($rank[2]['rankRangeMin'] < $average['average'] && $rank[2]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
                         $maleRanks[2] = $maleRanks[2] + 1;
-                    } else if ($rank[3]['rankRangeMin'] < $average['average'] && $rank[3]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
                         $maleRanks[3] = $maleRanks[3] + 1;
                     } else {
                         $maleRanks[4] = $maleRanks[4] + 1;
@@ -485,13 +485,13 @@ class DashboardController extends Controller
 
             foreach ($femaleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($rank[0]['rankRangeMin'] < $average['average'] && $rank[0]['rankRangeMax'] >= $average['average']) {
+                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
                         $femaleRanks[0] = $femaleRanks[0] + 1;
-                    } else if ($rank[1]['rankRangeMin'] < $average['average'] && $rank[1]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
                         $femaleRanks[1] = $femaleRanks[1] + 1;
-                    } else if ($rank[2]['rankRangeMin'] < $average['average'] && $rank[2]['rankRangeMax'] >= $average['average']) {
+                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
                         $femaleRanks[2] = $femaleRanks[2] + 1;
-                    } else if ($rank[3]['rankRangeMin'] < $average['average'] && $rank[3]['rankRangeMax'] >= $average['average']) {
+                        } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
                         $femaleRanks[3] = $femaleRanks[3] + 1;
                     } else {
                         $femaleRanks[4] = $femaleRanks[4] + 1;

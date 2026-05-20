@@ -4,13 +4,17 @@
     @php
         function assignGrade($marks)
         {
+            if ($marks === null) {
+                return 'ABS';
+            }
+            // $marks = floor($marks);
             $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
                 ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
                 ->orderBy('rankName', 'asc')
                 ->get();
 
             foreach ($rank as $r) {
-                if ($r['rankRangeMin'] <= $marks && $r['rankRangeMax'] >= $marks) {
+                if ($marks >= $r['rankRangeMin'] && $marks < $r['rankRangeMax'] + 1) {
                     return $r['rankName'];
                 }
             }
@@ -38,6 +42,9 @@
 
         $subjects = [];
         $subjects = config('subjects.' . $classId, config('subjects.class_default'));
+
+        // DEV: set false or delete the block marked "DEV: inline table edit" to remove
+        $enableGradingTest = true;
 
     @endphp
 
@@ -156,7 +163,14 @@
 
         <div class="overflow-x-auto">
             <h2 class="text-2xl font-bold mb-2">MATOKEO KWA MPANGILIO WA SHULE ZOTE:</h2>
-            <table class="myTable bg-white">
+            @if (!empty($enableGradingTest))
+                <p class="text-sm text-orange-700 mb-2 border border-dashed border-orange-400 bg-orange-50 p-2 rounded">
+                    DEV: Edit AL marks directly in the table. Grades recalculate live (config/ranks.php). Does not save to
+                    DB.
+                    Summary tables below stay as loaded — reload page to reset.
+                </p>
+            @endif
+            <table class="myTable bg-white" id="schoolReportTable">
                 <thead>
                     <tr>
                         <th rowspan="2" class="border border-black">S/N</th>
@@ -213,8 +227,20 @@
                             }
                         @endphp
 
-                        <tr class="odd:bg-gray-200 even:bg-white">
-                            <td class="border border-black text-right">{{ $i }}</td>
+                        @php
+                            if ($storedAvg == $mark['averageMarks']) {
+                                $j++;
+                                $rowRank = $i - $j;
+                            } else {
+                                $j = 0;
+                                $rowRank = $i;
+                            }
+                            $storedAvg = $mark['averageMarks'];
+                        @endphp
+
+                        <tr class="odd:bg-gray-200 even:bg-white report-row"
+                            data-original-average="{{ $mark['averageMarks'] }}">
+                            <td class="border border-black text-right row-sn">{{ $i }}</td>
                             <td class="capitalize border border-black">
                                 @php
                                     $schoolData = \App\Models\Schools::select('schoolName')
@@ -229,35 +255,33 @@
                                 <p>{!! $schoolName !!}</p>
                             </td>
                             @foreach ($subjects as $subject)
-                                @if ($mark[$subject] === null)
+                                @if (!empty($enableGradingTest))
+                                    <td class="border border-black p-0">
+                                        <input type="number" step="0.01" min="0" max="50"
+                                            class="row-mark-input w-full min-w-[4rem] p-1 text-right border-0 bg-orange-50 focus:bg-white focus:ring-1 focus:ring-orange-400"
+                                            data-subject="{{ $subject }}"
+                                            value="{{ $mark[$subject] !== null ? $mark[$subject] : '' }}"
+                                            placeholder="ABS" title="Leave empty for ABS">
+                                    </td>
+                                    <td class="border border-black row-subject-grade text-center"
+                                        data-subject="{{ $subject }}">
+                                        {{ $mark[$subject] === null ? 'ABS' : assignGrade($mark[$subject]) }}
+                                    </td>
+                                @elseif ($mark[$subject] === null)
                                     <td class="border border-black text-center italic text-gray-400">ABS</td>
                                     <td class="border border-black text-center italic text-gray-400">ABS</td>
                                 @else
-                                    <td class="border border-black text-right">{{ number_format($mark[$subject], 2) }}</td>
+                                    <td class="border border-black text-right">{{ number_format($mark[$subject], 2) }}
+                                    </td>
                                     <td class="border border-black">{{ assignGrade($mark[$subject]) }}</td>
                                 @endif
                             @endforeach
-                            <td class="border border-black text-right">{{ number_format($totalMarks, 2) }}</td>
-                            <td class="border border-black text-right">{{ $mark['averageMarks'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['averageMarks']) }}</td>
-
-                            @if ($storedAvg == $mark['averageMarks'])
-                                @php
-                                    $j++;
-                                    $storedAvg = $mark['averageMarks'];
-                                @endphp
-
-                                <td class="border border-black text-right">{{ $i - $j }}</td>
-                            @else
-                                @php
-                                    $j = 0;
-                                    $storedAvg = $mark['averageMarks'];
-                                @endphp
-
-                                <td class="border border-black text-right">{{ $i }}</td>
-                            @endif
-
-                            <td class="border border-black">{{ finalStatus($mark['averageMarks'], $classId) }}</td>
+                            <td class="border border-black text-right row-total">{{ number_format($totalMarks, 2) }}</td>
+                            <td class="border border-black text-right row-average">{{ $mark['averageMarks'] }}</td>
+                            <td class="border border-black row-avg-grade">{{ assignGrade($mark['averageMarks']) }}</td>
+                            <td class="border border-black text-right row-rank">{{ $rowRank }}</td>
+                            <td class="border border-black row-status">{{ finalStatus($mark['averageMarks'], $classId) }}
+                            </td>
                         </tr>
 
                         @php
@@ -518,4 +542,106 @@
             $("#endDate").attr('min', startDate);
         }
     </script>
+
+    {{-- DEV: inline table edit — remove with $enableGradingTest block above --}}
+    @if (!empty($enableGradingTest))
+        <script>
+            (function() {
+                const ranks = @json(config('ranks'));
+                const classId = {{ (int) $classId }};
+
+                function assignGrade(marks) {
+                    if (marks === null || marks === '') return 'ABS';
+                    for (const r of ranks) {
+                        if (r.rankRangeMin <= marks && (r.rankRangeMax + 1) > marks) {
+                            return r.rankName;
+                        }
+                    }
+                    return 'Null';
+                }
+
+                function finalStatus(average) {
+                    if (average === null || average === '') return '-';
+                    if (classId > 4) {
+                        return average <= ranks[3].rankRangeMax ? 'FAIL' : 'PASS';
+                    }
+                    return average <= ranks[4].rankRangeMax ? 'FAIL' : 'PASS';
+                }
+
+                function parseMark(val) {
+                    if (val === '' || val === null || val === undefined) return null;
+                    const n = parseFloat(val);
+                    return isNaN(n) ? null : n;
+                }
+
+                function recalcRow(row) {
+                    let total = 0;
+                    let count = 0;
+
+                    row.querySelectorAll('.row-mark-input').forEach(input => {
+                        const mark = parseMark(input.value);
+                        const gradeCell = row.querySelector('.row-subject-grade[data-subject="' + input.dataset
+                            .subject + '"]');
+                        if (mark === null) {
+                            gradeCell.textContent = 'ABS';
+                            gradeCell.classList.add('italic', 'text-gray-400');
+                        } else {
+                            total += mark;
+                            count++;
+                            gradeCell.textContent = assignGrade(mark);
+                            gradeCell.classList.remove('italic', 'text-gray-400');
+                        }
+                    });
+
+                    const average = count > 0 ? total / count : null;
+                    row.querySelector('.row-total').textContent = count > 0 ? total.toFixed(2) : '-';
+                    row.querySelector('.row-average').textContent = average !== null ? average.toFixed(2) : '-';
+                    row.querySelector('.row-avg-grade').textContent = assignGrade(average);
+                    row.querySelector('.row-status').textContent = finalStatus(average);
+                    row.dataset.currentAverage = average !== null ? average : '';
+
+                    return average;
+                }
+
+                function recalcRanks() {
+                    const rows = Array.from(document.querySelectorAll('#schoolReportTable .report-row'));
+                    const withAvg = rows.map(row => ({
+                        row,
+                        average: parseMark(row.dataset.currentAverage !== undefined && row.dataset
+                            .currentAverage !== '' ? row.dataset.currentAverage : row.querySelector(
+                                '.row-average')
+                            .textContent)
+                    }));
+
+                    let i = 0;
+                    let j = 0;
+                    let storedAvg = null;
+
+                    withAvg.forEach((item, idx) => {
+                        i = idx + 1;
+                        const avg = item.average;
+                        let rank;
+                        const avgKey = avg !== null ? avg.toFixed(2) : null;
+                        const storedKey = storedAvg !== null ? storedAvg.toFixed(2) : null;
+                        if (storedKey !== null && avgKey !== null && storedKey === avgKey) {
+                            j++;
+                            rank = i - j;
+                        } else {
+                            j = 0;
+                            rank = i;
+                        }
+                        if (avg !== null) storedAvg = avg;
+                        item.row.querySelector('.row-rank').textContent = avg === null ? '-' : rank;
+                    });
+                }
+
+                document.querySelectorAll('#schoolReportTable .row-mark-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        recalcRow(input.closest('.report-row'));
+                        recalcRanks();
+                    });
+                });
+            })();
+        </script>
+    @endif
 @endsection

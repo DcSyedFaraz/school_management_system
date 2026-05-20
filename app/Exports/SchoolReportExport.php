@@ -425,7 +425,7 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
     {
         if ($this->rank) {
             foreach ($this->rank as $rank) {
-                if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
+                if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
                     return $rank['rankName'];
                 }
             }

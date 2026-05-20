@@ -201,13 +201,13 @@ class ReportController extends Controller
         ])->orderBy('rankName', 'asc')->get();
 
         if ($rank) {
-            if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
+            if ($marks >= $rank[0]['rankRangeMin'] && $marks < $rank[0]['rankRangeMax'] + 1) {
                 return $rank[0]['rankName'];
-            } else if ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
+            } else if ($marks >= $rank[1]['rankRangeMin'] && $marks < $rank[1]['rankRangeMax'] + 1) {
                 return $rank[1]['rankName'];
-            } else if ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
+            } else if ($marks >= $rank[2]['rankRangeMin'] && $marks < $rank[2]['rankRangeMax'] + 1) {
                 return $rank[2]['rankName'];
-            } else if ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
+            } else if ($marks >= $rank[3]['rankRangeMin'] && $marks < $rank[3]['rankRangeMax'] + 1) {
                 return $rank[3]['rankName'];
             } else {
                 return $rank[4]['rankName'];
@@ -879,15 +879,17 @@ class ReportController extends Controller
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }
     }
-    public function studentReportEnglish(Request $request){
-    $openingDate = $request->input('openingDate');
-    $closingDate = $request->input('closingDate');
+    public function studentReportEnglish(Request $request)
+    {
+        $openingDate = $request->input('openingDate');
+        $closingDate = $request->input('closingDate');
 
-    return view('pdf.english.student-report', compact('openingDate','closingDate'));
-}
+        return view('pdf.english.student-report', compact('openingDate', 'closingDate'));
+    }
 
-public function schoolReportEnglish(){
-    return view('pdf.english.school-report');
-}
+    public function schoolReportEnglish()
+    {
+        return view('pdf.english.school-report');
+    }
 
 }

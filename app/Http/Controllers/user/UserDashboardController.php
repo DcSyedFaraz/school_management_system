@@ -310,7 +310,7 @@ class UserDashboardController extends Controller
             ->get();
 
         foreach ($rank as $r) {
-            if ($marks >= $r->rankRangeMin && $marks <= $r->rankRangeMax) {
+            if ($marks >= $r->rankRangeMin && $marks < $r->rankRangeMax + 1) {
                 return $r->rankName;
             }
         }

@@ -106,7 +106,7 @@ class FilterReportJob implements ShouldQueue
             ->get();
 
         foreach ($rank as $r) {
-            if ($r['rankRangeMin'] < $marks && $r['rankRangeMax'] >= $marks) {
+            if ($marks >= $r['rankRangeMin'] && $marks < $r['rankRangeMax'] + 1) {
                 return $r['rankName'];
             }
         }

@@ -217,7 +217,7 @@ public function map($marks): array
 
 function assignGrade($marks){
     foreach ($this->rank as $rank) {
-        if ($rank['rankRangeMin'] <= $marks && $rank['rankRangeMax'] >= $marks) {
+        if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
             return $rank['rankName'];
         }
     }
