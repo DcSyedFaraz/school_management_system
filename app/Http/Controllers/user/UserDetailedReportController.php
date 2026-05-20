@@ -19,7 +19,8 @@ use DB;
 class UserDetailedReportController extends Controller
 {
     public function reports(){
-        set_time_limit(300);
+        // set_time_limit(300);
+        // dd(auth()->user());
 
         if(Session::get('loggedin')==true){
             $classId=1;
@@ -87,7 +88,7 @@ class UserDetailedReportController extends Controller
     }
 
     public function filterReport(Request $req){
-        set_time_limit(300);
+        // set_time_limit(300);
 
         if(Session::get('loggedin')==true){
             $classId=$req['class'];

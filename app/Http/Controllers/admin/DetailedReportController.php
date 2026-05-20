@@ -75,7 +75,7 @@ class DetailedReportController extends Controller
             ])->orderBy('examDate','desc')->distinct()->pluck('examDate');
 
             session(['pageTitle'=>"PSLE/SFNA Ripoti"]);
-    
+
             $data=compact('marks','classes','exams','regions','districts','wards','dates','classId','examId','regionId','districtId','wardId','startDate','endDate');
             return view('admin.detailedReport')->with($data);
         }
@@ -85,7 +85,7 @@ class DetailedReportController extends Controller
     }
 
     public function filterReport(Request $req){
-        set_time_limit(300);
+        // set_time_limit(300);
 
         if(Session::get('adminLoggedin')==true){
             $classId=$req['class'];
@@ -149,7 +149,7 @@ class DetailedReportController extends Controller
 
             session(['pageTitle'=>"PSLE/SFNA Ripoti"]);
             $url3=url('/reports/delete');
-    
+
             $data=compact('marks','classes','exams','regions','districts','wards','dates','url3','classId','examId','regionId','districtId','wardId','startDate','endDate');
             return view('admin.detailedReport')->with($data);
         }
@@ -160,7 +160,7 @@ class DetailedReportController extends Controller
 
     public function downloadAdminReport(Request $req){
         set_time_limit(300);
-        
+
         if(Session::get('adminLoggedin')==true){
             $examId=$req['rExam'];
             $classId=$req['rClass'];
@@ -173,7 +173,7 @@ class DetailedReportController extends Controller
             return Excel::download(new SchoolReportExport($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate), 'schoolDetailedReport('.date('Y-m-d H:i:s').').xlsx');
         }
         else{
-            return redirect('/')->with('accessDenied','Session Expired!');   
+            return redirect('/')->with('accessDenied','Session Expired!');
         }
     }
 }

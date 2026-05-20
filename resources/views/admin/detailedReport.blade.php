@@ -2,29 +2,30 @@
 
 @section('content')
     @php
-        function assignGrade($marks)
-        {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
+        $ranks = config('ranks');
 
-            if ($rank) {
-                if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
-                    return $rank[0]['rankName'];
-                } elseif ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
-                    return $rank[1]['rankName'];
-                } elseif ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
-                    return $rank[2]['rankName'];
-                } elseif ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
-                    return $rank[3]['rankName'];
-                } else {
-                    return $rank[4]['rankName'];
+        function assignGrade($marks, $ranks)
+        {
+            foreach ($ranks as $rank) {
+                if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
+                    return $rank['rankName'];
                 }
-            } else {
-                return 'Null';
             }
+
+            return $ranks[4]['rankName'];
         }
+
+        $regionsMap   = $regions->keyBy('regionId');
+        $districtsMap = $districts->keyBy('districtId');
+        $wardsMap     = $wards->keyBy('wardId');
+
+        $schoolIds  = $marks->pluck('schoolId')->unique();
+        $schoolsMap = \App\Models\Schools::select('schoolId', 'schoolName')
+            ->whereIn('schoolId', $schoolIds)
+            ->get()
+            ->keyBy('schoolId');
+
+        $notFound = '<span class="text-red-500 italic">Not Found!</span>';
     @endphp
 
     <div class="p-3">
@@ -267,25 +268,21 @@
                     @endphp
                     @foreach ($marks as $mark)
                         @php
-                            $regionData = \App\Models\Regions::find($mark['regionId']);
-                            $regionName = $regionData
-                                ? $regionData['regionName']
-                                : '<span class="text-red-500 italic">Not Found!</span>';
+                            $regionName   = isset($regionsMap[$mark['regionId']])
+                                ? $regionsMap[$mark['regionId']]['regionName']
+                                : $notFound;
 
-                            $districtData = \App\Models\Districts::find($mark['districtId']);
-                            $districtName = $districtData
-                                ? $districtData['districtName']
-                                : '<span class="text-red-500 italic">Not Found!</span>';
+                            $districtName = isset($districtsMap[$mark['districtId']])
+                                ? $districtsMap[$mark['districtId']]['districtName']
+                                : $notFound;
 
-                            $wardData = \App\Models\Wards::find($mark['wardId']);
-                            $wardName = $wardData
-                                ? $wardData['wardName']
-                                : '<span class="text-red-500 italic">Not Found!</span>';
+                            $wardName     = isset($wardsMap[$mark['wardId']])
+                                ? $wardsMap[$mark['wardId']]['wardName']
+                                : $notFound;
 
-                            $schoolData = \App\Models\Schools::find($mark['schoolId']);
-                            $schoolName = $schoolData
-                                ? $schoolData['schoolName']
-                                : '<span class="text-red-500 italic">Not Found!</span>';
+                            $schoolName   = isset($schoolsMap[$mark['schoolId']])
+                                ? $schoolsMap[$mark['schoolId']]['schoolName']
+                                : $notFound;
 
                             $examCondition = $examId == '' ? ['examId', '!=', null] : ['examId', '=', $examId];
                             $regionCondition =
@@ -361,13 +358,13 @@
                                         $femaleAbsent++;
                                     }
                                 } else {
-                                    if (assignGrade($avg['averageMarks']) == 'A') {
+                                    if (assignGrade($avg['averageMarks'], $ranks) == 'A') {
                                         $avg['gender'] == 'M' ? $aGradeMale++ : $aGradeFemale++;
-                                    } elseif (assignGrade($avg['averageMarks']) == 'B') {
+                                    } elseif (assignGrade($avg['averageMarks'], $ranks) == 'B') {
                                         $avg['gender'] == 'M' ? $bGradeMale++ : $bGradeFemale++;
-                                    } elseif (assignGrade($avg['averageMarks']) == 'C') {
+                                    } elseif (assignGrade($avg['averageMarks'], $ranks) == 'C') {
                                         $avg['gender'] == 'M' ? $cGradeMale++ : $cGradeFemale++;
-                                    } elseif (assignGrade($avg['averageMarks']) == 'D') {
+                                    } elseif (assignGrade($avg['averageMarks'], $ranks) == 'D') {
                                         $avg['gender'] == 'M' ? $dGradeMale++ : $dGradeFemale++;
                                     } else {
                                         $avg['gender'] == 'M' ? $eGradeMale++ : $eGradeFemale++;
@@ -536,7 +533,7 @@
                                 {{ number_format($mark['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent), 5) }}
                             </td>
                             <td class="border border-black">
-                                {{ assignGrade(number_format($mark['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent), 5) / 6) }}
+                                {{ assignGrade(number_format($mark['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent), 5) / 6, $ranks) }}
                             </td>
                         </tr>
 
