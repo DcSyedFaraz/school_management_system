@@ -10,13 +10,13 @@
                 ->get();
 
             if ($rank) {
-                if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
+                if ($marks >= $rank[0]['rankRangeMin'] && $marks < $rank[0]['rankRangeMax'] + 1) {
                     return $rank[0]['rankName'];
-                } elseif ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
+                } elseif ($marks >= $rank[1]['rankRangeMin'] && $marks < $rank[1]['rankRangeMax'] + 1) {
                     return $rank[1]['rankName'];
-                } elseif ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
+                } elseif ($marks >= $rank[2]['rankRangeMin'] && $marks < $rank[2]['rankRangeMax'] + 1) {
                     return $rank[2]['rankName'];
-                } elseif ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
+                } elseif ($marks >= $rank[3]['rankRangeMin'] && $marks < $rank[3]['rankRangeMax'] + 1) {
                     return $rank[3]['rankName'];
                 } else {
                     return $rank[4]['rankName'];

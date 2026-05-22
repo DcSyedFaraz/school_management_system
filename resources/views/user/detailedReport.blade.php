@@ -14,7 +14,7 @@
                 ->get();
 
             foreach ($ranks as $rank) {
-                if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
+                if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
                     return $rank['rankName'];
                 }
             }
