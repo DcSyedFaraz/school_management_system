@@ -313,6 +313,18 @@ class UploadController extends Controller
                 ]
             );
 
+            $exists = Marks::where('classId', $req['class'])
+                ->where('examDate', $req['examDate'])
+                ->where('examId', $req['exam'])
+                ->where('schoolId', Session::get('userSchool'))
+                ->where('isDeleted', 0)
+                ->exists();
+
+            if ($exists) {
+                return redirect('/dashboard/uploads')
+                    ->with('error', 'Matokeo ya darasa hili kwa tarehe hii tayari yameshapakiwa! Nenda kwenye Ukurasa wa Matokeo Kavute Matokeo!');
+            }
+
             $userId = Session::get('userId');
             $userRegion = Session::get('userRegion');
             $userDistrict = Session::get('userDistrict');
