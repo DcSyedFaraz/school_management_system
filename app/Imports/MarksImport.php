@@ -97,10 +97,6 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
     {
         $classId = $this->requestData['class'];
 
-        if ($classId == '5') {
-            return config('subjects.class_default');
-        }
-
         return config('subjects.' . $classId, config('subjects.class_default'));
     }
 
