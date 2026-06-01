@@ -50,10 +50,7 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             $markData['studentName'] = $row['studentname'];
             $markData['gender'] = $gender;
 
-            $subjects = [];
-
-            $subjects = config('subjects.' . $this->requestData['class'], config('subjects.class_default'));
-            ;
+            $subjects = $this->getSubjectsForClass();
 
             $total = 0;
             $subjectCount = 0;
@@ -86,10 +83,7 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             'gender' => ['required', Rule::in(['M', 'F', '1', '2'])],
         ];
 
-        // Retrieve the list of subjects for the given class.
-        // If the class is not found, fallback to the default subjects.
-        $classId = $this->requestData['class'];
-        $subjects = config("subjects.{$classId}", config('subjects.class_default'));
+        $subjects = $this->getSubjectsForClass();
 
         // Loop through each subject and add the same numeric validation rule.
         foreach ($subjects as $subject) {
@@ -97,6 +91,17 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
         }
 
         return $rules;
+    }
+
+    protected function getSubjectsForClass(): array
+    {
+        $classId = $this->requestData['class'];
+
+        if ($classId == '5') {
+            return config('subjects.class_default');
+        }
+
+        return config('subjects.' . $classId, config('subjects.class_default'));
     }
 
 
