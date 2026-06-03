@@ -7,12 +7,12 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 15mm;
+            margin: 8mm 8mm 8mm 8mm;
         }
 
         body {
             font-family: Arial, sans-serif;
-            font-size: 12pt;
+            font-size: 10pt;
         }
 
         .text-center {
@@ -38,39 +38,41 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            font-size: 10pt;
+            font-size: 9pt;
             margin-left: auto;
             margin-right: auto;
+            table-layout: fixed;
         }
 
         th,
         td {
             border: 1px solid black;
-            padding: 5px 8px;
+            padding: 3px 5px;
             text-align: center;
             vertical-align: middle;
+            word-break: break-word;
         }
 
         table.small th,
         table.small td {
-            padding: 2px 4px;
-            font-size: 10px;
+            padding: 1px 2px;
+            font-size: 7.5pt;
         }
 
         .student-name {
-            width: 120px;
-            max-width: 120px;
+            width: 95px;
+            max-width: 95px;
             white-space: normal;
         }
 
         .tiny-col {
-            width: 25px;
-            max-width: 25px;
+            width: 20px;
+            max-width: 20px;
         }
 
         .small-col {
-            width: 40px;
-            max-width: 40px;
+            width: 28px;
+            max-width: 28px;
         }
 
         table.small tbody tr:nth-child(odd) {

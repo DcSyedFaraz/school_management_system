@@ -322,7 +322,7 @@ class UploadController extends Controller
 
             if ($exists) {
                 return redirect('/dashboard/uploads')
-                    ->with('error', 'Matokeo ya darasa hili kwa tarehe hii tayari yameshapakiwa! Nenda kwenye Ukurasa wa Matokeo Kavute Matokeo!');
+                    ->with('error_long', 'Matokeo ya darasa hili kwa tarehe hii tayari yameshapakiwa! Nenda kwenye Ukurasa wa Matokeo Kavute Matokeo!');
             }
 
             $userId = Session::get('userId');
