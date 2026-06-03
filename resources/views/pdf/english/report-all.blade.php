@@ -7,12 +7,12 @@
     <style>
         @page {
             size: A4 landscape;
-            margin: 15mm;
+            margin: 8mm 8mm 8mm 8mm;
         }
 
         body {
             font-family: Arial, sans-serif;
-            font-size: 12pt;
+            font-size: 10pt;
         }
 
         .text-center {
@@ -38,39 +38,58 @@
         table {
             border-collapse: collapse;
             width: 100%;
-            font-size: 10pt;
+            font-size: 9pt;
             margin-left: auto;
             margin-right: auto;
+            table-layout: fixed;
         }
 
         th,
         td {
             border: 1px solid black;
-            padding: 5px 8px;
+            padding: 3px 5px;
             text-align: center;
             vertical-align: middle;
+            word-break: break-word;
         }
 
-        table.small th,
         table.small td {
-            padding: 2px 4px;
-            font-size: 10px;
+            padding: 1px 2px;
+            font-size: 7.5pt;
+        }
+
+        table.small thead th {
+            padding: 1px 2px;
+            font-size: 6pt;
+            background-color: #d9d9d9;
         }
 
         .student-name {
-            width: 120px;
-            max-width: 120px;
+            width: 15%;
             white-space: normal;
+            text-align: left;
+        }
+
+        table.small td.student-name {
+            font-size: 7.5pt;
         }
 
         .tiny-col {
-            width: 25px;
-            max-width: 25px;
+            width: 2.8%;
         }
 
         .small-col {
-            width: 40px;
-            max-width: 40px;
+            width: 3.5%;
+        }
+
+        .subject-col {
+            width: 7%;
+            text-align: left;
+        }
+
+        table.small th.subject-col,
+        table.small td.subject-col {
+            font-size: 6pt;
         }
 
         table.small tbody tr:nth-child(odd) {
@@ -79,10 +98,6 @@
 
         table.small tbody tr:nth-child(even) {
             background-color: #f2f2f2;
-        }
-
-        table.small thead th {
-            background-color: #d9d9d9;
         }
     </style>
 </head>
@@ -277,7 +292,7 @@
         <table class="small">
             <thead>
                 <tr>
-                    <th rowspan="2">SUBJECT</th>
+                    <th rowspan="2" class="subject-col">SUBJECT</th>
                     @foreach (['A', 'B', 'C', 'D', 'E'] as $grade)
                         <th colspan="3">{{ $grade }}</th>
                     @endforeach
@@ -307,7 +322,7 @@
                                     : $gradeArray[$name]['E'];
                         @endphp
                         <tr class="{{ $g % 2 == 0 ? 'bg-white' : 'bg-gray-200' }}">
-                            <td>{{ strtoupper($subjectMapping[strtolower($name)] ?? $name) }}</td>
+                            <td class="subject-col">{{ strtoupper($subjectMapping[strtolower($name)] ?? $name) }}</td>
                             @foreach (['A', 'B', 'C', 'D', 'E'] as $grade)
                                 <td>{{ $gradeMaleArray[$name][$grade] }}</td>
                                 <td>{{ $gradeFemaleArray[$name][$grade] }}</td>

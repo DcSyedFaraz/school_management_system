@@ -82,6 +82,16 @@
             width: 3.5%;
         }
 
+        .subject-col {
+            width: 7%;
+            text-align: left;
+        }
+
+        table.small th.subject-col,
+        table.small td.subject-col {
+            font-size: 6pt;
+        }
+
         table.small tbody tr:nth-child(odd) {
             background-color: #ffffff;
         }
@@ -275,7 +285,7 @@
         <table class="small">
             <thead>
                 <tr>
-                    <th rowspan="2">SOMO</th>
+                    <th rowspan="2" class="subject-col">SOMO</th>
                     @foreach (['A', 'B', 'C', 'D', 'E'] as $grade)
                         <th colspan="3">{{ $grade }}</th>
                     @endforeach
@@ -305,7 +315,7 @@
                                     : $gradeArray[$name]['E'];
                         @endphp
                         <tr class="{{ $g % 2 == 0 ? 'bg-white' : 'bg-gray-200' }}">
-                            <td>{{ strtoupper($name) }}</td>
+                            <td class="subject-col">{{ strtoupper($name) }}</td>
                             @foreach (['A', 'B', 'C', 'D', 'E'] as $grade)
                                 <td>{{ $gradeMaleArray[$name][$grade] }}</td>
                                 <td>{{ $gradeFemaleArray[$name][$grade] }}</td>
