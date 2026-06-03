@@ -53,26 +53,33 @@
             word-break: break-word;
         }
 
-        table.small th,
         table.small td {
             padding: 1px 2px;
             font-size: 7.5pt;
         }
 
+        table.small thead th {
+            padding: 1px 2px;
+            font-size: 6pt;
+            background-color: #d9d9d9;
+        }
+
         .student-name {
-            width: 95px;
-            max-width: 95px;
+            width: 15%;
             white-space: normal;
+            text-align: left;
+        }
+
+        table.small td.student-name {
+            font-size: 7.5pt;
         }
 
         .tiny-col {
-            width: 20px;
-            max-width: 20px;
+            width: 2.8%;
         }
 
         .small-col {
-            width: 28px;
-            max-width: 28px;
+            width: 3.5%;
         }
 
         table.small tbody tr:nth-child(odd) {
@@ -81,10 +88,6 @@
 
         table.small tbody tr:nth-child(even) {
             background-color: #f2f2f2;
-        }
-
-        table.small thead th {
-            background-color: #d9d9d9;
         }
     </style>
 </head>
