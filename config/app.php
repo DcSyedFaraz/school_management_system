@@ -187,6 +187,7 @@ return [
         // 'Example' => App\Facades\Example::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'GoogleTranslate'=>Stichoza\GoogleTranslate\GoogleTranslate::class,
+        'Grading' => App\Facades\Grading::class,
     ])->toArray(),
 
 ];

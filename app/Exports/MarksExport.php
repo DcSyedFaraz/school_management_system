@@ -2,9 +2,9 @@
 
 namespace App\Exports;
 
+use App\Facades\Grading;
 use App\Models\Marks;
 use App\Models\Schools;
-use App\Models\Ranks;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -18,8 +18,12 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
     protected $districtId;
     protected $startDate;
     protected $endDate;
-    protected $rank;
     protected $subjects;
+
+    /** Tie-state for map(); instance property so it doesn't leak across exports sharing a process. */
+    private $storedAvg = '';
+    private $serialNumber = 0;
+    private $tieOffset = 0;
 
     public function __construct($examId, $classId, $regionId, $districtId, $startDate, $endDate)
     {
@@ -29,10 +33,6 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
         $this->districtId = $districtId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
         $this->subjects = $this->getSubjectsByClassId($classId);
     }
 
@@ -48,7 +48,7 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
 
         $marks = Marks::selectRaw('schoolId, ' . implode(', ', array_map(function ($subject) {
             return "ROUND(AVG(CASE WHEN $subject IS NOT NULL THEN $subject END), 2) as $subject";
-        }, $this->subjects)) . ', ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as averageMarks')
+        }, $this->subjects)) . ', ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
@@ -59,7 +59,7 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
             ])
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->groupBy('schoolId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
 
         return $marks;
@@ -118,37 +118,32 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
 
         $total = array_sum(array_intersect_key($marks->toArray(), array_flip($this->subjects)));
 
-        static $storedAvg = '';
-        static $serialNumber = 0;
-        static $j = 0;
+        $this->serialNumber++;
 
-        $serialNumber++;
-
-        if ($storedAvg == $marks->averageMarks) {
-            $j++;
-            $rank = $serialNumber - $j;
-            $storedAvg = $marks->averageMarks;
+        if ($this->storedAvg == $marks->avgTotal) {
+            $this->tieOffset++;
+            $rank = $this->serialNumber - $this->tieOffset;
         } else {
-            $j = 0;
-            $rank = $serialNumber;
-            $storedAvg = $marks->averageMarks;
+            $this->tieOffset = 0;
+            $rank = $this->serialNumber;
         }
+        $this->storedAvg = $marks->avgTotal;
 
         $data = [
-            $serialNumber,
+            $this->serialNumber,
             $schoolName,
         ];
 
         foreach ($this->subjects as $subject) {
             $data[] = $marks->$subject;
-            $data[] = $this->assignGrade($marks->$subject);
+            $data[] = Grading::gradeSubject($marks->$subject);
         }
 
         $data[] = $total;
-        $data[] = $marks->averageMarks;
-        $data[] = $this->assignGrade($marks->averageMarks);
+        $data[] = $marks->avgTotal;
+        $data[] = Grading::gradeTotal($marks->avgTotal);
         $data[] = $rank;
-        $data[] = $this->finalStatus($marks->averageMarks);
+        $data[] = Grading::statusForTotal($marks->avgTotal, $this->classId);
 
         return $data;
     }
@@ -156,41 +151,5 @@ class MarksExport implements FromCollection, WithHeadings, WithMapping, WithColu
     function getSubjectsByClassId($classId)
     {
         return config('subjects.' . $classId, config('subjects.class_default'));
-    }
-
-    function assignGrade($marks)
-    {
-        if ($this->rank) {
-            if ($marks >= $this->rank[0]['rankRangeMin'] && $marks < $this->rank[0]['rankRangeMax'] + 1) {
-                return $this->rank[0]['rankName'];
-            } else if ($marks >= $this->rank[1]['rankRangeMin'] && $marks < $this->rank[1]['rankRangeMax'] + 1) {
-                return $this->rank[1]['rankName'];
-            } else if ($marks >= $this->rank[2]['rankRangeMin'] && $marks < $this->rank[2]['rankRangeMax'] + 1) {
-                return $this->rank[2]['rankName'];
-            } else if ($marks >= $this->rank[3]['rankRangeMin'] && $marks < $this->rank[3]['rankRangeMax'] + 1) {
-                return $this->rank[3]['rankName'];
-            } else {
-                return $this->rank[4]['rankName'];
-            }
-        } else {
-            return "Null";
-        }
-    }
-
-    function finalStatus($average)
-    {
-        if ($this->classId > 4) {
-            if ($average < $this->rank[3]['rankRangeMax']) {
-                return "FAIL";
-            } else {
-                return "PASS";
-            }
-        } else {
-            if ($average < $this->rank[4]['rankRangeMax']) {
-                return "FAIL";
-            } else {
-                return "PASS";
-            }
-        }
     }
 }

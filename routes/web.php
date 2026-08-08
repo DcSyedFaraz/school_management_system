@@ -92,7 +92,6 @@ Route::post('/changePassword', [DashboardController::class, 'changePassword']);
 Route::get('/dashboard', [DashboardController::class, 'dashboard']);
 Route::get('/changeLang/{lang}', [DashboardController::class, 'changeLang']);
 Route::post('/logout', [DashboardController::class, 'logout']);
-Route::get('/query', [DashboardController::class, 'query']);
 
 Route::get('/admin-dashboard/teachers', [UserController::class, 'teachers']);
 Route::get('/admin-dashboard/admins', [UserController::class, 'admins']);

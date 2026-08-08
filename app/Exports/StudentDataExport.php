@@ -3,9 +3,9 @@
 namespace App\Exports;
 
 use DB;
+use App\Facades\Grading;
 use App\Models\Marks;
 use App\Models\Schools;
-use App\Models\Ranks;
 use App\Models\Grades;
 use App\Models\Exams;
 use App\Models\Regions;
@@ -27,9 +27,13 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
     protected $wardId;
     protected $startDate;
     protected $endDate;
-    protected $rank;
 
     protected $subjects;
+
+    /** Tie-state for map(); instance property so it doesn't leak across chunks/exports. */
+    private $storedTotal = '';
+    private $serialNumber = 0;
+    private $tieOffset = 0;
 
     public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate){
         $this->examId = $examId;
@@ -39,10 +43,6 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
         $this->wardId = $wardId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->rank = Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-            ['isActive','=','1'],
-            ['isDeleted','=','0']
-        ])->orderBy('rankName','asc')->get();
 
         // Load subjects dynamically based on classId
         $this->subjects = Config::get("subjects.{$classId}", Config::get('subjects.class_default'));
@@ -75,7 +75,7 @@ class StudentDataExport implements FromCollection, WithHeadings, WithMapping, Wi
             $wardCondition
         ])
         ->whereBetween('examDate', [$this->startDate, $this->endDate])
-        ->orderBy('average', 'desc')
+        ->orderByRaw('(average IS NULL), total DESC')
         ->get();
 
         return $marks;
@@ -168,26 +168,23 @@ public function map($marks): array
     $wardData = Wards::find($marks->wardId);
     $wardName = ($wardData) ? $wardData['wardName'] : "Not Found";
 
-    static $storedAvg = '';
-    static $serialNumber = 0;
-    static $j = 0;
+    $this->serialNumber++;
 
-    $serialNumber++;
-
-    if ($storedAvg == $marks->average) {
-        $j++;
-        $rank = $serialNumber - $j;
-        $storedAvg = $marks->average;
+    if ($this->storedTotal === $marks->total && $marks->average !== null) {
+        $this->tieOffset++;
+        $rank = $this->serialNumber - $this->tieOffset;
     } else {
-        $j = 0;
-        $rank = $serialNumber;
-        $storedAvg = $marks->average;
+        $this->tieOffset = 0;
+        $rank = $this->serialNumber;
     }
+    $this->storedTotal = $marks->total;
 
-    $gradeVal = ($marks->average !== null) ? $this->assignGrade($marks->average) : "ABS";
+    // Overall grade is based on TOTAL (0..300), not average. ABS only when
+    // the student sat nothing at all (average IS NULL is the absence flag).
+    $gradeVal = ($marks->average !== null) ? Grading::gradeTotal($marks->total) : Grading::absentGrade();
 
     $mappedData = [
-        $serialNumber,
+        $this->serialNumber,
         $marks->studentName,
         $className,
         $examName,
@@ -200,7 +197,7 @@ public function map($marks): array
     foreach ($this->subjects as $subject) {
         $subjectMarks = $marks->$subject !== null ? $marks->$subject : "ABS";
         $mappedData[] = $subjectMarks !== "ABS" ? $subjectMarks : "";
-        $mappedData[] = $subjectMarks !== "ABS" ? $this->assignGrade($subjectMarks) : "ABS";
+        $mappedData[] = $subjectMarks !== "ABS" ? Grading::gradeSubject($subjectMarks) : "ABS";
     }
 
     $mappedData = array_merge($mappedData, [
@@ -208,39 +205,9 @@ public function map($marks): array
         $marks->average,
         $gradeVal,
         $rank,
-        $this->finalStatus($marks->average)
+        Grading::statusForTotal($marks->average !== null ? $marks->total : null, $this->classId)
     ]);
 
     return $mappedData;
 }
-
-
-function assignGrade($marks){
-    foreach ($this->rank as $rank) {
-        if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-            return $rank['rankName'];
-        }
-    }
-    return "Null";
-}
-
-
-    function finalStatus($average){
-        if($this->classId>4){
-            if($average<$this->rank[3]['rankRangeMax']){
-                return "FAIL";
-            }
-            else{
-                return "PASS";
-            }
-        }
-        else{
-            if($average<$this->rank[4]['rankRangeMax']){
-                return "FAIL";
-            }
-            else{
-                return "PASS";
-            }
-        }
-    }
 }

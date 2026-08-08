@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\user;
 
+use App\Facades\Grading;
 use App\Http\Controllers\Controller;
 use App\Models\Marks;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -12,34 +13,38 @@ use setasign\Fpdi\Fpdi;
 
 class PrintController extends Controller
 {
-    // Function ya kurudisha maelezo ya grade
-    private function getGradeDescription($grade)
+    /**
+     * Rebuild a student's subjects/total/average/grade from the DATABASE
+     * record, discarding whatever the client sent for those fields. Only
+     * the selected markId is trusted from the request. Prevents a client
+     * from POSTing an inflated grade, total, or subject mark.
+     */
+    private function rebuildStudentFromMark($student, Marks $mark): array
     {
-        switch ($grade) {
-            case 'A': return 'Bora';
-            case 'B': return 'Nzuri sana';
-            case 'C': return 'Nzuri';
-            case 'D': return 'Inaridhisha';
-            case 'E': return 'Dhaifu';
-            default: return 'Hajafanya';
+        $classId = $mark->classId;
+        $subjects = config('subjects.' . $classId, config('subjects.class_default'));
+
+        $rebuiltSubjects = [];
+        foreach ($subjects as $subject) {
+            $value = $mark->$subject;
+            $rebuiltSubjects[] = [
+                'name' => $subject,
+                'mark' => $value,
+                'grade' => Grading::gradeSubject($value),
+            ];
         }
+
+        $student['subjects'] = $rebuiltSubjects;
+        $student['totalMarks'] = (float) $mark->total;
+        $student['average'] = $mark->average;
+        $student['grade'] = $mark->average !== null ? Grading::gradeTotal($mark->total) : Grading::absentGrade();
+
+        return $student;
     }
 
     // Function ya kuhesabu position kwa wanafunzi wote walioteuliwa
     private function calculatePositions($students)
     {
-        // Hesabu jumla ya alama kwa kila mwanafunzi
-        foreach ($students as &$student) {
-            $subjects = $student['subjects'] ?? [];
-            $totalMarks = 0;
-            foreach ($subjects as $sub) {
-                if(isset($sub['total']) && $sub['grade'] != 'Null') {
-                    $totalMarks += $sub['total'];
-                }
-            }
-            $student['totalMarks'] = $totalMarks;
-        }
-
         // Panga descending kwa totalMarks
         usort($students, function($a, $b) {
             return $b['totalMarks'] <=> $a['totalMarks'];
@@ -62,6 +67,48 @@ class PrintController extends Controller
         }
 
         return $students;
+    }
+
+    /**
+     * Per-subject rank across the selected batch, computed from the DB
+     * records already loaded — not from client-supplied positions.
+     *
+     * @param  array<int,\App\Models\Marks>  $markModels  keyed by markId
+     * @return array<string,array<int,int>>  subject => [markId => position]
+     */
+    private function calculateSubjectPositions(array $markModels): array
+    {
+        if (empty($markModels)) {
+            return [];
+        }
+
+        $first = reset($markModels);
+        $subjects = config('subjects.' . $first->classId, config('subjects.class_default'));
+
+        $positions = [];
+        foreach ($subjects as $subject) {
+            $scores = [];
+            foreach ($markModels as $markId => $mark) {
+                if ($mark->$subject !== null) {
+                    $scores[$markId] = $mark->$subject;
+                }
+            }
+            arsort($scores);
+
+            $rank = 0;
+            $seen = 0;
+            $prevScore = null;
+            foreach ($scores as $markId => $score) {
+                $seen++;
+                if ($score !== $prevScore) {
+                    $rank = $seen;
+                    $prevScore = $score;
+                }
+                $positions[$subject][$markId] = $rank;
+            }
+        }
+
+        return $positions;
     }
 
     public function printReport(Request $request)
@@ -91,11 +138,27 @@ class PrintController extends Controller
             ->where('districtId', $districtId)
             ->value('districtName') ?? 'UNKNOWN';
 
+        // Only markId is trusted from the client. Load the real records and
+        // rebuild every graded value (subjects, total, average, grade) from
+        // the database — the client can no longer forge a grade.
+        $markIds = array_column($students, 'id');
+        $markModels = Marks::whereIn('markId', $markIds)->get()->keyBy('markId');
+        $subjectPositions = $this->calculateSubjectPositions($markModels->all());
+
+        $students = array_values(array_filter(array_map(function ($student) use ($markModels) {
+            $mark = $markModels->get($student['id']);
+            return $mark ? $this->rebuildStudentFromMark($student, $mark) : null;
+        }, $students)));
+
+        if (empty($students)) {
+            return redirect()->back()->withErrors('Hakuna mwanafunzi aliyechaguliwa.');
+        }
+
         // Hesabu positions
         $students = $this->calculatePositions($students);
 
         foreach ($students as $student) {
-            $mark = Marks::where('markId', $student['id'])->first();
+            $mark = $markModels->get($student['id']);
             if (!$mark) continue;
 
             // Info za mwanafunzi
@@ -105,11 +168,9 @@ class PrintController extends Controller
             $student['date'] = $mark->examDate ?? 'NOT AVAILABLE';
             $student['examname'] = $mark->exam->examName ?? 'NOT AVAILABLE';
 
-            $student['subjects'] = $student['subjects'] ?? [];
-
             foreach ($student['subjects'] as &$subject) {
-                $subject['gradeDescription'] = $this->getGradeDescription($subject['grade']);
-                $subject['position'] = $subject['position'] ?? '-';
+                $subject['gradeDescription'] = Grading::description($subject['grade']);
+                $subject['position'] = $subjectPositions[$subject['name']][$student['id']] ?? '-';
             }
 
             // School contact from logged-in user's mobile
@@ -188,11 +249,27 @@ class PrintController extends Controller
             ->where('districtId', $districtId)
             ->value('districtName') ?? 'UNKNOWN';
 
+        // Only markId is trusted from the client. Load the real records and
+        // rebuild every graded value (subjects, total, average, grade) from
+        // the database — the client can no longer forge a grade.
+        $markIds = array_column($students, 'id');
+        $markModels = Marks::whereIn('markId', $markIds)->get()->keyBy('markId');
+        $subjectPositions = $this->calculateSubjectPositions($markModels->all());
+
+        $students = array_values(array_filter(array_map(function ($student) use ($markModels) {
+            $mark = $markModels->get($student['id']);
+            return $mark ? $this->rebuildStudentFromMark($student, $mark) : null;
+        }, $students)));
+
+        if (empty($students)) {
+            return redirect()->back()->withErrors('No student selected.');
+        }
+
         // Calculate positions
         $students = $this->calculatePositions($students);
 
         foreach ($students as $student) {
-            $mark = Marks::where('markId', $student['id'])->first();
+            $mark = $markModels->get($student['id']);
             if (!$mark) continue;
 
             // Student info
@@ -202,11 +279,9 @@ class PrintController extends Controller
             $student['date'] = $mark->examDate ?? 'NOT AVAILABLE';
             $student['examname'] = $mark->exam->examName ?? 'NOT AVAILABLE';
 
-            $student['subjects'] = $student['subjects'] ?? [];
-
             foreach ($student['subjects'] as &$subject) {
-                $subject['gradeDescription'] = $this->getGradeDescription($subject['grade']);
-                $subject['position'] = $subject['position'] ?? '-';
+                $subject['gradeDescription'] = Grading::description($subject['grade'], 'en');
+                $subject['position'] = $subjectPositions[$subject['name']][$student['id']] ?? '-';
             }
 
             // School contact from logged-in user's mobile

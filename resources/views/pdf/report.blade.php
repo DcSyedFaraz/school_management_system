@@ -45,7 +45,7 @@
         .color-B { background-color: #1FEE0B; color: #212529; font-weight: 700; padding: 0.25em 0.5em; border-radius: 0.25rem; }
         .color-C { background-color: #DEF043; color: #212529; font-weight: 700; padding: 0.25em 0.5em; border-radius: 0.25rem; }
         .color-D { background-color: #FF772F; color: #fff; font-weight: 700; padding: 0.25em 0.5em; border-radius: 0.25rem; }
-        .color-E, .color-Null { background-color: #FF0000; color: #fff; font-weight: 700; padding: 0.25em 0.5em; border-radius: 0.25rem; }
+        .color-E, .color-ABS { background-color: #FF0000; color: #fff; font-weight: 700; padding: 0.25em 0.5em; border-radius: 0.25rem; }
 
         h2 { font-size: 10px; }
 
@@ -60,7 +60,7 @@
     .color-C { color: #FF8C00; /* dark orange */ font-weight: bold; }
     .color-D { color: #8B4513; /* saddle brown */ font-weight: bold; }
     .color-E { color: #B22222; /* firebrick red */ font-weight: bold; }
-    .color-Null { color: #808080; /* gray */ font-style: italic; font-weight: normal; }
+    .color-ABS { color: #808080; /* gray */ font-style: italic; font-weight: normal; }
     </style>
 </head>
 
@@ -110,8 +110,8 @@
             $totalMarks = 0;
             $subjectsTaken = 0;
             foreach($subjects as $sub) {
-                if(isset($sub['total']) && $sub['grade'] != 'Null') {
-                    $totalMarks += $sub['total'];
+                if($sub['mark'] !== null) {
+                    $totalMarks += $sub['mark'];
                     $subjectsTaken++;
                 }
             }
@@ -134,17 +134,17 @@
                 $subjectName = $subjectMapping[$subjectName] ?? $subjectName;
                 $subjectName = strtoupper($subjectName);
 
-                $grade = $subject['grade'] ?? 'Null';
+                $grade = $subject['grade'] ?? Grading::absentGrade();
                 $gradeDesc = $subject['gradeDescription'] ?? 'Hajafanya';
 
                 $position = $subject['position'] ?? '-';
-                $total = $subject['total'] ?? '-';
+                $total = $subject['mark'] ?? '-';
             @endphp
             <tr>
                 <td style="text-align: left;">{{ $subjectName }}</td>
                 <td style="text-align: center;">{{ $total }}</td>
                 <td style="text-align: center;">
-                    <span class="color-{{ $grade }}">{{ $grade == 'Null' ? 'Hajafanya' : $grade }}</span>
+                    <span class="color-{{ $grade }}">{{ $grade == Grading::absentGrade() ? 'Hajafanya' : $grade }}</span>
                 </td>
                 <td style="text-align: center;">{{ $position }}</td>
                 <td style="text-align: left;"><span class="color-{{ $grade }}">{{ $gradeDesc }}</span></td>

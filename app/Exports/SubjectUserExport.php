@@ -2,8 +2,8 @@
 
 namespace App\Exports;
 
+use App\Facades\Grading;
 use App\Models\Marks;
-use App\Models\Ranks;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -18,22 +18,15 @@ class SubjectUserExport implements FromCollection, WithHeadings, WithMapping, Wi
     protected $classId;
     protected $startDate;
     protected $endDate;
-    protected $borderLine;
-    protected $rank;
 
     protected $subjects;
 
-public function __construct($examId, $classId, $startDate, $endDate, $borderLine)
+public function __construct($examId, $classId, $startDate, $endDate)
 {
     $this->examId = $examId;
     $this->classId = $classId;
     $this->startDate = $startDate;
     $this->endDate = $endDate;
-    $this->borderLine = $borderLine;
-    $this->rank = Ranks::select('rankName','rankRangeMin','rankRangeMax')->where([
-        ['isActive','=','1'],
-        ['isDeleted','=','0']
-    ])->orderBy('rankName','asc')->get();
 
     // Load subjects dynamically based on classId
     $this->subjects = Config::get("subjects.{$classId}", Config::get('subjects.class_default'));
@@ -192,7 +185,7 @@ public function __construct($examId, $classId, $startDate, $endDate, $borderLine
     foreach ($marks as $aMark) {
         if ($aMark->average !== null) {
             foreach ($this->subjects as $subject) {
-                $grade = $this->assignGrade($aMark[$subject]);
+                $grade = Grading::gradeSubject($aMark[$subject]);
                 $gradeArray[] = $subject . $grade;
             }
         }
@@ -225,17 +218,6 @@ public function __construct($examId, $classId, $startDate, $endDate, $borderLine
     }
 
     return $mappedData;
-}
-
-
-function assignGrade($marks)
-{
-    foreach ($this->rank as $rank) {
-        if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-            return $rank['rankName'];
-        }
-    }
-    return "Null";
 }
 
 }

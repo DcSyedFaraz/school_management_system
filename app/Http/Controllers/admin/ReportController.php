@@ -12,7 +12,6 @@ use App\Models\Exams;
 use App\Models\Regions;
 use App\Models\Districts;
 use App\Models\Wards;
-use App\Models\Ranks;
 use App\Exports\MarksExport;
 use App\Exports\StudentDataExport;
 use Illuminate\Support\Facades\Config;
@@ -35,7 +34,9 @@ class ReportController extends Controller
             $subjects = config('subjects.' . $classId, config('subjects.class_default'));
 
             // Start with the base select fields.
-            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as averageMarks';
+            // avgTotal = school mean TOTAL (0..300), excluding fully-absent
+            // students (average IS NULL) so they don't drag the mean down.
+            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal';
 
             // Loop over each subject and append the respective AVG calculation.
             foreach ($subjects as $subject) {
@@ -51,7 +52,7 @@ class ReportController extends Controller
                 ])
                 ->groupBy('schoolId')
                 ->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('averageMarks', 'desc')
+                ->orderBy('avgTotal', 'desc')
                 ->get();
 
             $classes = Grades::select('gradeId', 'gradeName')->where([
@@ -107,7 +108,9 @@ class ReportController extends Controller
             $subjects = config('subjects.' . $classId, config('subjects.class_default'));
 
             // Start with the base select fields.
-            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as averageMarks';
+            // avgTotal = school mean TOTAL (0..300), excluding fully-absent
+            // students (average IS NULL) so they don't drag the mean down.
+            $selectFields = 'schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal';
 
             // Loop over each subject and append the respective AVG calculation.
             foreach ($subjects as $subject) {
@@ -123,7 +126,7 @@ class ReportController extends Controller
                 ])
                 ->groupBy('schoolId')
                 ->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('averageMarks', 'desc')
+                ->orderBy('avgTotal', 'desc')
                 ->get();
             // dd($marks);
             $classes = Grades::select('gradeId', 'gradeName')->where([
@@ -179,43 +182,6 @@ class ReportController extends Controller
         }
     }
 
-    function assignGrade($marks)
-    {
-        // $gradeBoundaries = [
-        //     'A' => [41, 50],
-        //     'B' => [31, 40],
-        //     'C' => [21, 30],
-        //     'D' => [11, 20],
-        //     'E' => [0, 10],
-        // ];
-
-        // foreach ($gradeBoundaries as $grade => [$min, $max]) {
-        //     if ($marks >= $min && $marks <= $max) {
-        //         return $grade;
-        //     }
-        // }
-        // return 'E';
-        $rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
-
-        if ($rank) {
-            if ($marks >= $rank[0]['rankRangeMin'] && $marks < $rank[0]['rankRangeMax'] + 1) {
-                return $rank[0]['rankName'];
-            } else if ($marks >= $rank[1]['rankRangeMin'] && $marks < $rank[1]['rankRangeMax'] + 1) {
-                return $rank[1]['rankName'];
-            } else if ($marks >= $rank[2]['rankRangeMin'] && $marks < $rank[2]['rankRangeMax'] + 1) {
-                return $rank[2]['rankName'];
-            } else if ($marks >= $rank[3]['rankRangeMin'] && $marks < $rank[3]['rankRangeMax'] + 1) {
-                return $rank[3]['rankName'];
-            } else {
-                return $rank[4]['rankName'];
-            }
-        } else {
-            return "Null";
-        }
-    }
     // New Code
     public function studentData()
     {
@@ -237,7 +203,7 @@ class ReportController extends Controller
                     ['isDeleted', '=', '0'],
                     ['classId', '=', $classId],
                     ['examId', '=', $examId]
-                ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->get();
+                ])->whereBetween('examDate', [$startDate, $endDate])->orderByRaw('(average IS NULL), total DESC')->get();
 
             // Paginate marks for display
             $marks = Marks::select('markId', 'studentName', 'gender', 'classId', 'examId', 'schoolId', 'regionId', 'districtId', 'wardId', 'kuhesabu', 'kusoma', 'kuandika', 'english', 'mazingira', 'michezo', 'total', 'average')
@@ -246,7 +212,7 @@ class ReportController extends Controller
                     ['isDeleted', '=', '0'],
                     ['classId', '=', $classId],
                     ['examId', '=', $examId]
-                ])->whereBetween('examDate', [$startDate, $endDate])->orderBy('average', 'desc')->paginate(10);
+                ])->whereBetween('examDate', [$startDate, $endDate])->orderByRaw('(average IS NULL), total DESC')->paginate(10);
 
             $classes = Grades::select('gradeId', 'gradeName')->where([
                 ['isActive', '=', '1'],
@@ -311,13 +277,13 @@ class ReportController extends Controller
                     $gAverage[$index] += $mark[$subject];
                 }
 
-                // Process overall grade
-                $grade = $this->assignGrade($mark['average']);
+                // Process overall grade — based on TOTAL, not average.
+                $grade = \App\Facades\Grading::gradeTotal($mark['total']);
                 $gradeDistribution[$gender][$grade]++;
 
                 // Process subject grades
                 foreach ($subjects as $index => $subject) {
-                    $subjectGrade = $this->assignGrade($mark[$subject]);
+                    $subjectGrade = \App\Facades\Grading::gradeSubject($mark[$subject]);
                     $subjectGradeCounts[$subjectGrade][$gender][$index]++;
                 }
             }
@@ -395,7 +361,7 @@ class ReportController extends Controller
                     $wardCondition
                 ])
                 ->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('average', 'desc')
+                ->orderByRaw('(average IS NULL), total DESC')
                 ->paginate(10)->appends($params);
             ;
 
@@ -411,7 +377,7 @@ class ReportController extends Controller
                     $wardCondition
                 ])
                 ->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('average', 'desc')
+                ->orderByRaw('(average IS NULL), total DESC')
                 ->get();
 
             // Other necessary data
@@ -457,7 +423,9 @@ class ReportController extends Controller
 
             // Cache::clear();
             // Process marks
-            $cacheKey = "processeds_marks_{$classId}_{$examId}_{$allMarks->count()}_{$regionId}_{$districtId}_{$wardId}_{$startDate}_{$endDate}";
+            // Prefix bumped (grades_v2_) so caches from before the average->total
+            // grading switch are never served stale.
+            $cacheKey = "grades_v2_{$classId}_{$examId}_{$allMarks->count()}_{$regionId}_{$districtId}_{$wardId}_{$startDate}_{$endDate}";
             $processedData = Cache::get($cacheKey);
             // dd($cacheKey);
             if (!$processedData) {
@@ -477,7 +445,7 @@ class ReportController extends Controller
                 foreach ($allMarks as $mark) {
                     $gender = $mark['gender'] === 'M' ? 'male' : 'female';
 
-                    if ($mark['average'] == 0) {
+                    if ($mark['average'] === null) {
                         $gradeDistribution[$gender]['ABS']++;
                         continue; // Skip subject processing for ABS students
                     }
@@ -487,13 +455,13 @@ class ReportController extends Controller
                         $gAverage[$index] += $mark[$subject];
                     }
 
-                    // Process overall grade
-                    $grade = $this->assignGrade($mark['average']);
+                    // Process overall grade — based on TOTAL, not average.
+                    $grade = \App\Facades\Grading::gradeTotal($mark['total']);
                     $gradeDistribution[$gender][$grade]++;
 
                     // Process subject grades
                     foreach ($subjects as $index => $subject) {
-                        $subjectGrade = $this->assignGrade($mark[$subject]);
+                        $subjectGrade = \App\Facades\Grading::gradeSubject($mark[$subject]);
                         $subjectGradeCounts[$subjectGrade][$gender][$index]++;
                     }
                 }

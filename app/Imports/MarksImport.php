@@ -64,7 +64,7 @@ class MarksImport implements ToCollection, WithHeadingRow, WithValidation, Skips
             }
 
             $markData['total'] = $total;
-            $markData['average'] = $subjectCount > 0 ? number_format($total / $subjectCount, 2) : null;
+            $markData['average'] = $subjectCount > 0 ? round($total / $subjectCount, 2) : null;
             $markData['examId'] = $this->requestData['exam'];
             $markData['userId'] = $this->userId;
             $markData['regionId'] = $this->userRegion;

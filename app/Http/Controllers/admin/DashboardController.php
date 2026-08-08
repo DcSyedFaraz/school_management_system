@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Facades\Grading;
 use App\Http\Controllers\Controller;
 use Auth;
 use Illuminate\Http\Request;
@@ -11,7 +12,6 @@ use App\Models\Grades;
 use App\Models\Exams;
 use App\Models\Regions;
 use App\Models\Districts;
-use App\Models\Ranks;
 use App\Models\Schools;
 use App\Mail\ForgotMail;
 use DB;
@@ -312,12 +312,7 @@ class DashboardController extends Controller
                 ['isDeleted', '=', '0']
             ])->orderBy('examDate', 'desc')->distinct()->pluck('examDate');
 
-            $rank = Ranks::select('rankRangeMin', 'rankRangeMax')->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ])->orderBy('rankName', 'asc')->get();
-
-            $maleAveargeMarks = Marks::select('average')->where([
+            $maleAveargeMarks = Marks::select('average', 'total')->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
                 ['gender', '=', 'M'],
@@ -327,7 +322,7 @@ class DashboardController extends Controller
                 ['examId', '=', $examId]
             ])->whereBetween('examDate', [$startDate, $endDate])->get();
 
-            $femaleAveargeMarks = Marks::select('average')->where([
+            $femaleAveargeMarks = Marks::select('average', 'total')->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
                 ['gender', '=', 'F'],
@@ -337,42 +332,26 @@ class DashboardController extends Controller
                 ['examId', '=', $examId]
             ])->whereBetween('examDate', [$startDate, $endDate])->get();
 
+            // Grade distribution — based on TOTAL, not average. Indexed
+            // 0..4 to match the A..E chart labels in admin.dashboard.
             $maleRanks = [0, 0, 0, 0, 0];
             $femaleRanks = [0, 0, 0, 0, 0];
 
             foreach ($maleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
-                        $maleRanks[0] = $maleRanks[0] + 1;
-                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
-                        $maleRanks[1] = $maleRanks[1] + 1;
-                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
-                        $maleRanks[2] = $maleRanks[2] + 1;
-                    } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
-                        $maleRanks[3] = $maleRanks[3] + 1;
-                    } else {
-                        $maleRanks[4] = $maleRanks[4] + 1;
-                    }
+                    $idx = Grading::letterIndex(Grading::gradeTotal($average['total']));
+                    $maleRanks[$idx] = $maleRanks[$idx] + 1;
                 }
             }
 
             foreach ($femaleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
-                        $femaleRanks[0] = $femaleRanks[0] + 1;
-                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
-                        $femaleRanks[1] = $femaleRanks[1] + 1;
-                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
-                        $femaleRanks[2] = $femaleRanks[2] + 1;
-                    } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
-                        $femaleRanks[3] = $femaleRanks[3] + 1;
-                    } else {
-                        $femaleRanks[4] = $femaleRanks[4] + 1;
-                    }
+                    $idx = Grading::letterIndex(Grading::gradeTotal($average['total']));
+                    $femaleRanks[$idx] = $femaleRanks[$idx] + 1;
                 }
             }
 
-            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as average')
+            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
                 ->join('schools', 'schools.schoolId', '=', 'marks.schoolId')->where([
                         ['marks.isActive', '=', '1'],
                         ['marks.isDeleted', '=', '0'],
@@ -381,11 +360,11 @@ class DashboardController extends Controller
                         ['marks.districtId', '=', $districtId],
                         ['marks.examId', '=', $examId]
                     ])->groupBy('schools.schoolId', 'schools.schoolName')
-                ->whereBetween('marks.examDate', [$startDate, $endDate])->orderBy('average', 'desc')
+                ->whereBetween('marks.examDate', [$startDate, $endDate])->orderBy('avgTotal', 'desc')
                 ->get();
 
             session(['pageTitle' => "Ubao"]);
-            $borderLine = $rank[3]['rankRangeMin'];
+            $borderLine = Grading::passingTotal($classId);
 
             $data = compact('classes', 'exams', 'regions', 'districts', 'dates', 'classId', 'regionId', 'districtId', 'examId', 'startDate', 'endDate', 'maleRanks', 'femaleRanks', 'schoolRanks', 'borderLine');
             return view('admin.dashboard')->with($data);
@@ -439,12 +418,7 @@ class DashboardController extends Controller
                 ['isDeleted', '=', '0']
             ])->orderBy('examDate', 'desc')->distinct()->pluck('examDate');
 
-            $rank = Ranks::select('rankRangeMin', 'rankRangeMax')->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ])->orderBy('rankName', 'asc')->get();
-
-            $maleAveargeMarks = Marks::select('average')->where([
+            $maleAveargeMarks = Marks::select('average', 'total')->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
                 ['gender', '=', 'M'],
@@ -454,7 +428,7 @@ class DashboardController extends Controller
                 $examCondition
             ])->whereBetween('examDate', [$startDate, $endDate])->get();
 
-            $femaleAveargeMarks = Marks::select('average')->where([
+            $femaleAveargeMarks = Marks::select('average', 'total')->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
                 ['gender', '=', 'F'],
@@ -464,42 +438,26 @@ class DashboardController extends Controller
                 $examCondition
             ])->whereBetween('examDate', [$startDate, $endDate])->get();
 
+            // Grade distribution — based on TOTAL, not average. Indexed
+            // 0..4 to match the A..E chart labels in admin.dashboard.
             $maleRanks = [0, 0, 0, 0, 0];
             $femaleRanks = [0, 0, 0, 0, 0];
 
             foreach ($maleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
-                        $maleRanks[0] = $maleRanks[0] + 1;
-                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
-                        $maleRanks[1] = $maleRanks[1] + 1;
-                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
-                        $maleRanks[2] = $maleRanks[2] + 1;
-                    } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
-                        $maleRanks[3] = $maleRanks[3] + 1;
-                    } else {
-                        $maleRanks[4] = $maleRanks[4] + 1;
-                    }
+                    $idx = Grading::letterIndex(Grading::gradeTotal($average['total']));
+                    $maleRanks[$idx] = $maleRanks[$idx] + 1;
                 }
             }
 
             foreach ($femaleAveargeMarks as $average) {
                 if ($average['average'] !== null) {
-                    if ($average['average'] >= $rank[0]['rankRangeMin'] && $average['average'] < $rank[0]['rankRangeMax'] + 1) {
-                        $femaleRanks[0] = $femaleRanks[0] + 1;
-                    } else if ($average['average'] >= $rank[1]['rankRangeMin'] && $average['average'] < $rank[1]['rankRangeMax'] + 1) {
-                        $femaleRanks[1] = $femaleRanks[1] + 1;
-                    } else if ($average['average'] >= $rank[2]['rankRangeMin'] && $average['average'] < $rank[2]['rankRangeMax'] + 1) {
-                        $femaleRanks[2] = $femaleRanks[2] + 1;
-                        } else if ($average['average'] >= $rank[3]['rankRangeMin'] && $average['average'] < $rank[3]['rankRangeMax'] + 1) {
-                        $femaleRanks[3] = $femaleRanks[3] + 1;
-                    } else {
-                        $femaleRanks[4] = $femaleRanks[4] + 1;
-                    }
+                    $idx = Grading::letterIndex(Grading::gradeTotal($average['total']));
+                    $femaleRanks[$idx] = $femaleRanks[$idx] + 1;
                 }
             }
 
-            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average IS NOT NULL THEN average END), 2) as average')
+            $schoolRanks = Marks::selectRaw('schools.schoolId, schools.schoolName, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
                 ->join('schools', 'schools.schoolId', '=', 'marks.schoolId')->where([
                         ['marks.isActive', '=', '1'],
                         ['marks.isDeleted', '=', '0'],
@@ -508,16 +466,12 @@ class DashboardController extends Controller
                         $districtCondition2,
                         $examCondition2
                     ])->whereBetween('marks.examDate', [$startDate, $endDate])->groupBy('schools.schoolId', 'schools.schoolName')
-                ->orderBy('average', 'desc')
+                ->orderBy('avgTotal', 'desc')
                 ->get();
 
             session(['pageTitle' => "Ubao"]);
 
-            if ($classId > 4) {
-                $borderLine = $rank[2]['rankRangeMin'];
-            } else {
-                $borderLine = $rank[3]['rankRangeMin'];
-            }
+            $borderLine = Grading::passingTotal($classId);
 
             $data = compact('classes', 'exams', 'regions', 'districts', 'dates', 'classId', 'regionId', 'districtId', 'examId', 'startDate', 'endDate', 'maleRanks', 'femaleRanks', 'schoolRanks', 'borderLine');
             return view('admin.dashboard')->with($data);
@@ -530,22 +484,5 @@ class DashboardController extends Controller
     {
         session()->flush();
         return redirect('/');
-    }
-
-    public function query()
-    {
-        $marks = Marks::where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->get();
-
-        foreach ($marks as $mark) {
-            $total = $mark['hisabati'] + $mark['kiswahili'] + $mark['sayansi'] + $mark['english'] + $mark['jamii'] + $mark['maadili'];
-            $averageMarks = number_format(($total / 6), 2);
-
-            $mark['total'] = $total;
-            $mark['average'] = $averageMarks;
-            $mark->save();
-        }
     }
 }

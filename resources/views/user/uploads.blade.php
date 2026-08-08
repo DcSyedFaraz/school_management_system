@@ -2,59 +2,6 @@
 
 @section('content')
     @php
-        function assignGrade($marks)
-        {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
-
-            if ($rank) {
-                if ($rank[0]['rankRangeMin'] < $marks && $rank[0]['rankRangeMax'] >= $marks) {
-                    return $rank[0]['rankName'];
-                } elseif ($rank[1]['rankRangeMin'] < $marks && $rank[1]['rankRangeMax'] >= $marks) {
-                    return $rank[1]['rankName'];
-                } elseif ($rank[2]['rankRangeMin'] < $marks && $rank[2]['rankRangeMax'] >= $marks) {
-                    return $rank[2]['rankName'];
-                } elseif ($rank[3]['rankRangeMin'] < $marks && $rank[3]['rankRangeMax'] >= $marks) {
-                    return $rank[3]['rankName'];
-                } else {
-                    return $rank[4]['rankName'];
-                }
-            } else {
-                return 'Null';
-            }
-        }
-
-        if ($classId > 4) {
-            function finalStatus($average)
-            {
-                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                    ->orderBy('rankName', 'asc')
-                    ->get();
-
-                if ($average <= $rank[3]['rankRangeMax']) {
-                    return 'FELI';
-                } else {
-                    return 'FAULU';
-                }
-            }
-        } else {
-            function finalStatus($average)
-            {
-                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                    ->orderBy('rankName', 'asc')
-                    ->get();
-
-                if ($average <= $rank[4]['rankRangeMax']) {
-                    return 'FELI';
-                } else {
-                    return 'FAULU';
-                }
-            }
-        }
     @endphp
 
     <div class="p-3">
@@ -243,21 +190,21 @@
                                         <p class="italic text-gray-400">ABS</p>
                                     @else
                                         <p>{{ $mark[$subject] }}</p>
-                                        <p>{{ assignGrade($mark[$subject]) }}</p>
+                                        <p>{{ Grading::gradeSubject($mark[$subject]) }}</p>
                                     @endif
                                 </td>
                             @endforeach
                             <td class="border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="border border-black text-right">{{ $mark['average'] }}</td>
 
-                            @if ($mark['average'] > 0)
-                                <td class="border border-black">{{ assignGrade($mark['average']) }}</td>
+                            @if ($mark['average'] !== null)
+                                <td class="border border-black">{{ Grading::gradeTotal($mark['total']) }}</td>
                             @else
                                 <td class="border border-black">ABS</td>
                             @endif
 
-                            @if ($mark['average'] > 0)
-                                <td class="border border-black">{{ finalStatus($mark['average']) }}</td>
+                            @if ($mark['average'] !== null)
+                                <td class="border border-black">{{ Grading::statusForTotal($mark['total'], $classId) }}</td>
                             @else
                                 <td class="border border-black"></td>
                             @endif

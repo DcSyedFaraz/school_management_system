@@ -2,8 +2,8 @@
 namespace App\Exports;
 
 
+use App\Facades\Grading;
 use App\Models\Marks;
-use App\Models\Ranks;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -17,11 +17,10 @@ protected $examId;
 protected $classId;
 protected $startDate;
 protected $endDate;
-protected $rank;
 protected $subjects;
 
 
-private $previousAvg = null;
+private $previousTotal = null;
 private $previousRank = 0;
 private $serial = 0;
 protected $subjectPositionsCache = null;
@@ -35,13 +34,6 @@ $this->startDate = $startDate;
 $this->endDate = $endDate;
 
 
-$this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-->where([
-['isActive', '=', '1'],
-['isDeleted', '=', '0']
-])->orderBy('rankName', 'asc')->get();
-
-
 $this->subjects = config('subjects.' . $classId, config('subjects.class_default'));
 }
 
@@ -52,7 +44,7 @@ $classCondition = ($this->classId == '') ? ['classId', '!=', null] : ['classId',
 $examCondition = ($this->examId == '') ? ['examId', '!=', null] : ['examId', '=', $this->examId];
 
 
-$selectColumns = array_merge(['markId', 'studentName', 'gender'], $this->subjects);
+$selectColumns = array_merge(['markId', 'studentName', 'gender', 'total', 'average'], $this->subjects);
 
 
 $marks = Marks::select($selectColumns)
@@ -64,21 +56,8 @@ $examCondition,
 ['userId', '=', Session::get('userId')]
 ])
 ->whereBetween('examDate', [$this->startDate, $this->endDate])
+->orderByRaw('(average IS NULL), total DESC')
 ->get();
-
-
-// Sort by computed average
-$marks = $marks->sortByDesc(function ($m) {
-$valid = 0;
-$total = 0;
-foreach ($this->subjects as $sub) {
-if ($m->$sub !== null) {
-$total += $m->$sub;
-$valid++;
-}
-}
-return $valid ? round($total / $valid, 2) : 0;
-})->values();
 
 
 return $marks;
@@ -110,35 +89,6 @@ public function headings(): array
     return $headings;
 }
 
-private function assignGrade($marks)
-{
-    if ($marks === null || $marks === '' || $marks < 0) {
-        return '-';
-    }
-
-    if ($marks >= 41) return 'A';
-    if ($marks >= 31) return 'B';
-    if ($marks >= 21) return 'C';
-    if ($marks >= 11) return 'D';
-    
-    return 'E';
-}
-
-private function finalStatus($average)
-{
-    if ($average === null || $average === '' || $average < 0) {
-        return '-';
-    }
-
-    // Pass mark inategemea classId
-    $passMark = ($this->classId > 4) ? 21 : 11;
-
-    // Round average before checking
-    $roundedAverage = round($average);
-
-    return ($roundedAverage >= $passMark) ? 'FAULU' : 'FELI';
-}
-
 public function map($marks): array
 {
     if ($this->subjectPositionsCache === null) {
@@ -155,7 +105,7 @@ public function map($marks): array
     // Ikiwa value ni null, weka blank (absent); 0 ni alama halisi
     $displayValue = ($value !== null) ? $value : '';
 
-    $grade = ($value !== null) ? $this->assignGrade($value) : '';
+    $grade = ($value !== null) ? Grading::gradeSubject($value) : '';
     $position = ($value !== null) ? ($this->subjectPositionsCache[$subject][$marks->markId] ?? '-') : '';
 
     $gradesFlattened[] = $displayValue;
@@ -164,38 +114,27 @@ public function map($marks): array
 }
 
 
-    // Calculate Average
-    $valid = 0;
-    $total = 0;
-    foreach ($this->subjects as $subject) {
-        if ($marks->$subject !== null) {
-            $total += $marks->$subject;
-            $valid++;
-        }
-    }
-    $average = $valid ? round($total / $valid, 2) : null;
-
-    // Ranking
+    // Ranking — based on TOTAL, not average. average IS NULL is the sole
+    // absence flag (a student who sat fewer subjects is not absent).
     $this->serial++;
-    if ($this->previousAvg === $average) {
+    if ($marks->average !== null && $this->previousTotal === $marks->total) {
         $rank = $this->previousRank;
     } else {
         $rank = $this->serial;
     }
 
-    $this->previousAvg = $average;
+    $this->previousTotal = $marks->total;
     $this->previousRank = $rank;
 
-    $gradeStatus = $this->assignGrade($average);
-    $resultStatus = $this->finalStatus($average);
-    $totalMarks = $total;
+    $gradeStatus = ($marks->average !== null) ? Grading::gradeTotal($marks->total) : Grading::absentGrade();
+    $resultStatus = Grading::statusForTotal($marks->average !== null ? $marks->total : null, $this->classId);
 
     return array_merge([
         $this->serial,
         $marks->studentName
     ], $gradesFlattened, [
-        $totalMarks,
-        $average,
+        $marks->total,
+        $marks->average,
         $gradeStatus,
         $rank,
         $resultStatus

@@ -114,7 +114,7 @@
                                         <td class="border border-black text-center p-2">{{ $i }}</td>
                                         <td class="border border-black p-2 capitalize">{{ $schoolRank['schoolName'] }}</td>
                                         <td class="border border-black p-2">
-                                            @if ($schoolRank['average']>=$borderLine)
+                                            @if (Grading::totalPasses($schoolRank['avgTotal'], $classId))
                                                 @php
                                                     $totalPass++;
                                                 @endphp

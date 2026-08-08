@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\MarkGrade;
 use App\Models\Marks;
 use Illuminate\Console\Command;
 
@@ -20,7 +19,11 @@ class ProcessMarksGrades extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Recompute total and average for every mark from its subject columns. '
+        .'total = sum of non-null subjects for the row\'s class. average = total / (count of non-null '
+        .'subjects), or NULL if the student sat nothing at all — average IS NULL is the sole absence flag '
+        .'used throughout the grading system, so this command must never write a non-null average for a '
+        .'student with zero subjects recorded.';
 
     /**
      * Execute the console command.
@@ -32,65 +35,36 @@ class ProcessMarksGrades extends Command
         // Get subjects mapping from config (e.g., config/subjects.php)
         $subjectsMapping = config('subjects');
 
+        $updated = 0;
+
         // Process marks in chunks to handle large datasets efficiently
-        Marks::chunk(50000, function ($marks) use ($subjectsMapping) {
+        Marks::chunkById(5000, function ($marks) use ($subjectsMapping, &$updated) {
             foreach ($marks as $mark) {
                 $classId = $mark->classId;
                 // Use specific class subjects or fall back to default
                 $subjects = $subjectsMapping[$classId] ?? $subjectsMapping['class_default'];
 
                 $total = 0;
-                $subjectCount = count($subjects);
+                $subjectCount = 0;
 
-                // foreach ($subjects as $subject) {
-                //     // Get the score from the mark record dynamically
-                //     $score = $mark->$subject;
-                //     $grade = $this->calculateGrade($score);
+                foreach ($subjects as $subject) {
+                    $score = $mark->$subject;
 
-                //     $total += $score;
+                    if ($score !== null) {
+                        $total += $score;
+                        $subjectCount++;
+                    }
+                }
 
-                //     // Insert or update the subject grade in the mark_grades table
-                //     MarkGrade::updateOrCreate(
-                //         [
-                //             'markId' => $mark->markId,
-                //             'subject' => $subject,
-                //         ],
-                //         [
-                //             'grade' => $grade,
-                //         ]
-                //     );
-                // }
-
-                // Recalculate total and average, then update the mark record
-                $average = $subjectCount > 0 ? ($total / $subjectCount) : 0;
-                // $mark->total = $total;
-                $mark->average = $average;
+                $mark->total = $total;
+                $mark->average = $subjectCount > 0 ? round($total / $subjectCount, 2) : null;
                 $mark->save();
+                $updated++;
             }
-        });
+        }, 'markId');
 
-        $this->info('Processing marks grades completed.');
+        $this->info("Processing marks grades completed. {$updated} rows updated.");
+
         return 0;
     }
-
-    /**
-     * Calculate the grade for a given score.
-     *
-     * @param  int  $score
-     * @return string
-     */
-    // private function calculateGrade($score)
-    // {
-    //     $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-    //         ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-    //         ->orderBy('rankName', 'asc')
-    //         ->get();
-
-    //     foreach ($rank as $r) {
-    //         if ($r['rankRangeMin'] <= $score && $r['rankRangeMax'] >= $score) {
-    //             return $r['rankName'];
-    //         }
-    //     }
-    //     return 'Null';
-    // }
 }

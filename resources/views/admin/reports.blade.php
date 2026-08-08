@@ -2,47 +2,8 @@
 
 @section('content')
     @php
-        function assignGrade($marks)
-        {
-            if ($marks === null) {
-                return 'ABS';
-            }
-            // $marks = floor($marks);
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
-
-            foreach ($rank as $r) {
-                if ($marks >= $r['rankRangeMin'] && $marks < $r['rankRangeMax'] + 1) {
-                    return $r['rankName'];
-                }
-            }
-            return 'Null';
-        }
-
-        function finalStatus($average, $classId)
-        {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
-
-            if ($classId > 4) {
-                if ($average <= $rank[3]['rankRangeMax']) {
-                    return 'FAIL';
-                }
-            } else {
-                if ($average <= $rank[4]['rankRangeMax']) {
-                    return 'FAIL';
-                }
-            }
-            return 'PASS';
-        }
-
         $subjects = [];
         $subjects = config('subjects.' . $classId, config('subjects.class_default'));
-
     @endphp
 
     <div class="p-3">
@@ -204,13 +165,14 @@
                                 $gAverage[$key] += $mark[$subject];
                             }
 
-                            if (assignGrade($mark['averageMarks']) == 'A') {
+                            $rowGrade = Grading::gradeTotal($mark['avgTotal']);
+                            if ($rowGrade == 'A') {
                                 $aCount++;
-                            } elseif (assignGrade($mark['averageMarks']) == 'B') {
+                            } elseif ($rowGrade == 'B') {
                                 $bCount++;
-                            } elseif (assignGrade($mark['averageMarks']) == 'C') {
+                            } elseif ($rowGrade == 'C') {
                                 $cCount++;
-                            } elseif (assignGrade($mark['averageMarks']) == 'D') {
+                            } elseif ($rowGrade == 'D') {
                                 $dCount++;
                             } else {
                                 $eCount++;
@@ -238,30 +200,30 @@
                                     <td class="border border-black text-center italic text-gray-400">ABS</td>
                                 @else
                                     <td class="border border-black text-right">{{ number_format($mark[$subject], 2) }}</td>
-                                    <td class="border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                                    <td class="border border-black">{{ Grading::gradeSubject($mark[$subject]) }}</td>
                                 @endif
                             @endforeach
                             <td class="border border-black text-right">{{ number_format($totalMarks, 2) }}</td>
-                            <td class="border border-black text-right">{{ $mark['averageMarks'] }}</td>
-                            <td class="border border-black">{{ assignGrade($mark['averageMarks']) }}</td>
+                            <td class="border border-black text-right">{{ $mark['avgTotal'] }}</td>
+                            <td class="border border-black">{{ $rowGrade }}</td>
 
-                            @if ($storedAvg == $mark['averageMarks'])
+                            @if ($storedAvg == $mark['avgTotal'])
                                 @php
                                     $j++;
-                                    $storedAvg = $mark['averageMarks'];
+                                    $storedAvg = $mark['avgTotal'];
                                 @endphp
 
                                 <td class="border border-black text-right">{{ $i - $j }}</td>
                             @else
                                 @php
                                     $j = 0;
-                                    $storedAvg = $mark['averageMarks'];
+                                    $storedAvg = $mark['avgTotal'];
                                 @endphp
 
                                 <td class="border border-black text-right">{{ $i }}</td>
                             @endif
 
-                            <td class="border border-black">{{ finalStatus($mark['averageMarks'], $classId) }}</td>
+                            <td class="border border-black">{{ Grading::statusForTotal($mark['avgTotal'], $classId) }}</td>
                         </tr>
 
                         @php
@@ -292,7 +254,8 @@
                                         count($marks) > 0 && count($subjects) > 0
                                             ? $gATotal / (count($subjects) * count($marks))
                                             : 0;
-                                    $schoolGrade = assignGrade($gAver);
+                                    $meanTotal = count($marks) > 0 ? $gATotal / count($marks) : 0;
+                                    $schoolGrade = Grading::gradeTotal($meanTotal);
                                 @endphp
 
                                 {{ number_format($gAver, 2) }}
@@ -316,11 +279,7 @@
                     <tbody>
                         <tr class="bg-white">
                             <td class="border border-black p-1 text-center">
-                                @php
-                                    $gAver = count($marks) > 0 ? $gATotal / count($marks) : 0;
-                                @endphp
-
-                                {{ number_format($gAver, 2) }}
+                                {{ number_format($meanTotal, 2) }}
                             </td>
                             <td class="border border-black p-1 text-center">{{ $schoolGrade }}</td>
                         </tr>
@@ -428,7 +387,7 @@
             @foreach ($marks as $aMark)
                 @php
                     foreach ($subjects as $subject) {
-                        $gradeArray[] = substr($subject, 0, 1) . assignGrade($aMark[$subject]);
+                        $gradeArray[] = substr($subject, 0, 1) . Grading::gradeSubject($aMark[$subject]);
                     }
                 @endphp
             @endforeach
@@ -468,13 +427,14 @@
                                 @php
                                     $totalMarks += $mark[$subject];
                                     $totalStudents++;
-                                    if (assignGrade($mark[$subject]) == 'A') {
+                                    $subjGrade = Grading::gradeSubject($mark[$subject]);
+                                    if ($subjGrade == 'A') {
                                         $aCount++;
-                                    } elseif (assignGrade($mark[$subject]) == 'B') {
+                                    } elseif ($subjGrade == 'B') {
                                         $bCount++;
-                                    } elseif (assignGrade($mark[$subject]) == 'C') {
+                                    } elseif ($subjGrade == 'C') {
                                         $cCount++;
-                                    } elseif (assignGrade($mark[$subject]) == 'D') {
+                                    } elseif ($subjGrade == 'D') {
                                         $dCount++;
                                     } else {
                                         $eCount++;

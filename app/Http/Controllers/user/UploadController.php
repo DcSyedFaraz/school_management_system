@@ -162,7 +162,7 @@ class UploadController extends Controller
             }
 
             $mark['total'] = $total;
-            $mark['average'] = $subjectCount > 0 ? number_format($total / $subjectCount, 2) : null;
+            $mark['average'] = $subjectCount > 0 ? round($total / $subjectCount, 2) : null;
             $mark['examId'] = $req['exam'];
             $mark['userId'] = Session::get('userId');
             $mark['regionId'] = Session::get('userRegion');
@@ -225,7 +225,7 @@ class UploadController extends Controller
                 }
 
                 $validMark['total'] = $totalMarks;
-                $validMark['average'] = $subjectCount > 0 ? number_format($totalMarks / $subjectCount, 2) : null;
+                $validMark['average'] = $subjectCount > 0 ? round($totalMarks / $subjectCount, 2) : null;
                 $validMark->save();
 
                 Session::flash('success', 'Data Updated Successfully!');

@@ -2,8 +2,8 @@
 
 namespace App\Exports;
 
+use App\Facades\Grading;
 use App\Models\Marks;
-use App\Models\Ranks;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -20,11 +20,9 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
     protected $wardId;
     protected $startDate;
     protected $endDate;
-    protected $borderLine;
-    protected $rank;
     protected $subjects;
 
-    public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate, $borderLine)
+    public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate)
     {
         $this->examId = $examId;
         $this->classId = $classId;
@@ -33,11 +31,6 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
         $this->wardId = $wardId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->borderLine = $borderLine;
-        $this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
 
         // Load subjects dynamically based on classId
         $this->subjects = Config::get("subjects.{$classId}", Config::get('subjects.class_default'));
@@ -193,7 +186,7 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
         foreach ($marks as $aMark) {
             if ($aMark->average !== null) {
                 foreach ($this->subjects as $subject) {
-                    $grade = $this->assignGrade($aMark[$subject]);
+                    $grade = Grading::gradeSubject($aMark[$subject]);
                     // dump($subject . $grade);
                     $gradeArray[] = $subject . $grade;
                 }
@@ -231,15 +224,5 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
         // dd($mappedData);
         // dd($gradeArray,$marks,$femalePassed,$malePassed);
         return $mappedData;
-    }
-
-    function assignGrade($marks)
-    {
-        foreach ($this->rank as $rank) {
-            if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-                return $rank['rankName'];
-            }
-        }
-        return "Null";
     }
 }

@@ -36,72 +36,6 @@
 
 @section('content')
     @php
-
-        // function assignGrade($marks)
-        // {
-        //     $ranks = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-        //         ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-        //         ->orderBy('rankName', 'asc')
-        //         ->get();
-
-        //     if ($marks == 10) {
-        //         return 'E';
-        //     }
-        //     foreach ($ranks as $rank) {
-        //         if ($rank['rankRangeMin'] < $marks && $rank['rankRangeMax'] >= $marks) {
-        //             return $rank['rankName'];
-        //         }
-        //     }
-
-        //     return 'Null';
-        // }
-        function assignGrade($mark)
-        {
-            $gradeBoundaries = [
-                'A' => [41, 50],
-                'B' => [31, 40],
-                'C' => [21, 30],
-                'D' => [11, 20],
-                'E' => [0, 10],
-            ];
-            foreach ($gradeBoundaries as $grade => $range) {
-                if ($mark >= $range[0] && $mark <= $range[1]) {
-                    return $grade;
-                }
-            }
-            return 'Null';
-        }
-
-        if ($classId > 4) {
-            function finalStatus($average)
-            {
-                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                    ->orderBy('rankName', 'asc')
-                    ->get();
-
-                if ($average <= $rank[3]['rankRangeMax']) {
-                    return 'FAIL';
-                } else {
-                    return 'PASS';
-                }
-            }
-        } else {
-            function finalStatus($average)
-            {
-                $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                    ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                    ->orderBy('rankName', 'asc')
-                    ->get();
-
-                if ($average <= $rank[4]['rankRangeMax']) {
-                    return 'FAIL';
-                } else {
-                    return 'PASS';
-                }
-            }
-        }
-
         // Calculate total students who took the exam
         $totalStudentsTookExam =
             count($allMarks) - $gradeDistribution['male']['ABS'] - $gradeDistribution['female']['ABS'];
@@ -361,36 +295,36 @@
                                     <td class="p-[15px] border border-black text-center italic text-gray-400">ABS</td>
                                 @else
                                     <td class="p-[15px] border border-black text-right">{{ $mark[$subject] }}</td>
-                                    <td class="p-[15px] border border-black">{{ assignGrade($mark[$subject]) }}</td>
+                                    <td class="p-[15px] border border-black">{{ Grading::gradeSubject($mark[$subject]) }}</td>
                                 @endif
                             @endforeach
                             <td class="p-[15px] border border-black text-right">{{ $mark['total'] }}</td>
                             <td class="p-[15px] border border-black text-right">{{ $mark['average'] }}</td>
 
                             @if ($mark['average'] !== null)
-                                <td class="p-[15px] border border-black">{{ assignGrade($mark['average']) }}</td>
+                                <td class="p-[15px] border border-black">{{ Grading::gradeTotal($mark['total']) }}</td>
                             @else
                                 <td class="p-[15px] border border-black">ABS</td>
                             @endif
 
-                            @if ($storedAvg == $mark['average'])
+                            @if ($mark['average'] !== null && $storedAvg === $mark['total'])
                                 @php
                                     $j++;
-                                    $storedAvg = $mark['average'];
+                                    $storedAvg = $mark['total'];
                                 @endphp
 
                                 <td class="p-[15px] border border-black text-right">{{ $i - $j }}</td>
                             @else
                                 @php
                                     $j = 0;
-                                    $storedAvg = $mark['average'];
+                                    $storedAvg = $mark['total'];
                                 @endphp
 
                                 <td class="p-[15px] border border-black text-right">{{ $i }}</td>
                             @endif
 
                             @if ($mark['average'] !== null)
-                                <td class="p-[15px] border border-black">{{ finalStatus($mark['average']) }}</td>
+                                <td class="p-[15px] border border-black">{{ Grading::statusForTotal($mark['total'], $classId) }}</td>
                             @else
                                 <td class="p-[15px] border border-black"></td>
                             @endif
@@ -426,7 +360,8 @@
                                         $totalStudentsTookExam > 0
                                             ? $gATotal / (count($subjects) * $totalStudentsTookExam)
                                             : 0;
-                                    $schoolGrade = assignGrade($gAver);
+                                    $meanTotal = $totalStudentsTookExam > 0 ? $gATotal / $totalStudentsTookExam : 0;
+                                    $schoolGrade = Grading::gradeTotal($meanTotal);
                                 @endphp
                                 {{ number_format($gAver, 2) }}
                             </td>
@@ -448,11 +383,7 @@
                     <tbody>
                         <tr class="bg-white">
                             <td class="p-[15px] border border-black p-1 text-center">
-                                @php
-                                    $gATotal = array_sum($gAverage);
-                                    $gAver = $totalStudentsTookExam > 0 ? $gATotal / $totalStudentsTookExam : 0;
-                                @endphp
-                                {{ number_format($gAver, 2) }}
+                                {{ number_format($meanTotal, 2) }}
                             </td>
                             <td class="p-[15px] border border-black p-1 text-center">{{ $schoolGrade }}</td>
                         </tr>

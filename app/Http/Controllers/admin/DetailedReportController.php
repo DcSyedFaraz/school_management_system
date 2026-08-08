@@ -30,7 +30,7 @@ class DetailedReportController extends Controller
             $startDate=date('Y-m-d', strtotime(''.date('Y').'-'.date('m').'-01'));
             $endDate=date('Y-m-d');
 
-            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(SUM(total), 5) as averageMarks')
+            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
             ->where([
                 ['isActive','=','1'],
                 ['isDeleted','=','0'],
@@ -41,7 +41,7 @@ class DetailedReportController extends Controller
                 ['wardId','!=',null]
             ])
             ->groupBy('schoolId','regionId','districtId','wardId')
-            ->whereBetween('examDate', [$startDate, $endDate])->orderBy('averageMarks', 'desc')
+            ->whereBetween('examDate', [$startDate, $endDate])->orderBy('avgTotal', 'desc')
             ->get();
 
             $classes=Grades::select('gradeId','gradeName')->where([
@@ -102,7 +102,7 @@ class DetailedReportController extends Controller
             $startDate=($req['startDate']=='')?date('Y-m-d', strtotime("2023-01-01")):$req['startDate'];
             $endDate=($req['endDate']=='')?date('Y-m-d'):$req['endDate'];
 
-            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(SUM(total), 5) as averageMarks')
+            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
             ->where([
                 ['isActive','=','1'],
                 ['isDeleted','=','0'],
@@ -114,7 +114,7 @@ class DetailedReportController extends Controller
             ])
             ->whereBetween('examDate', [$startDate, $endDate])
             ->groupBy('schoolId','regionId','districtId','wardId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
 
             $classes=Grades::select('gradeId','gradeName')->where([

@@ -31,7 +31,7 @@ class UserDetailedReportController extends Controller
             $startDate=date('Y-m-d', strtotime(''.date('Y').'-'.date('m').'-01'));
             $endDate=date('Y-m-d');
 
-            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(SUM(total), 2) as averageMarks')
+            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
             ->where([
                 ['isActive','=','1'],
                 ['isDeleted','=','0'],
@@ -44,7 +44,7 @@ class UserDetailedReportController extends Controller
             ])
             ->whereBetween('examDate', [$startDate, $endDate])
             ->groupBy('schoolId','regionId','districtId','wardId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
 
             $classes=Grades::select('gradeId','gradeName')->where([
@@ -105,7 +105,7 @@ class UserDetailedReportController extends Controller
             $startDate=($req['startDate']=='')?date('Y-m-d', strtotime("2023-01-01")):$req['startDate'];
             $endDate=($req['endDate']=='')?date('Y-m-d'):$req['endDate'];
 
-            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(SUM(total), 2) as averageMarks')
+            $marks = Marks::selectRaw('schoolId, regionId, districtId, wardId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal')
             ->where([
                 ['isActive','=','1'],
                 ['isDeleted','=','0'],
@@ -118,7 +118,7 @@ class UserDetailedReportController extends Controller
             ])
             ->whereBetween('examDate', [$startDate, $endDate])
             ->groupBy('schoolId','regionId','districtId','wardId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
 
             $classes=Grades::select('gradeId','gradeName')->where([

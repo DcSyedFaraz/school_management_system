@@ -111,7 +111,6 @@
         $endDate = $reportData['endDate'];
         $subjects = $reportData['subjects'];
         $marks = $reportData['marks'];
-        $ranks = $reportData['ranks'];
         $gAverage = $reportData['gAverage'];
 
         // Subject mapping from Swahili to English
@@ -160,22 +159,6 @@
         $gradeArray = $reportData['gradeArray'];
         $gradeMaleArray = $reportData['gradeMaleArray'];
         $gradeFemaleArray = $reportData['gradeFemaleArray'];
-
-        function assignGrade($marks, $ranks)
-        {
-            foreach ($ranks as $rank) {
-                if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-                    return $rank['rankName'];
-                }
-            }
-            return 'Null';
-        }
-
-        function finalStatus($average, $ranks, $classId)
-        {
-            $failThreshold = $classId > 4 ? $ranks[3]['rankRangeMax'] : $ranks[4]['rankRangeMax'];
-            return $average <= $failThreshold ? 'FAIL' : 'PASS';
-        }
 
         use Carbon\Carbon;
         // Get exam date from the first mark record
@@ -382,13 +365,13 @@
                 @endphp
                 @foreach ($marks as $mark)
                     @php
-                        if ($storedAvg == $mark['average']) {
+                        if ($mark['average'] !== null && $storedAvg === $mark['total']) {
                             $j++;
-                            $storedAvg = $mark['average'];
+                            $storedAvg = $mark['total'];
                             $position = $i - $j;
                         } else {
                             $j = 0;
-                            $storedAvg = $mark['average'];
+                            $storedAvg = $mark['total'];
                             $position = $i;
                         }
                     @endphp
@@ -406,17 +389,17 @@
                                 <td class="tiny-col">-</td>
                             @else
                                 <td class="tiny-col">{{ $mark[$subject] }}</td>
-                                <td class="tiny-col">{{ assignGrade($mark[$subject], $ranks) }}</td>
+                                <td class="tiny-col">{{ Grading::gradeSubject($mark[$subject]) }}</td>
                                 <td class="tiny-col">{{ $subjectPosition }}</td>
                             @endif
                         @endforeach
                         <td class="small-col">{{ $mark['total'] }}</td>
                         <td class="small-col">{{ number_format($mark['average'], 2) }}</td>
-                        <td class="small-col">{{ $mark['average'] !== null ? assignGrade($mark['average'], $ranks) : 'HYP' }}
+                        <td class="small-col">{{ $mark['average'] !== null ? Grading::gradeTotal($mark['total']) : Grading::absentGrade() }}
                         </td>
                         <td class="small-col">{{ $position }}</td>
                         <td class="small-col">
-                            {{ $mark['average'] !== null ? finalStatus($mark['average'], $ranks, $classId) : '' }}</td>
+                            {{ $mark['average'] !== null ? Grading::statusForTotal($mark['total'], $classId, 'en') : '' }}</td>
                     </tr>
                     @php $i++; @endphp
                 @endforeach

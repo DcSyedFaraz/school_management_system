@@ -41,7 +41,7 @@ class UserReportController extends Controller
                     ['examId', '=', $examId],
                     ['userId', '=', Session::get('userId')]
                 ])->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('average', 'desc')
+                ->orderByRaw('(average IS NULL), total DESC')
                 ->get();
 
             $allMarks = Marks::select($selectColumns)
@@ -118,7 +118,7 @@ class UserReportController extends Controller
                     $examCondition,
                     ['userId', '=', Session::get('userId')]
                 ])->whereBetween('examDate', [$startDate, $endDate])
-                ->orderBy('average', 'desc')
+                ->orderByRaw('(average IS NULL), total DESC')
                 ->get();
 
             $allMarks = Marks::select($selectColumns)

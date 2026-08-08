@@ -2,28 +2,6 @@
 
 @section('content')
     @php
-        // --- HELPER FUNCTIONS ---
-        function assignGrade($marks, $ranks)
-        {
-            foreach ($ranks as $rank) {
-                if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-                    return $rank['rankName'];
-                }
-            }
-            return 'Null';
-        }
-
-        function finalStatus($average, $ranks, $classId)
-        {
-            $failThreshold = $classId > 4 ? $ranks[3]['rankRangeMax'] : $ranks[4]['rankRangeMax'];
-            return $average <= $failThreshold ? 'FELI' : 'FAULU';
-        } // --- FETCH RANKS FROM THE DATABASE ---
-        $ranks = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-            ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-            ->orderBy('rankName', 'asc')
-            ->get()
-            ->toArray();
-
         // --- Assume these variables are provided from the controller ---
         // $classId, $examId, $startDate, $endDate, $classes, $exams, $subjects, $marks, $allMarks
         // --- PRE-COMPUTE CALCULATED DATA ---
@@ -58,12 +36,15 @@
 
             // Hesabu average halisi kwa kuzingatia masomo yaliyo na alama tu
             $mark['average'] = $validSubjectsCount > 0 ? $totalMarks / $validSubjectsCount : null;
+            // Recompute total from the same loop so the displayed total and
+            // the graded total can never diverge from marks.total.
+            $mark['total'] = $totalMarks;
 
             if ($mark['average'] === null) {
                 $mark['gender'] == 'M' ? $maleAbsent++ : $femaleAbsent++;
             } else {
-                // Grade za average
-                $grade = assignGrade($mark['average'], $ranks);
+                // Daraja is based on TOTAL, not average.
+                $grade = Grading::gradeTotal($mark['total']);
                 switch ($grade) {
                     case 'A':
                         $mark['gender'] == 'M' ? $amCount++ : $afCount++;
@@ -103,10 +84,12 @@
         $gATotal = array_sum($gAverage);
         $totalStudentsCount = count($marks) - $maleAbsent - $femaleAbsent;
         $schoolAverage = $totalStudentsCount > 0 ? $gATotal / (count($subjects) * $totalStudentsCount) : 0;
-        $schoolGrade = assignGrade($schoolAverage, $ranks);
         $achievementAverage = $totalStudentsCount > 0 ? $gATotal / $totalStudentsCount : 0;
-        // $achievementGrade = assignGrade($achievementAverage, $ranks);
-        // dd($achievementAverage);
+        // schoolGrade is derived from the mean TOTAL (achievementAverage),
+        // so it is correct for BOTH summary boxes below — they display the
+        // same underlying figure on two different scales (mean subject mark
+        // vs mean total) but must show the same Daraja.
+        $schoolGrade = Grading::gradeTotal($achievementAverage);
         // Prepare grade arrays per subject for detailed summary
         $gradeArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
         $gradeMaleArray = array_fill_keys($subjects, ['A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0]);
@@ -115,8 +98,8 @@
         foreach ($allMarks as $aMark) {
             if ($aMark['total'] != 0) {
                 foreach ($subjects as $list) {
-                    $grade = assignGrade($aMark[$list], $ranks);
-                    if ($grade != 'Null') {
+                    $grade = Grading::gradeSubject($aMark[$list]);
+                    if ($grade != Grading::absentGrade()) {
                         if ($aMark['gender'] == 'M') {
                             $gradeMaleArray[$list][$grade]++;
                         } else {
@@ -146,7 +129,6 @@
             'subjects' => $subjects,
             'marks' => $marks,
             'allMarks' => $allMarks,
-            'ranks' => $ranks,
             'gAverage' => $gAverage,
             'maleAbsent' => $maleAbsent,
             'femaleAbsent' => $femaleAbsent,
@@ -341,19 +323,19 @@
                                     value="{{ json_encode([
                                         'id' => $mark['markId'],
                                         'studentName' => $mark['studentName'],
-                                        'subjects' => collect($subjects)->map(function ($subject) use ($mark, $ranks, $marks) {
+                                        'subjects' => collect($subjects)->map(function ($subject) use ($mark, $marks) {
                                                 $subjectScores = collect($marks)->pluck($subject)->sortDesc()->values()->all();
                                                 $position = array_search($mark[$subject], $subjectScores) + 1;
                                                 return [
                                                     'name' => $subject,
-                                                    'total' => $mark[$subject],
-                                                    'grade' => assignGrade($mark[$subject], $ranks),
+                                                    'mark' => $mark[$subject],
+                                                    'grade' => Grading::gradeSubject($mark[$subject]),
                                                     'position' => $position,
                                                 ];
                                             })->all(),
                                         'totalMarks' => $mark['total'],
                                         'average' => $mark['average'],
-                                        'grade' => assignGrade($mark['average'], $ranks),
+                                        'grade' => $mark['average'] !== null ? Grading::gradeTotal($mark['total']) : Grading::absentGrade(),
                                         'position' => $loop->index + 1,
                                     ]) }}">
                                 {{ $i }}
@@ -371,7 +353,7 @@
                                     <td class="border border-black text-center">-</td>
                                 @else
                                     <td class="border border-black text-center">{{ $mark[$subject] }}</td>
-                                    <td class="border border-black text-center">{{ assignGrade($mark[$subject], $ranks) }}</td>
+                                    <td class="border border-black text-center">{{ Grading::gradeSubject($mark[$subject]) }}</td>
                                     <td class="border border-black text-center">{{ $subjectPosition }}</td>
                                 @endif
                             @endforeach
@@ -379,27 +361,27 @@
                             <td class="border border-black text-center">{{ $mark['total'] }}</td>
                             <td class="border border-black text-center">{{ number_format($mark['average'], 2) }}</td>
                             @if ($mark['average'] !== null)
-                                <td class="border border-black text-center">{{ assignGrade($mark['average'], $ranks) }}
+                                <td class="border border-black text-center">{{ Grading::gradeTotal($mark['total']) }}
                                 </td>
                             @else
                                 <td class="border border-black text-center">ABS</td>
                             @endif
 
                             @php
-                                if ($storedAvg == $mark['average']) {
+                                if ($mark['average'] !== null && $storedAvg === $mark['total']) {
                                     $j++;
-                                    $storedAvg = $mark['average'];
+                                    $storedAvg = $mark['total'];
                                     $overallPosition = $i - $j;
                                 } else {
                                     $j = 0;
-                                    $storedAvg = $mark['average'];
+                                    $storedAvg = $mark['total'];
                                     $overallPosition = $i;
                                 }
                             @endphp
                             <td class="border border-black text-center">{{ $overallPosition }}</td>
                             @if ($mark['average'] !== null)
                                 <td class="border border-black text-center">
-                                    {{ finalStatus($mark['average'], $ranks, $classId) }}</td>
+                                    {{ Grading::statusForTotal($mark['total'], $classId) }}</td>
                             @else
                                 <td class="border border-black text-center"></td>
                             @endif
@@ -437,7 +419,11 @@
                                             ? $gATotal /
                                                 (count($subjects) * (count($marks) - $maleAbsent - $femaleAbsent))
                                             : 0;
-                                    $schoolGrade = assignGrade($gAver, $ranks);
+                                    $meanTotal2 =
+                                        count($marks) - $maleAbsent - $femaleAbsent > 0
+                                            ? $gATotal / (count($marks) - $maleAbsent - $femaleAbsent)
+                                            : 0;
+                                    $schoolGrade = Grading::gradeTotal($meanTotal2);
                                 @endphp
 
                                 {{ number_format($gAver, 2) }}
@@ -474,7 +460,7 @@
 
                                 {{ number_format($gAver, 2) }}
                             </td>
-                            <td class="border border-black p-1 text-center">{{ $schoolGrade }}</td>
+                            <td class="border border-black p-1 text-center">{{ Grading::gradeTotal($gAver) }}</td>
                         </tr>
                     </tbody>
                 </table>

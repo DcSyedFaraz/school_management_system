@@ -2,25 +2,6 @@
 
 @section('content')
     @php
-        $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-            ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-            ->orderBy('rankName', 'asc')
-            ->get();
-        function assignGrade($marks)
-        {
-            $ranks = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
-
-            foreach ($ranks as $rank) {
-                if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-                    return $rank['rankName'];
-                }
-            }
-
-            return 'Null';
-        }
     @endphp
 
 
@@ -317,7 +298,7 @@
                                 ->whereBetween('examDate', [$startDate, $endDate])
                                 ->count();
 
-                            $avgMarks = \App\Models\Marks::selectRaw('gender, average as averageMarks')
+                            $avgMarks = \App\Models\Marks::selectRaw('gender, average, total as studentTotal')
                                 ->where([
                                     ['isActive', '=', '1'],
                                     ['isDeleted', '=', '0'],
@@ -349,20 +330,21 @@
                             foreach ($avgMarks as $avg) {
                                 $avg['gender'] == 'M' ? $totalMale++ : $totalFemale++;
 
-                                if ($avg['averageMarks'] === null) {
+                                if ($avg['average'] === null) {
                                     if ($avg['gender'] == 'M') {
                                         $maleAbsent++;
                                     } else {
                                         $femaleAbsent++;
                                     }
                                 } else {
-                                    if (assignGrade($avg['averageMarks']) == 'A') {
+                                    $studentGrade = Grading::gradeTotal($avg['studentTotal']);
+                                    if ($studentGrade == 'A') {
                                         $avg['gender'] == 'M' ? $aGradeMale++ : $aGradeFemale++;
-                                    } elseif (assignGrade($avg['averageMarks']) == 'B') {
+                                    } elseif ($studentGrade == 'B') {
                                         $avg['gender'] == 'M' ? $bGradeMale++ : $bGradeFemale++;
-                                    } elseif (assignGrade($avg['averageMarks']) == 'C') {
+                                    } elseif ($studentGrade == 'C') {
                                         $avg['gender'] == 'M' ? $cGradeMale++ : $cGradeFemale++;
-                                    } elseif (assignGrade($avg['averageMarks']) == 'D') {
+                                    } elseif ($studentGrade == 'D') {
                                         $avg['gender'] == 'M' ? $dGradeMale++ : $dGradeFemale++;
                                     } else {
                                         $avg['gender'] == 'M' ? $eGradeMale++ : $eGradeFemale++;
@@ -526,10 +508,10 @@
                             @endif
 
                             <td class="border border-black averageMarks">
-                                {{ number_format($mark['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent), 2) }}
+                                {{ number_format($mark['avgTotal'], 2) }}
                             </td>
                             <td class="border border-black">
-                                {{ assignGrade(number_format($mark['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent), 2) / 6) }}
+                                {{ Grading::gradeTotal($mark['avgTotal']) }}
                             </td>
                         </tr>
 
@@ -862,22 +844,20 @@
             $("#failGradePercent").text(((failGradeMaleSum + failGradeFemaleSum) / totalPass *
                 100).toFixed(2));
 
+            var totalBands = @json(Grading::totalBands());
+
             if ({{ count($marks) }} > 0) {
                 var finalAvg = averageMarksSum / {{ count($marks) }};
-                console.log(finalAvg, averageMarksSum, {{ count($marks) }});
                 $("#averageMarksSum").text(finalAvg.toFixed(2));
 
-                if (finalAvg >= 241 && finalAvg <= 300) {
-                    $("#finalDaraja").text('A');
-                } else if (finalAvg >= 181 && finalAvg <= 240) {
-                    $("#finalDaraja").text('B');
-                } else if (finalAvg >= 121 && finalAvg <= 180) {
-                    $("#finalDaraja").text('C');
-                } else if (finalAvg >= 61 && finalAvg <= 120) {
-                    $("#finalDaraja").text('D');
-                } else {
-                    $("#finalDaraja").text('E');
+                var finalGrade = 'E';
+                for (var letter in totalBands) {
+                    if (finalAvg >= totalBands[letter].min) {
+                        finalGrade = letter;
+                        break;
+                    }
                 }
+                $("#finalDaraja").text(finalGrade);
             } else {
                 $("#averageMarksSum").text('0');
                 $("#finalDaraja").text('---');

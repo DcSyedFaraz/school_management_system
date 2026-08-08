@@ -101,10 +101,9 @@
                                         <td class="border border-black p-2 capitalize">{{ $schoolRank['studentName'] }}
                                         </td>
                                         <td class="border border-black p-2">
-                                            {{-- @dd($schoolRank['average']) --}}
                                             @if ($schoolRank['average'] === null)
                                                 <p class="text-blue-500 italic">Hayupo</p>
-                                            @elseif($schoolRank['average'] <= $borderLine)
+                                            @elseif(!Grading::totalPasses($schoolRank['total'], $classId))
                                                 <p class="text-red-500 italic">Feli</p>
                                             @else
                                                 @php
@@ -117,7 +116,7 @@
                                     </tr>
 
                                     @php
-                                        if ($schoolRank['average'] != 0) {
+                                        if ($schoolRank['average'] !== null) {
                                             $totalStudents++;
                                         }
 

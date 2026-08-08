@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Models\Marks;
 use App\Models\Grades;
 use App\Models\Exams;
-use App\Models\Ranks;
 use App\Exports\SubjectUserExport;
 use Excel;
 use Session;
@@ -46,16 +45,9 @@ class UserSubjectReportController extends Controller
                 ['isDeleted', '=', '0']
             ])->get();
 
-            $rank = Ranks::select('rankRangeMin', 'rankRangeMax')->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ])->orderBy('rankName', 'asc')->get();
-
-            $borderLine = $rank[3]['rankRangeMin'];
-
             session(['pageTitle' => "Ripoti Kimasomo"]);
 
-            $data = compact('borderLine', 'allMarks', 'classes', 'exams', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
+            $data = compact('allMarks', 'classes', 'exams', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
             return view('user.subjectReport')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
@@ -96,20 +88,9 @@ class UserSubjectReportController extends Controller
                 ['isDeleted', '=', '0']
             ])->get();
 
-            $rank = Ranks::select('rankRangeMin', 'rankRangeMax')->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ])->orderBy('rankName', 'asc')->get();
-
-            if ($classId > 4) {
-                $borderLine = $rank[2]['rankRangeMin'];
-            } else {
-                $borderLine = $rank[3]['rankRangeMin'];
-            }
-
             session(['pageTitle' => "Ripoti Kimasomo"]);
 
-            $data = compact('borderLine', 'allMarks', 'classes', 'exams', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
+            $data = compact('allMarks', 'classes', 'exams', 'classId', 'examId', 'startDate', 'endDate', 'subjects');
             return view('user.subjectReport')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
@@ -131,9 +112,8 @@ class UserSubjectReportController extends Controller
             $classId = $req['rClass'];
             $startDate = $req['rStartDate'];
             $endDate = $req['rEndDate'];
-            $borderLine = $req['rBorderline'];
 
-            return Excel::download(new SubjectUserExport($examId, $classId, $startDate, $endDate, $borderLine), 'studentSubjectReport(' . date('Y-m-d H:i:s') . ').xlsx');
+            return Excel::download(new SubjectUserExport($examId, $classId, $startDate, $endDate), 'studentSubjectReport(' . date('Y-m-d H:i:s') . ').xlsx');
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }

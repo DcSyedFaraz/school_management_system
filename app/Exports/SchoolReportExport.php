@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
+use App\Facades\Grading;
 use App\Models\Marks;
 use App\Models\Schools;
 use App\Models\Regions;
 use App\Models\Districts;
 use App\Models\Wards;
-use App\Models\Ranks;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -23,7 +23,6 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
     protected $startDate;
     protected $endDate;
     protected $subjects;
-    protected $rank;
 
     public function __construct($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate)
     {
@@ -34,10 +33,6 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
         $this->wardId = $wardId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
 
         // Load subjects from config
         $this->subjects = config('subjects.' . $classId, config('subjects.class_default'));
@@ -58,8 +53,10 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
             return "SUM($subject)";
         }, $this->subjects));
 
+        // avgTotal = mean student TOTAL (0..300), excluding fully-absent
+        // students (average IS NULL) so they don't drag it down.
         $marks = Marks::selectRaw("schoolId, regionId, districtId, wardId,
-        ROUND(SUM(total), 2) as averageMarks")
+        ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal")
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
@@ -71,7 +68,7 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
             ])
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
 
         return $marks;
@@ -252,7 +249,7 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
             return "ROUND(SUM($subject), 2)";
         }, $this->subjects));
 
-        $avgMarks = Marks::selectRaw("gender, ROUND(average, 2) as averageMarks")
+        $avgMarks = Marks::selectRaw("gender, average, ROUND(total, 2) as studentTotal")
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
@@ -284,20 +281,21 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
         foreach ($avgMarks as $avg) {
             ($avg['gender'] == 'M') ? $totalMale++ : $totalFemale++;
 
-            if ($avg['averageMarks'] === null) {
+            if ($avg['average'] === null) {
                 if ($avg['gender'] == 'M') {
                     $maleAbsent++;
                 } else {
                     $femaleAbsent++;
                 }
             } else {
-                if ($this->assignGrade($avg['averageMarks']) == 'A') {
+                $studentGrade = Grading::gradeTotal($avg['studentTotal']);
+                if ($studentGrade == 'A') {
                     ($avg['gender'] == 'M') ? $aGradeMale++ : $aGradeFemale++;
-                } else if ($this->assignGrade($avg['averageMarks']) == 'B') {
+                } else if ($studentGrade == 'B') {
                     ($avg['gender'] == 'M') ? $bGradeMale++ : $bGradeFemale++;
-                } else if ($this->assignGrade($avg['averageMarks']) == 'C') {
+                } else if ($studentGrade == 'C') {
                     ($avg['gender'] == 'M') ? $cGradeMale++ : $cGradeFemale++;
-                } else if ($this->assignGrade($avg['averageMarks']) == 'D') {
+                } else if ($studentGrade == 'D') {
                     ($avg['gender'] == 'M') ? $dGradeMale++ : $dGradeFemale++;
                 } else {
                     ($avg['gender'] == 'M') ? $eGradeMale++ : $eGradeFemale++;
@@ -368,8 +366,8 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
                 (($eGradeFemale + $dGradeFemale) == 0) ? "0" : ($eGradeFemale + $dGradeFemale),
                 (($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) == 0) ? "0" : ($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale),
                 number_format(((($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / ($totalMale + $totalFemale)) * 100), 2),
-                ($marks['averageMarks'] == 0) ? "0" : number_format(($marks['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent)), 5),
-                $this->assignGrade(number_format(($marks['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent)), 5) / 6)
+                ($marks['avgTotal'] == 0) ? "0" : number_format($marks['avgTotal'], 5),
+                Grading::gradeTotal($marks['avgTotal'])
             ];
         } else {
             return [
@@ -415,23 +413,9 @@ class SchoolReportExport implements FromCollection, WithHeadings, WithMapping, W
                 (($eGradeFemale) == 0) ? "0" : ($eGradeFemale),
                 (($eGradeMale + $eGradeFemale) == 0) ? "0" : ($eGradeMale + $eGradeFemale),
                 number_format(((($eGradeMale + $eGradeFemale) / ($totalMale + $totalFemale)) * 100), 2),
-                ($marks['averageMarks'] == 0) ? "0" : number_format(($marks['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent)), 5),
-                $this->assignGrade(number_format(($marks['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent)), 5) / 6)
+                ($marks['avgTotal'] == 0) ? "0" : number_format($marks['avgTotal'], 5),
+                Grading::gradeTotal($marks['avgTotal'])
             ];
-        }
-    }
-
-    function assignGrade($marks)
-    {
-        if ($this->rank) {
-            foreach ($this->rank as $rank) {
-                if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-                    return $rank['rankName'];
-                }
-            }
-            return "Unknown";
-        } else {
-            return "Null";
         }
     }
 }

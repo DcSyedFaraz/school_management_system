@@ -1,25 +1,6 @@
 @extends('admin.layout')
 
 @section('content')
-    @php
-        function assignGrade($mark)
-        {
-            $gradeBoundaries = [
-                'A' => [41, 50],
-                'B' => [31, 40],
-                'C' => [21, 30],
-                'D' => [11, 20],
-                'E' => [0, 10],
-            ];
-            foreach ($gradeBoundaries as $grade => $range) {
-                if ($mark >= $range[0] && $mark <= $range[1]) {
-                    return $grade;
-                }
-            }
-            return 'Null';
-        }
-    @endphp
-
     <div class="p-3">
         <div class="flex justify-end">
             <form action="{{ url('/downloadSubjectReport') }}" method="post">
@@ -32,7 +13,6 @@
                 <input type="hidden" name="rWard" id="rWard" value="{{ $wardId }}">
                 <input type="hidden" name="rStartDate" id="rStartDate" value="{{ $startDate }}">
                 <input type="hidden" name="rEndDate" id="rEndDate" value="{{ $endDate }}">
-                <input type="hidden" name="rBorderline" id="rBorderline" value="{{ $borderLine }}">
 
                 <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded-md mr-1">
                     <i class="material-symbols-outlined text-sm">download</i> <span>Pakua Kiolezo</span>
@@ -223,7 +203,7 @@
                                 @php
                                     if ($stuMark['total'] != 0) {
                                         foreach ($subjects as $subject) {
-                                            $grade = assignGrade($stuMark[$subject]);
+                                            $grade = Grading::gradeSubject($stuMark[$subject]);
                                             $gradeArray[] = $subject . $grade;
                                         }
                                     }

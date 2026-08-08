@@ -1,32 +1,6 @@
 @extends('admin.layout')
 
 @section('content')
-    @php
-        function assignGrade($marks)
-        {
-            $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-                ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-                ->orderBy('rankName', 'asc')
-                ->get();
-
-            if ($rank) {
-                if ($marks >= $rank[0]['rankRangeMin'] && $marks < $rank[0]['rankRangeMax'] + 1) {
-                    return $rank[0]['rankName'];
-                } elseif ($marks >= $rank[1]['rankRangeMin'] && $marks < $rank[1]['rankRangeMax'] + 1) {
-                    return $rank[1]['rankName'];
-                } elseif ($marks >= $rank[2]['rankRangeMin'] && $marks < $rank[2]['rankRangeMax'] + 1) {
-                    return $rank[2]['rankName'];
-                } elseif ($marks >= $rank[3]['rankRangeMin'] && $marks < $rank[3]['rankRangeMax'] + 1) {
-                    return $rank[3]['rankName'];
-                } else {
-                    return $rank[4]['rankName'];
-                }
-            } else {
-                return 'Null';
-            }
-        }
-    @endphp
-
     <div class="p-3">
         <div class="flex justify-end">
             <form action="{{ url('/downloadTeacherSubjectReport') }}" method="post">
@@ -36,7 +10,6 @@
                 <input type="hidden" name="rExam" id="rExam" value="{{ $examId }}">
                 <input type="hidden" name="rStartDate" id="rStartDate" value="{{ $startDate }}">
                 <input type="hidden" name="rEndDate" id="rEndDate" value="{{ $endDate }}">
-                <input type="hidden" name="rBorderline" id="rBorderline" value="{{ $borderLine }}">
 
                 <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-2 rounded-md mr-1">
                     <i class="material-symbols-outlined text-sm">download</i> <span>Pakua Kiolezo</span>
@@ -120,17 +93,8 @@
                 @php
                     if ($aMark['total'] != 0) {
                         foreach ($subList as $list) {
-                            if (assignGrade($aMark[$list]) == 'A') {
-                                array_push($gradeArray, '' . substr($list, 0, 1) . 'A');
-                            } elseif (assignGrade($aMark[$list]) == 'B') {
-                                array_push($gradeArray, '' . substr($list, 0, 1) . 'B');
-                            } elseif (assignGrade($aMark[$list]) == 'C') {
-                                array_push($gradeArray, '' . substr($list, 0, 1) . 'C');
-                            } elseif (assignGrade($aMark[$list]) == 'D') {
-                                array_push($gradeArray, '' . substr($list, 0, 1) . 'D');
-                            } else {
-                                array_push($gradeArray, '' . substr($list, 0, 1) . 'E');
-                            }
+                            $listGrade = Grading::gradeSubject($aMark[$list]);
+                            array_push($gradeArray, '' . substr($list, 0, 1) . $listGrade);
                         }
                     }
                 @endphp
@@ -245,7 +209,7 @@
                            @foreach ($allMarks as $aMark)
                                @php
                                    if ($aMark['total'] != 0) {
-                                       $grade = assignGrade($aMark[$subject]);
+                                       $grade = Grading::gradeSubject($aMark[$subject]);
                                        if ($grade == 'A') {
                                            $gradeA++;
                                        } elseif ($grade == 'B') {

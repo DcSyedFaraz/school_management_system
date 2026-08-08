@@ -103,7 +103,7 @@
         }
 
         .color-E,
-        .color-Null {
+        .color-ABS {
             background-color: #FF0000;
             color: #fff;
             font-weight: 700;
@@ -154,7 +154,7 @@
             font-weight: bold;
         }
 
-        .color-Null {
+        .color-ABS {
             color: #808080;
             /* gray */
             font-style: italic;
@@ -205,14 +205,6 @@
             'E' => 'Performance is poor; needs serious improvement.',
         ];
 
-        $gradeDescriptions = [
-            'A' => 'Excellent',
-            'B' => 'Very Good',
-            'C' => 'Good',
-            'D' => 'Satisfactory',
-            'E' => 'Poor',
-            'Null' => 'Not Taken',
-        ];
     @endphp
 
     <div class="report-container">
@@ -242,8 +234,8 @@
             $totalMarks = 0;
             $subjectsTaken = 0;
             foreach ($subjects as $sub) {
-                if (isset($sub['total']) && $sub['grade'] != 'Null') {
-                    $totalMarks += $sub['total'];
+                if ($sub['mark'] !== null) {
+                    $totalMarks += $sub['mark'];
                     $subjectsTaken++;
                 }
             }
@@ -266,17 +258,17 @@
                         $subjectName = $subjectMapping[$subjectName] ?? $subjectName;
                         $subjectName = strtoupper($subjectName);
 
-                        $grade = $subject['grade'] ?? 'Null';
-                        $gradeDesc = $gradeDescriptions[$grade] ?? 'Not Taken';
+                        $grade = $subject['grade'] ?? Grading::absentGrade();
+                        $gradeDesc = $subject['gradeDescription'] ?? 'Not Taken';
 
                         $position = $subject['position'] ?? '-';
-                        $total = $subject['total'] ?? '-';
+                        $total = $subject['mark'] ?? '-';
                     @endphp
                     <tr>
                         <td style="text-align: left;">{{ $subjectName }}</td>
                         <td style="text-align: center;">{{ $total }}</td>
                         <td style="text-align: center;">
-                            <span class="color-{{ $grade }}">{{ $grade == 'Null' ? 'N/A' : $grade }}</span>
+                            <span class="color-{{ $grade }}">{{ $grade == Grading::absentGrade() ? 'N/A' : $grade }}</span>
                         </td>
                         <td style="text-align: center;">{{ $position }}</td>
                         <td style="text-align: left;"><span

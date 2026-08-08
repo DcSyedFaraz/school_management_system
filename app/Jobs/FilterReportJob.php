@@ -75,7 +75,7 @@ class FilterReportJob implements ShouldQueue
 
             foreach ($stuMarks as $stuMark) {
                 foreach ($subjects as $subject) {
-                    $grade = $this->assignGrade($stuMark[$subject]);
+                    $grade = \App\Facades\Grading::gradeSubject($stuMark[$subject]);
                     $gradeArray[] = $subject . $grade;
                 }
             }
@@ -96,22 +96,6 @@ class FilterReportJob implements ShouldQueue
         Cache::put($cacheKey, $marksWithCalculatedData, 180);
 
         return $marksWithCalculatedData;
-    }
-
-    private function assignGrade($marks)
-    {
-        $rank = \App\Models\Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')
-            ->where([['isActive', '=', '1'], ['isDeleted', '=', '0']])
-            ->orderBy('rankName', 'asc')
-            ->get();
-
-        foreach ($rank as $r) {
-            if ($marks >= $r['rankRangeMin'] && $marks < $r['rankRangeMax'] + 1) {
-                return $r['rankName'];
-            }
-        }
-
-        return 'Null';
     }
 
     private function getTotalMarks($groupArray)

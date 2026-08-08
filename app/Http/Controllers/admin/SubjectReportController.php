@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Models\Marks;
 use App\Models\Grades;
 use App\Models\Exams;
-use App\Models\Ranks;
 use App\Models\Regions;
 use App\Models\Wards;
 use App\Models\Districts;
@@ -74,16 +73,9 @@ class SubjectReportController extends Controller
                 ['isDeleted', '=', '0']
             ])->orderBy('wardName', 'asc')->get();
 
-            $rank = Ranks::select('rankRangeMin', 'rankRangeMax')->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ])->orderBy('rankName', 'asc')->get();
-
-            $borderLine = $rank[3]['rankRangeMin'];
-
             session(['pageTitle' => "Kimasomo Ripoti"]);
 
-            $data = compact('borderLine', 'marks', 'classes', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate', 'subjects');
+            $data = compact('marks', 'classes', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate', 'subjects');
             return view('admin.subjectReport')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
@@ -156,20 +148,9 @@ class SubjectReportController extends Controller
                 ['isDeleted', '=', '0']
             ])->orderBy('wardName', 'asc')->get();
 
-            $rank = Ranks::select('rankRangeMin', 'rankRangeMax')->where([
-                ['isActive', '=', '1'],
-                ['isDeleted', '=', '0']
-            ])->orderBy('rankName', 'asc')->get();
-
-            if ($classId > 4) {
-                $borderLine = $rank[2]['rankRangeMin'];
-            } else {
-                $borderLine = $rank[3]['rankRangeMin'];
-            }
-
             session(['pageTitle' => "Kimasomo Ripoti"]);
 
-            $data = compact('borderLine', 'marks', 'classes', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate', 'subjects');
+            $data = compact('marks', 'classes', 'exams', 'regions', 'districts', 'wards', 'classId', 'examId', 'regionId', 'districtId', 'wardId', 'startDate', 'endDate', 'subjects');
             return view('admin.subjectReport')->with($data);
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
@@ -242,9 +223,8 @@ class SubjectReportController extends Controller
             $wardId = $req['rWard'];
             $startDate = $req['rStartDate'];
             $endDate = $req['rEndDate'];
-            $borderLine = $req['rBorderline'];
 
-            return Excel::download(new SubjectExport($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate, $borderLine), 'schoolSubjectReport(' . date('Y-m-d H:i:s') . ').xlsx');
+            return Excel::download(new SubjectExport($examId, $classId, $regionId, $districtId, $wardId, $startDate, $endDate), 'schoolSubjectReport(' . date('Y-m-d H:i:s') . ').xlsx');
         } else {
             return redirect('/')->with('accessDenied', 'Session Expired!');
         }

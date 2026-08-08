@@ -2,12 +2,12 @@
 
 namespace App\Exports;
 
+use App\Facades\Grading;
 use App\Models\Marks;
 use App\Models\Schools;
 use App\Models\Regions;
 use App\Models\Districts;
 use App\Models\Wards;
-use App\Models\Ranks;
 use Illuminate\Support\Facades\Config;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -22,7 +22,6 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
     protected $startDate;
     protected $endDate;
     protected $subjects;
-    protected $rank;
 
     public function __construct($examId, $classId, $schoolId, $startDate, $endDate)
     {
@@ -31,10 +30,6 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
         $this->schoolId = $schoolId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->rank = Ranks::select('rankName', 'rankRangeMin', 'rankRangeMax')->where([
-            ['isActive', '=', '1'],
-            ['isDeleted', '=', '0']
-        ])->orderBy('rankName', 'asc')->get();
 
         // Dynamically set subjects based on the class
         $this->subjects = $this->getSubjectsByClass($classId);
@@ -59,8 +54,10 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
             return "AVG($subject)";
         }, $this->subjects));
 
+        // avgTotal = mean student TOTAL (0..300) for this school, excluding
+        // fully-absent students (average IS NULL) so they don't drag it down.
         $marks = Marks::selectRaw("schoolId, regionId, districtId, wardId,
-        ROUND(SUM(total), 2) as averageMarks")
+        ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal")
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
@@ -70,7 +67,7 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
             ])
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
         // $marks = Marks::selectRaw("schoolId, regionId, districtId, wardId,
         //     ROUND(($subjectColumns) / " . count($this->subjects) . ", 2) as averageMarks")
@@ -247,7 +244,7 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
             $examCondition
         ])->whereBetween('examDate', [$this->startDate, $this->endDate])->count();
 
-        $avgMarks = Marks::selectRaw('gender, ROUND(average, 2) as averageMarks')->where([
+        $avgMarks = Marks::selectRaw('gender, average, ROUND(total, 2) as studentTotal')->where([
             ['isActive', '=', '1'],
             ['isDeleted', '=', '0'],
             ['classId', '=', $this->classId],
@@ -273,14 +270,14 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
         foreach ($avgMarks as $avg) {
             ($avg['gender'] == 'M') ? $totalMale++ : $totalFemale++;
 
-            if ($avg['averageMarks'] === null) {
+            if ($avg['average'] === null) {
                 if ($avg['gender'] == 'M') {
                     $maleAbsent++;
                 } else {
                     $femaleAbsent++;
                 }
             } else {
-                $grade = $this->assignGrade($avg['averageMarks']);
+                $grade = Grading::gradeTotal($avg['studentTotal']);
                 switch ($grade) {
                     case 'A':
                         ($avg['gender'] == 'M') ? $aGradeMale++ : $aGradeFemale++;
@@ -319,10 +316,9 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
 
         static $serialNumber = 0;
         $serialNumber++;
-        // dd(count($this->subjects));
-        // $averageMarks = count($avgMarks) - $maleAbsent - $femaleAbsent > 0 ? $marks['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent) : 0;
-        $averageMarks = number_format($marks['averageMarks'] / (count($avgMarks) - $maleAbsent - $femaleAbsent), 2);
-        $grade = $this->assignGrade($averageMarks / count($this->subjects));
+        // School mean TOTAL (0..300), already averaged in SQL excluding
+        // absentees — no PHP-side division, no /6 scale hack.
+        $grade = Grading::gradeTotal($marks['avgTotal']);
 
         if ($this->classId > 4) {
             return [
@@ -368,7 +364,7 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
                 $eGradeFemale + $dGradeFemale ?: "0",
                 $eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale ?: "0",
                 number_format(($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / ($totalPassMale + $totalPassFemale) * 100, 2),
-                number_format($averageMarks, 2) ?: "0",
+                number_format($marks['avgTotal'], 2) ?: "0",
                 $grade
             ];
         } else {
@@ -415,20 +411,9 @@ class TeacherReportExport implements FromCollection, WithHeadings, WithMapping, 
                 $eGradeFemale ?: "0",
                 $eGradeMale + $eGradeFemale ?: "0",
                 number_format(($eGradeMale + $eGradeFemale) / ($totalPassMale + $totalPassFemale) * 100, 2),
-                number_format($averageMarks, 2) ?: "0",
+                number_format($marks['avgTotal'], 2) ?: "0",
                 $grade
             ];
         }
-    }
-
-    function assignGrade($marks)
-    {
-        foreach ($this->rank as $rank) {
-            if ($marks >= $rank['rankRangeMin'] && $marks < $rank['rankRangeMax'] + 1) {
-                return $rank['rankName'];
-            }
-        }
-
-        return "Null";
     }
 }

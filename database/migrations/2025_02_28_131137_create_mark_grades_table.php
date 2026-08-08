@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('mark_grades', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('markId'); // Must match marks.markId type
+            $table->unsignedBigInteger('markId'); // Must match marks.markId type ($table->id('markId') = bigint unsigned)
             $table->string('subject');
             $table->string('grade');
             $table->timestamps();
