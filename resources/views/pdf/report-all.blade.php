@@ -215,49 +215,94 @@
 
     <!-- Tathmini ya ufaulu -->
     <div class="mt-3">
-        <table>
+        <table style="table-layout: fixed;">
             <tr>
-                <th rowspan="2">TATHIMINI YA UFAULU</th>
-                <th colspan="7">DARAJA</th>
-            </tr>
-            <tr>
-                <th>A</th>
-                <th>B</th>
-                <th>C</th>
-                <th>D</th>
-                <th>E</th>
-                <th>ABS</th>
-                <th>JUMLA</th>
-            </tr>
-            <tr class="bg-white">
-                <td>WAV</td>
-                <td>{{ $amCount }}</td>
-                <td>{{ $bmCount }}</td>
-                <td>{{ $cmCount }}</td>
-                <td>{{ $dmCount }}</td>
-                <td>{{ $emCount }}</td>
-                <td>{{ $maleAbsent }}</td>
-                <td>{{ $gradeMaleCount + $maleAbsent }}</td>
-            </tr>
-            <tr class="bg-gray-200">
-                <td>WAS</td>
-                <td>{{ $afCount }}</td>
-                <td>{{ $bfCount }}</td>
-                <td>{{ $cfCount }}</td>
-                <td>{{ $dfCount }}</td>
-                <td>{{ $efCount }}</td>
-                <td>{{ $femaleAbsent }}</td>
-                <td>{{ $gradeFemaleCount + $femaleAbsent }}</td>
-            </tr>
-            <tr class="bg-white">
-                <td>Jumla</td>
-                <td>{{ $amCount + $afCount }}</td>
-                <td>{{ $bmCount + $bfCount }}</td>
-                <td>{{ $cmCount + $cfCount }}</td>
-                <td>{{ $dmCount + $dfCount }}</td>
-                <td>{{ $emCount + $efCount }}</td>
-                <td>{{ $maleAbsent + $femaleAbsent }}</td>
-                <td>{{ $gradeMaleCount + $gradeFemaleCount + $maleAbsent + $femaleAbsent }}</td>
+                <td style="width: 60%; border: none; padding: 0; vertical-align: top;">
+                    <table>
+                        <tr>
+                            <th rowspan="2">TATHIMINI YA UFAULU</th>
+                            <th colspan="7">DARAJA</th>
+                        </tr>
+                        <tr>
+                            <th>A</th>
+                            <th>B</th>
+                            <th>C</th>
+                            <th>D</th>
+                            <th>E</th>
+                            <th>ABS</th>
+                            <th>JUMLA</th>
+                        </tr>
+                        <tr class="bg-white">
+                            <td>WAV</td>
+                            <td>{{ $amCount }}</td>
+                            <td>{{ $bmCount }}</td>
+                            <td>{{ $cmCount }}</td>
+                            <td>{{ $dmCount }}</td>
+                            <td>{{ $emCount }}</td>
+                            <td>{{ $maleAbsent }}</td>
+                            <td>{{ $gradeMaleCount + $maleAbsent }}</td>
+                        </tr>
+                        <tr class="bg-gray-200">
+                            <td>WAS</td>
+                            <td>{{ $afCount }}</td>
+                            <td>{{ $bfCount }}</td>
+                            <td>{{ $cfCount }}</td>
+                            <td>{{ $dfCount }}</td>
+                            <td>{{ $efCount }}</td>
+                            <td>{{ $femaleAbsent }}</td>
+                            <td>{{ $gradeFemaleCount + $femaleAbsent }}</td>
+                        </tr>
+                        <tr class="bg-white">
+                            <td>Jumla</td>
+                            <td>{{ $amCount + $afCount }}</td>
+                            <td>{{ $bmCount + $bfCount }}</td>
+                            <td>{{ $cmCount + $cfCount }}</td>
+                            <td>{{ $dmCount + $dfCount }}</td>
+                            <td>{{ $emCount + $efCount }}</td>
+                            <td>{{ $maleAbsent + $femaleAbsent }}</td>
+                            <td>{{ $gradeMaleCount + $gradeFemaleCount + $maleAbsent + $femaleAbsent }}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width: 40%; border: none; padding: 0 0 0 6px; vertical-align: top;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th colspan="2">WALIOFANYA MTIHANI</th>
+                                <th>WALIOFAULU</th>
+                                <th>WALIOFELI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white">
+                                <td>Wav</td>
+                                <td>{{ $gradeMaleCount }}</td>
+                                <td>{{ $gradeMaleCount - $failMaleCount }}</td>
+                                <td>{{ $failMaleCount }}</td>
+                            </tr>
+                            <tr class="bg-gray-200">
+                                <td>Was</td>
+                                <td>{{ $gradeFemaleCount }}</td>
+                                <td>{{ $gradeFemaleCount - $failFemaleCount }}</td>
+                                <td>{{ $failFemaleCount }}</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td rowspan="2">Jumla</td>
+                                <td rowspan="2">{{ $gradeCount }}</td>
+                                <td>{{ $gradeCount - $failCount }}</td>
+                                <td>{{ $failCount }}</td>
+                            </tr>
+                            <tr class="bg-gray-200">
+                                @php
+                                    $passTitle = $classId > 4 ? '% Pass(A-C)' : '% Pass(A-D)';
+                                    $failTitle = $classId > 4 ? '% Fail(D-E)' : '% Fail(E)';
+                                @endphp
+                                <td>{{ $passTitle }}: {{ $gradeCount > 0 ? number_format((($gradeCount - $failCount) * 100) / $gradeCount, 2) : 0 }}</td>
+                                <td>{{ $failTitle }}: {{ $gradeCount > 0 ? number_format(($failCount * 100) / $gradeCount, 2) : 0 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
             </tr>
         </table>
     </div>
