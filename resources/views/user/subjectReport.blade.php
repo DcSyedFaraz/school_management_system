@@ -87,6 +87,14 @@
             @php
                 $gradeArray = [];
                 $subList = $subjects;
+                // Fixed grade -> color mapping, shared by every grade header on this page.
+                $gradeColorMap = [
+                    'A' => 'bg-green-100 text-green-800',
+                    'B' => 'bg-lime-100 text-lime-800',
+                    'C' => 'bg-yellow-100 text-yellow-800',
+                    'D' => 'bg-orange-100 text-orange-800',
+                    'E' => 'bg-red-100 text-red-800',
+                ];
             @endphp
 
             @foreach ($allMarks as $aMark)
@@ -100,7 +108,7 @@
                 @endphp
             @endforeach
 
-            <table class="myTable bg-white">
+            <table class="myTable bg-white text-xs">
                 <thead>
                     <tr>
                         <th class="border border-black uppercase" rowspan="2">NA</th>
@@ -108,7 +116,7 @@
                         <th class="border border-black uppercase" rowspan="2">Wilaya</th>
                         <th class="border border-black uppercase" rowspan="2">Kata</th>
                         <th class="border border-black uppercase" rowspan="2">Shule</th>
-                        <th class="border border-black uppercase" colspan="3" rowspan="1">WALIOFANYA</th>
+                        <th class="border border-black uppercase bg-blue-100 text-blue-800" colspan="3" rowspan="1">WALIOFANYA</th>
                         @foreach ($subList as $subject)
                             <th class="border border-black uppercase" colspan="6" rowspan="1">{{ ucfirst($subject) }}
                             </th>
@@ -116,16 +124,16 @@
                     </tr>
 
                     <tr>
-                        <th class="border border-black">WAV</th>
-                        <th class="border border-black">WAS</th>
-                        <th class="border border-black">JML</th>
+                        <th class="border border-black bg-blue-50">WAV</th>
+                        <th class="border border-black bg-blue-50">WAS</th>
+                        <th class="border border-black bg-blue-50">JML</th>
 
                         @foreach ($subList as $subject)
-                            <th class="border border-black">A</th>
-                            <th class="border border-black">B</th>
-                            <th class="border border-black">C</th>
-                            <th class="border border-black">D</th>
-                            <th class="border border-black">E</th>
+                            <th class="border border-black {{ $gradeColorMap['A'] }}">A</th>
+                            <th class="border border-black {{ $gradeColorMap['B'] }}">B</th>
+                            <th class="border border-black {{ $gradeColorMap['C'] }}">C</th>
+                            <th class="border border-black {{ $gradeColorMap['D'] }}">D</th>
+                            <th class="border border-black {{ $gradeColorMap['E'] }}">E</th>
                             <th class="border border-black">JML</th>
                         @endforeach
                     </tr>

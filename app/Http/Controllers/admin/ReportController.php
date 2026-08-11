@@ -259,7 +259,7 @@ class ReportController extends Controller
 
             // Initialize subject grades with clearer structure
             $subjectGradeCounts = array_fill_keys(
-                ['A', 'B', 'C', 'D', 'E'],
+                ['A', 'B', 'C', 'D', 'E', 'ABS'],
                 ['male' => array_fill(0, count($subjects), 0), 'female' => array_fill(0, count($subjects), 0)]
             );
 
@@ -437,7 +437,7 @@ class ReportController extends Controller
 
                 // Initialize subject grades with clearer structure
                 $subjectGradeCounts = array_fill_keys(
-                    ['A', 'B', 'C', 'D', 'E'],
+                    ['A', 'B', 'C', 'D', 'E', 'ABS'],
                     ['male' => array_fill(0, count($subjects), 0), 'female' => array_fill(0, count($subjects), 0)]
                 );
 

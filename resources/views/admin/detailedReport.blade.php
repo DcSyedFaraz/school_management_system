@@ -2,6 +2,17 @@
 
 @section('content')
     @php
+        // Fixed grade -> color mapping, shared by every grade cell/header on this page.
+        $gradeColorMap = [
+            'A' => 'bg-green-100 text-green-800',
+            'B' => 'bg-lime-100 text-lime-800',
+            'C' => 'bg-yellow-100 text-yellow-800',
+            'D' => 'bg-orange-100 text-orange-800',
+            'E' => 'bg-red-100 text-red-800',
+        ];
+        // Value-conditional tier for a "higher is better" percentage (0-100): high is green, mid is amber, low is red.
+        $passPctColor = fn($pct) => $pct >= 80 ? 'text-green-600' : ($pct >= 50 ? 'text-amber-600' : 'text-red-600');
+
         $regionsMap   = $regions->keyBy('regionId');
         $districtsMap = $districts->keyBy('districtId');
         $wardsMap     = $wards->keyBy('wardId');
@@ -166,7 +177,7 @@
                     $colSpan2 = 3;
                 @endphp
             @endif
-            <table class="myTable bg-white">
+            <table class="myTable bg-white text-xs">
                 <thead>
                     <tr>
                         <th class="border border-black uppercase" rowspan="3">NA</th>
@@ -194,12 +205,12 @@
                     </tr>
 
                     <tr>
-                        <th class="border border-black" colspan="3" rowspan="1">A</th>
-                        <th class="border border-black" colspan="3" rowspan="1">B</th>
-                        <th class="border border-black" colspan="3" rowspan="1">C</th>
+                        <th class="border border-black {{ $gradeColorMap['A'] }}" colspan="3" rowspan="1">A</th>
+                        <th class="border border-black {{ $gradeColorMap['B'] }}" colspan="3" rowspan="1">B</th>
+                        <th class="border border-black {{ $gradeColorMap['C'] }}" colspan="3" rowspan="1">C</th>
 
-                        <th class="border border-black" colspan="3" rowspan="1">D</th>
-                        <th class="border border-black" colspan="3" rowspan="1">E</th>
+                        <th class="border border-black {{ $gradeColorMap['D'] }}" colspan="3" rowspan="1">D</th>
+                        <th class="border border-black {{ $gradeColorMap['E'] }}" colspan="3" rowspan="1">E</th>
                     </tr>
 
                     <tr>
@@ -400,11 +411,14 @@
                                 @endphp
                                 {{-- @dd($totalPassMale, $totalPassFemale, $totalFailMale, $totalFailFemale, $totalPassMale + $totalPassFemale + $totalFailMale + $totalFailFemale, $totalstudent) --}}
                                 {{ $totalstudent }}</td>
+                            @php
+                                $waliofanyaPct = $totalMale + $totalFemale > 0 ? (($totalPassMale + $totalPassFemale + $totalFailMale + $totalFailFemale) / ($totalMale + $totalFemale)) * 100 : 0;
+                            @endphp
                             @if ($totalMale + $totalFemale == 0)
                                 <td class="border border-black">0</td>
                             @else
-                                <td class="border border-black">
-                                    {{ number_format((($totalPassMale + $totalPassFemale + $totalFailMale + $totalFailFemale) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                <td class="border border-black font-semibold {{ $passPctColor($waliofanyaPct) }}">
+                                    {{ number_format($waliofanyaPct, 2) }}
                                 </td>
                             @endif
                             <td class="border border-black totalFailMale">{{ $maleAbsent }}</td>
@@ -413,8 +427,11 @@
                             @if ($totalMale + $totalFemale == 0)
                                 <td class="border border-black">0</td>
                             @else
-                                <td class="border border-black">
-                                    {{ number_format((($maleAbsent + $femaleAbsent) / ($totalMale + $totalFemale)) * 100, 2) }}
+                                @php
+                                    $wasiofanyaPct = (($maleAbsent + $femaleAbsent) / ($totalMale + $totalFemale)) * 100;
+                                @endphp
+                                <td class="border border-black font-semibold {{ $passPctColor(100 - $wasiofanyaPct) }}">
+                                    {{ number_format($wasiofanyaPct, 2) }}
                                 </td>
                             @endif
                             <td class="border border-black aGradeMale">{{ $aGradeMale }}</td>
@@ -446,11 +463,14 @@
                                     {{ $gradess }}
                                 </td>
                                 {{-- <td class="border border-black">{{ ($aGradeMale+$bGradeMale+$cGradeMale+$aGradeFemale+$bGradeFemale+$cGradeFemale) }}</td> --}}
+                                @php
+                                    $subjectPassPct = $totalMale + $totalFemale > 0 ? (($aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale) / $totalstudent) * 100 : 0;
+                                @endphp
                                 @if ($totalMale + $totalFemale == 0)
                                     <td class="border border-black">0</td>
                                 @else
-                                    <td class="border border-black">
-                                        {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale) / $totalstudent) * 100, 2) }}
+                                    <td class="border border-black font-semibold {{ $passPctColor($subjectPassPct) }}">
+                                        {{ number_format($subjectPassPct, 2) }}
                                     </td>
                                 @endif
                                 <td class="border border-black dGradeMale">{{ $dGradeMale }}</td>
@@ -466,8 +486,11 @@
                                 @if ($totalMale + $totalFemale == 0)
                                     <td class="border border-black">0</td>
                                 @else
-                                    <td class="border border-black">
-                                        {{ number_format((($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / $totalstudent) * 100, 2) }}
+                                    @php
+                                        $subjectFailPct = (($eGradeMale + $dGradeMale + $eGradeFemale + $dGradeFemale) / $totalstudent) * 100;
+                                    @endphp
+                                    <td class="border border-black font-semibold {{ $passPctColor(100 - $subjectFailPct) }}">
+                                        {{ number_format($subjectFailPct, 2) }}
                                     </td>
                                 @endif
                             @else
@@ -493,11 +516,14 @@
                                     {{ $gradess }}
                                     {{-- {{ $aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale }} --}}
                                 </td>
+                                @php
+                                    $subjectPassPct = $totalMale + $totalFemale > 0 ? ($gradess / $totalstudent) * 100 : 0;
+                                @endphp
                                 @if ($totalMale + $totalFemale == 0)
                                     <td class="border border-black">0</td>
                                 @else
-                                    <td class="border border-black">
-                                        {{ number_format(($gradess / $totalstudent) * 100, 2) }}
+                                    <td class="border border-black font-semibold {{ $passPctColor($subjectPassPct) }}">
+                                        {{ number_format($subjectPassPct, 2) }}
                                         {{-- {{ number_format((($aGradeMale + $bGradeMale + $cGradeMale + $dGradeMale + $aGradeFemale + $bGradeFemale + $cGradeFemale + $dGradeFemale) / $totalstudent) * 100, 2) }} --}}
                                     </td>
                                 @endif
@@ -511,8 +537,11 @@
                                 @if ($totalMale + $totalFemale == 0)
                                     <td class="border border-black">0</td>
                                 @else
-                                    <td class="border border-black">
-                                        {{ number_format((($eGradeMale + $eGradeFemale) / $totalstudent) * 100, 2) }}
+                                    @php
+                                        $subjectFailPct = (($eGradeMale + $eGradeFemale) / $totalstudent) * 100;
+                                    @endphp
+                                    <td class="border border-black font-semibold {{ $passPctColor(100 - $subjectFailPct) }}">
+                                        {{ number_format($subjectFailPct, 2) }}
                                     </td>
                                 @endif
                             @endif
@@ -520,8 +549,9 @@
                             <td class="border border-black averageMarks">
                                 {{ number_format($mark['avgTotal'], 5) }}
                             </td>
-                            <td class="border border-black">
-                                {{ Grading::gradeTotal($mark['avgTotal']) }}
+                            @php $rowGrade = Grading::gradeTotal($mark['avgTotal']); @endphp
+                            <td class="border border-black {{ $gradeColorMap[$rowGrade] ?? '' }}">
+                                {{ $rowGrade }}
                             </td>
                         </tr>
 
