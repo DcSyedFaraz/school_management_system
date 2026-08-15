@@ -99,11 +99,99 @@
         table.small tbody tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+
+        .bg-white {
+            background-color: #ffffff;
+        }
+
+        .bg-gray-200 {
+            background-color: #e5e7eb;
+        }
+
+        /* Fixed grade colors — shared with the on-screen report pages. */
+        .grade-a {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .grade-b {
+            background-color: #ecfccb;
+            color: #3f6212;
+        }
+
+        .grade-c {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+
+        .grade-d {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+
+        .grade-e {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .grade-abs {
+            background-color: #e5e7eb;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .bg-pass {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .bg-fail {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Value-conditional percentage colors (text only, no background). */
+        .pct-high {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .pct-mid {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .pct-low {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .status-pass {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .status-fail {
+            color: #dc2626;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
     @php
+        // Fixed grade -> CSS class mapping, shared by every grade cell/header in this PDF.
+        $gradeColorMap = [
+            'A' => 'grade-a',
+            'B' => 'grade-b',
+            'C' => 'grade-c',
+            'D' => 'grade-d',
+            'E' => 'grade-e',
+            'ABS' => 'grade-abs',
+        ];
+        // Value-conditional tier for a "higher is better" percentage (0-100).
+        $passPctColor = fn($pct) => $pct >= 80 ? 'pct-high' : ($pct >= 50 ? 'pct-mid' : 'pct-low');
+
         $classes = $reportData['classes'];
         $exams = $reportData['exams'];
         $classId = $reportData['classId'];
@@ -231,12 +319,12 @@
                             <th colspan="7">GRADE</th>
                         </tr>
                         <tr>
-                            <th>A</th>
-                            <th>B</th>
-                            <th>C</th>
-                            <th>D</th>
-                            <th>E</th>
-                            <th>ABS</th>
+                            <th class="grade-a">A</th>
+                            <th class="grade-b">B</th>
+                            <th class="grade-c">C</th>
+                            <th class="grade-d">D</th>
+                            <th class="grade-e">E</th>
+                            <th class="grade-abs">ABS</th>
                             <th>TOTAL</th>
                         </tr>
                         <tr class="bg-white">
@@ -276,8 +364,8 @@
                         <thead>
                             <tr>
                                 <th colspan="2">TOOK EXAM</th>
-                                <th>PASSED</th>
-                                <th>FAILED</th>
+                                <th class="bg-pass">PASSED</th>
+                                <th class="bg-fail">FAILED</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -303,9 +391,10 @@
                                 @php
                                     $passTitle = $classId > 4 ? '% Pass(A-C)' : '% Pass(A-D)';
                                     $failTitle = $classId > 4 ? '% Fail(D-E)' : '% Fail(E)';
+                                    $waliofanyaPassPct = $gradeCount > 0 ? (($gradeCount - $failCount) * 100) / $gradeCount : 0;
                                 @endphp
-                                <td>{{ $passTitle }}: {{ $gradeCount > 0 ? number_format((($gradeCount - $failCount) * 100) / $gradeCount, 2) : 0 }}</td>
-                                <td>{{ $failTitle }}: {{ $gradeCount > 0 ? number_format(($failCount * 100) / $gradeCount, 2) : 0 }}</td>
+                                <td class="{{ $passPctColor($waliofanyaPassPct) }}">{{ $passTitle }}: {{ number_format($waliofanyaPassPct, 2) }}</td>
+                                <td class="{{ $passPctColor($waliofanyaPassPct) }}">{{ $failTitle }}: {{ $gradeCount > 0 ? number_format(($failCount * 100) / $gradeCount, 2) : 0 }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -322,7 +411,7 @@
                 <tr>
                     <th rowspan="2" class="subject-col">SUBJECT</th>
                     @foreach (['A', 'B', 'C', 'D', 'E'] as $grade)
-                        <th colspan="3">{{ $grade }}</th>
+                        <th colspan="3" class="{{ $gradeColorMap[$grade] }}">{{ $grade }}</th>
                     @endforeach
                     <th rowspan="2">SUBJECT AVERAGE</th>
                     <th rowspan="2">PASSED</th>
@@ -348,6 +437,7 @@
                                 $classId > 4
                                     ? $gradeArray[$name]['D'] + $gradeArray[$name]['E']
                                     : $gradeArray[$name]['E'];
+                            $subjectPassPct = $totalGradeCount > 0 ? (($totalGradeCount - $failedCount) * 100) / $totalGradeCount : 0;
                         @endphp
                         <tr class="{{ $g % 2 == 0 ? 'bg-white' : 'bg-gray-200' }}">
                             <td class="subject-col">{{ strtoupper($subjectMapping[strtolower($name)] ?? $name) }}</td>
@@ -358,10 +448,10 @@
                             @endforeach
                             <td>{{ number_format($gAverage[$g] / (count($marks) - $maleAbsent - $femaleAbsent), 2) }}</td>
                             <td>{{ $totalGradeCount - $failedCount }}</td>
-                            <td>{{ $totalGradeCount > 0 ? number_format((($totalGradeCount - $failedCount) * 100) / $totalGradeCount, 2) : 0 }}
+                            <td class="{{ $passPctColor($subjectPassPct) }}">{{ number_format($subjectPassPct, 2) }}
                             </td>
                             <td>{{ $failedCount }}</td>
-                            <td>{{ $totalGradeCount > 0 ? number_format(($failedCount * 100) / $totalGradeCount, 2) : 0 }}
+                            <td class="{{ $passPctColor($subjectPassPct) }}">{{ $totalGradeCount > 0 ? number_format(($failedCount * 100) / $totalGradeCount, 2) : 0 }}
                             </td>
                         </tr>
                         @php $g++; @endphp
@@ -429,22 +519,25 @@
                                 $subjectPosition = $mark[$subject] !== null ? (array_search($mark[$subject], $subjectScores) + 1) : '-';
                             @endphp
                             @if ($mark[$subject] === null)
-                                <td class="tiny-col" style="color:#999;font-style:italic">ABS</td>
-                                <td class="tiny-col" style="color:#999;font-style:italic">ABS</td>
+                                <td class="tiny-col grade-abs">ABS</td>
+                                <td class="tiny-col grade-abs">ABS</td>
                                 <td class="tiny-col">-</td>
                             @else
+                                @php $subjectGrade = Grading::gradeSubject($mark[$subject]); @endphp
                                 <td class="tiny-col">{{ $mark[$subject] }}</td>
-                                <td class="tiny-col">{{ Grading::gradeSubject($mark[$subject]) }}</td>
+                                <td class="tiny-col {{ $gradeColorMap[$subjectGrade] ?? '' }}">{{ $subjectGrade }}</td>
                                 <td class="tiny-col">{{ $subjectPosition }}</td>
                             @endif
                         @endforeach
                         <td class="small-col">{{ $mark['total'] }}</td>
                         <td class="small-col">{{ number_format($mark['average'], 2) }}</td>
-                        <td class="small-col">{{ $mark['average'] !== null ? Grading::gradeTotal($mark['total']) : Grading::absentGrade() }}
+                        @php $overallGrade = $mark['average'] !== null ? Grading::gradeTotal($mark['total']) : Grading::absentGrade(); @endphp
+                        <td class="small-col {{ $gradeColorMap[$overallGrade] ?? '' }}">{{ $overallGrade }}
                         </td>
                         <td class="small-col">{{ $position }}</td>
-                        <td class="small-col">
-                            {{ $mark['average'] !== null ? Grading::statusForTotal($mark['total'], $classId, 'en') : '' }}</td>
+                        @php $status = $mark['average'] !== null ? Grading::statusForTotal($mark['total'], $classId, 'en') : ''; @endphp
+                        <td class="small-col {{ $status === 'PASS' ? 'status-pass' : ($status === 'FAIL' ? 'status-fail' : '') }}">
+                            {{ $status }}</td>
                     </tr>
                     @php $i++; @endphp
                 @endforeach

@@ -81,7 +81,7 @@ timestamps.
 |---|---|---|---|
 | `User.php` | `users` | `userId` | `$timestamps=false`; `userType` distinguishes admin/user (checked via Session, not Gates). |
 | `Marks.php` | `marks` | `markId` | `$timestamps=false`; **one row per student per exam**, subject marks are individual integer columns (not normalized), `total`/`average` are stored computed columns. Relations: `school()`→Schools, `class()`→Grades (classId→gradeId), `exam()`→Exams. |
-| `MarkGrade.php` | `mark_grades` | default `id` | Newer normalized table: one row per `markId`+`subject` holding the computed grade letter, FK cascade-delete to `marks`. Populated by the `ProcessMarksGrades` command. |
+| `MarkGrade.php` | `mark_grades` | default `id` | Newer normalized table: one row per `markId`+`subject` intended to hold a computed grade letter, FK cascade-delete to `marks`. **Dead code as of this writing** — the model and its migration exist, but nothing in `app/` (no controller, command, export, job, or view) ever reads or writes it. `ProcessMarksGrades` does **not** populate it — see the note under `app/Console/Commands/` below. |
 | `Schools.php` | `schools` | `schoolId` | No FK columns to region/district/ward in its own schema — that linkage lives only on `users`/`marks` (denormalized). |
 | `Regions.php` | `regions` | `regionId` | |
 | `Districts.php` | `districts` | `districtId` | PK is a plain integer column, not auto-increment like its siblings. |
@@ -320,7 +320,12 @@ Custom, app-specific:
   `studentName`, `gender`.
 - **`mark_grades`** (default `id` PK, added 2025-02-28) — normalized
   per-`markId`+`subject` grade-letter cache, FK cascade-delete to `marks`,
-  indexed on `markId` and `subject`. Populated by `ProcessMarksGrades`.
+  indexed on `markId` and `subject`. **Unpopulated and unread** — confirmed
+  by grep that no code under `app/` references `MarkGrade`/`mark_grades`
+  outside the model and migration themselves. `ProcessMarksGrades` (see
+  `app/Console/Commands/` below) only recomputes `marks.total`/
+  `marks.average`; it has never written to this table, despite this file
+  previously claiming otherwise.
 - **2026-05-18 migrations** (`make_mark_subjects_nullable.php`,
   `make_average_nullable.php`) — changed all 16 subject-mark columns and
   `average` from `nullable()->default(0)` to `nullable()->default(null)`, so
