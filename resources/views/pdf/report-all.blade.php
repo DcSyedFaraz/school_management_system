@@ -64,6 +64,32 @@
             background-color: #d9d9d9;
         }
 
+        /* Higher specificity than "table.small thead th" above, so grade headers keep their color there too. */
+        table.small thead th.grade-a {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        table.small thead th.grade-b {
+            background-color: #ecfccb;
+            color: #3f6212;
+        }
+
+        table.small thead th.grade-c {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+
+        table.small thead th.grade-d {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+
+        table.small thead th.grade-e {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
         .student-name {
             width: 15%;
             white-space: normal;
@@ -278,7 +304,7 @@
             <tbody>
                 <tr>
                     <td>{{ number_format($schoolAverage, 2) }}</td>
-                    <td>{{ $schoolGrade }}</td>
+                    <td class="{{ $gradeColorMap[$schoolGrade] ?? '' }}">{{ $schoolGrade }}</td>
                 </tr>
             </tbody>
         </table>
@@ -295,7 +321,7 @@
             <tbody>
                 <tr>
                     <td>{{ number_format($achievementAverage, 2) }}</td>
-                    <td>{{ $schoolGrade }}</td>
+                    <td class="{{ $gradeColorMap[$schoolGrade] ?? '' }}">{{ $schoolGrade }}</td>
                 </tr>
             </tbody>
         </table>
