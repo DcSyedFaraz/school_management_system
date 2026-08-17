@@ -70,43 +70,52 @@
             margin-top: 10px;
         }
 
+        /* Fixed grade colors — shared with the on-screen report pages and the Chapisha Matokeo PDF. */
         .color-A {
-            background-color: #00A82E;
-            color: #fff;
+            background-color: #dcfce7;
+            color: #166534;
             font-weight: 700;
             padding: 0.25em 0.5em;
             border-radius: 0.25rem;
         }
 
         .color-B {
-            background-color: #1FEE0B;
-            color: #212529;
+            background-color: #ecfccb;
+            color: #3f6212;
             font-weight: 700;
             padding: 0.25em 0.5em;
             border-radius: 0.25rem;
         }
 
         .color-C {
-            background-color: #DEF043;
-            color: #212529;
+            background-color: #fef9c3;
+            color: #854d0e;
             font-weight: 700;
             padding: 0.25em 0.5em;
             border-radius: 0.25rem;
         }
 
         .color-D {
-            background-color: #FF772F;
-            color: #fff;
+            background-color: #ffedd5;
+            color: #9a3412;
             font-weight: 700;
             padding: 0.25em 0.5em;
             border-radius: 0.25rem;
         }
 
-        .color-E,
-        .color-ABS {
-            background-color: #FF0000;
-            color: #fff;
+        .color-E {
+            background-color: #fee2e2;
+            color: #991b1b;
             font-weight: 700;
+            padding: 0.25em 0.5em;
+            border-radius: 0.25rem;
+        }
+
+        .color-ABS {
+            background-color: #e5e7eb;
+            color: #6b7280;
+            font-weight: 700;
+            font-style: italic;
             padding: 0.25em 0.5em;
             border-radius: 0.25rem;
         }
@@ -121,44 +130,6 @@
             /* Center all table cells */
             vertical-align: middle;
             /* Center vertically */
-        }
-
-        /* Optional: color classes for grades */
-        .color-A {
-            color: #006400;
-            /* dark green */
-            font-weight: bold;
-        }
-
-        .color-B {
-            color: #00008B;
-            /* dark blue */
-            font-weight: bold;
-        }
-
-        .color-C {
-            color: #FF8C00;
-            /* dark orange */
-            font-weight: bold;
-        }
-
-        .color-D {
-            color: #8B4513;
-            /* saddle brown */
-            font-weight: bold;
-        }
-
-        .color-E {
-            color: #B22222;
-            /* firebrick red */
-            font-weight: bold;
-        }
-
-        .color-ABS {
-            color: #808080;
-            /* gray */
-            font-style: italic;
-            font-weight: normal;
         }
     </style>
 </head>
