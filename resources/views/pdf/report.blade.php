@@ -150,7 +150,7 @@
         <div class="marks-summary compact">
             <p><strong>Jumla ya alama:</strong> {{ $totalMarks }} Kati ya {{ $subjectsTaken * 50 }}</p>
             <p><strong>Wastani:</strong> {{ $subjectsTaken > 0 ? number_format($totalMarks / $subjectsTaken, 2) : '-' }}</p>
-            <p><strong>Daraja:</strong> {{ $student['grade'] ?? '-' }}</p>
+            <p><strong>Daraja:</strong> <span class="color-{{ $student['grade'] ?? '' }}">{{ $student['grade'] ?? '-' }}</span></p>
             <p><strong>Nafasi:</strong> {{ $student['position'] ?? '-' }} Kati ya {{ $studentsTakenExam }}</p>
         </div>
 

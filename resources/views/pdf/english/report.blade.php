@@ -253,7 +253,7 @@
             <p><strong>Total Marks:</strong> {{ $totalMarks }} Out of {{ $subjectsTaken * 50 }}</p>
             <p><strong>Average:</strong>
                 {{ $subjectsTaken > 0 ? number_format($totalMarks / $subjectsTaken, 2) : '-' }}</p>
-            <p><strong>Grade:</strong> {{ $student['grade'] ?? '-' }}</p>
+            <p><strong>Grade:</strong> <span class="color-{{ $student['grade'] ?? '' }}">{{ $student['grade'] ?? '-' }}</span></p>
             <p><strong>Position:</strong> {{ $student['position'] ?? '-' }} Out of {{ $studentsTakenExam }}</p>
         </div>
 
