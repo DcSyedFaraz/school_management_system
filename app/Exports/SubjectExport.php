@@ -138,7 +138,7 @@ class SubjectExport implements FromCollection, WithHeadings, WithMapping, WithCo
         $wardCondition = ($this->wardId == '') ? ['wardId', '!=', null] : ['wardId', '=', $this->wardId];
 
 
-        $marks = Marks::select($this->subjects)
+        $marks = Marks::select(array_merge($this->subjects, ['average']))
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],

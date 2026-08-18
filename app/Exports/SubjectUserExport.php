@@ -153,7 +153,7 @@ public function __construct($examId, $classId, $startDate, $endDate)
     $startDate = ($this->startDate == '') ? date('Y-m-d', strtotime("2023-01-01")) : $this->startDate;
     $endDate = ($this->endDate == '') ? date('Y-m-d') : $this->endDate;
 
-    $marks = Marks::select($this->subjects)->where([
+    $marks = Marks::select(array_merge($this->subjects, ['average']))->where([
         ['isActive', '=', '1'],
         ['isDeleted', '=', '0'],
         $classCondition,
