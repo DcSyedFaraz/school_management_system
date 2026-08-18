@@ -37,7 +37,7 @@ class SubjectReportController extends Controller
                 return "ROUND(AVG($subject), 2) as $subject";
             }, $subjects));
 
-            $marks = Marks::selectRaw("regionId, districtId, wardId, schoolId, $subjectsSelect, ROUND(AVG(average), 2) as averageMarks")
+            $marks = Marks::selectRaw("regionId, districtId, wardId, schoolId, $subjectsSelect, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal")
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],
@@ -45,7 +45,7 @@ class SubjectReportController extends Controller
                     ['examId', '=', $examId]
                 ])
                 ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
-                ->whereBetween('examDate', [$startDate, $endDate])->orderBy('averageMarks', 'desc')
+                ->whereBetween('examDate', [$startDate, $endDate])->orderBy('avgTotal', 'desc')
                 ->get();
 
             $classes = Grades::select('gradeId', 'gradeName')->where([
@@ -107,7 +107,7 @@ class SubjectReportController extends Controller
                 return "ROUND(AVG($subject), 2) as $subject";
             }, $subjects));
 
-            $marks = Marks::selectRaw("regionId, districtId, wardId, schoolId, $subjectsSelect, ROUND(AVG(average), 2) as averageMarks")
+            $marks = Marks::selectRaw("regionId, districtId, wardId, schoolId, $subjectsSelect, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal")
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],
@@ -119,7 +119,7 @@ class SubjectReportController extends Controller
                 ])
                 ->whereBetween('examDate', [$startDate, $endDate])
                 ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
-                ->orderBy('averageMarks', 'desc')
+                ->orderBy('avgTotal', 'desc')
                 ->get();
             // dd($marks);
 
