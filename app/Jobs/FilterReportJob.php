@@ -38,7 +38,7 @@ class FilterReportJob implements ShouldQueue
             return Cache::get($cacheKey);
         }
         // Fetch the marks data
-        $marks = Marks::selectRaw("regionId, districtId, wardId, schoolId, ROUND(AVG(average), 2) as averageMarks")
+        $marks = Marks::selectRaw("regionId, districtId, wardId, schoolId, ROUND(AVG(CASE WHEN average IS NOT NULL THEN total END), 2) as avgTotal")
             ->where([
                 ['isActive', '=', '1'],
                 ['isDeleted', '=', '0'],
@@ -50,7 +50,7 @@ class FilterReportJob implements ShouldQueue
             ])
             ->whereBetween('examDate', [$this->startDate, $this->endDate])
             ->groupBy('schoolId', 'regionId', 'districtId', 'wardId')
-            ->orderBy('averageMarks', 'desc')
+            ->orderBy('avgTotal', 'desc')
             ->get();
 
         // Perform additional calculations here (e.g., assign grades and sums)
