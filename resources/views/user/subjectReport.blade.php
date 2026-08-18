@@ -173,8 +173,8 @@
                                 ['schoolId', '=', $allMarks[0]['schoolId']],
                                 ['classId', '=', $classId],
                                 ['examId', '=', $examId],
-                                ['average', '!=', '0'],
                             ])
+                                ->whereNotNull('average')
                                 ->whereBetween('examDate', [$startDate, $endDate])
                                 ->count();
 
@@ -185,8 +185,8 @@
                                 ['schoolId', '=', $allMarks[0]['schoolId']],
                                 ['classId', '=', $classId],
                                 ['examId', '=', $examId],
-                                ['average', '!=', '0'],
                             ])
+                                ->whereNotNull('average')
                                 ->whereBetween('examDate', [$startDate, $endDate])
                                 ->count();
                         @endphp

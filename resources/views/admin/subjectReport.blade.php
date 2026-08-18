@@ -248,13 +248,13 @@
                                         ['isDeleted', '=', '0'],
                                         ['gender', '=', 'M'],
                                         ['schoolId', '=', $aMark['schoolId']],
-                                        ['average', '!=', '0'],
                                         $classCondition,
                                         $regionCondition,
                                         $districtCondition,
                                         $wardCondition,
                                         $examCondition,
                                     ])
+                                        ->whereNotNull('average')
                                         ->whereBetween('examDate', [$startDate, $endDate])
                                         ->count();
 
@@ -263,13 +263,13 @@
                                         ['isDeleted', '=', '0'],
                                         ['gender', '=', 'F'],
                                         ['schoolId', '=', $aMark['schoolId']],
-                                        ['average', '!=', '0'],
                                         $classCondition,
                                         $regionCondition,
                                         $districtCondition,
                                         $wardCondition,
                                         $examCondition,
                                     ])
+                                        ->whereNotNull('average')
                                         ->whereBetween('examDate', [$startDate, $endDate])
                                         ->count();
                                 @endphp
