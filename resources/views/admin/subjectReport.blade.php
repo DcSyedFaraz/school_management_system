@@ -192,7 +192,7 @@
                         @foreach ($marks as $aMark)
                             @php
                                 $gradeArray = [];
-                                $stuMarks = \App\Models\Marks::select(array_merge($subjects, ['total']))
+                                $stuMarks = \App\Models\Marks::select(array_merge($subjects, ['total', 'average']))
                                     ->where([
                                         ['isActive', '=', '1'],
                                         ['isDeleted', '=', '0'],
@@ -209,7 +209,7 @@
 
                             @foreach ($stuMarks as $stuMark)
                                 @php
-                                    if ($stuMark['total'] != 0) {
+                                    if ($stuMark['average'] !== null) {
                                         foreach ($subjects as $subject) {
                                             $grade = Grading::gradeSubject($stuMark[$subject]);
                                             $gradeArray[] = $subject . $grade;

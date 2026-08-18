@@ -26,7 +26,7 @@ class UserSubjectReportController extends Controller
 
             $subjects = $this->getSubjectsForClass($classId);
 
-            $allMarks = Marks::select('regionId', 'districtId', 'wardId', 'schoolId', 'total', 'gender', ...$subjects)
+            $allMarks = Marks::select('regionId', 'districtId', 'wardId', 'schoolId', 'total', 'average', 'gender', ...$subjects)
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],
@@ -69,7 +69,7 @@ class UserSubjectReportController extends Controller
 
             $subjects = $this->getSubjectsForClass($classId);
 
-            $allMarks = Marks::select('regionId', 'districtId', 'wardId', 'schoolId', 'total', 'gender', ...$subjects)
+            $allMarks = Marks::select('regionId', 'districtId', 'wardId', 'schoolId', 'total', 'average', 'gender', ...$subjects)
                 ->where([
                     ['isActive', '=', '1'],
                     ['isDeleted', '=', '0'],

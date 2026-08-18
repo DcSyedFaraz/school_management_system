@@ -99,7 +99,7 @@
 
             @foreach ($allMarks as $aMark)
                 @php
-                    if ($aMark['total'] != 0) {
+                    if ($aMark['average'] !== null) {
                         foreach ($subList as $list) {
                             $listGrade = Grading::gradeSubject($aMark[$list]);
                             array_push($gradeArray, '' . substr($list, 0, 1) . $listGrade);
