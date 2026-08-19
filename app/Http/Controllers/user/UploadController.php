@@ -12,6 +12,8 @@ use App\Models\Regions;
 use App\Imports\MarksImport;
 use Session;
 use Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class UploadController extends Controller
 {
@@ -323,6 +325,23 @@ class UploadController extends Controller
             if ($exists) {
                 return redirect('/dashboard/uploads')
                     ->with('error_long', 'Matokeo ya darasa hili kwa tarehe hii tayari yameshapakiwa! Nenda kwenye Ukurasa wa Matokeo Kavute Matokeo!');
+            }
+
+            // Some uploaded workbooks carry a corrupted "used range" (e.g. a
+            // stray format/fill applied across thousands of unused columns
+            // in Excel), which makes Maatwebsite\Excel materialize a
+            // row array per column across that whole phantom range and
+            // exhausts server memory (raw 500, no Laravel error page).
+            // Cheaply check the sheet's real dimensions first and reject
+            // with a friendly message before that happens.
+            $excelPath = $req->file('excelFile')->getRealPath();
+            $highestColumnIndex = Coordinate::columnIndexFromString(
+                IOFactory::createReaderForFile($excelPath)->load($excelPath)->getActiveSheet()->getHighestColumn()
+            );
+
+            if ($highestColumnIndex > 30) {
+                return redirect('/dashboard/uploads')
+                    ->with('error_long', 'Faili lako la Excel lina fomati ya ziada isiyo ya kawaida (safu wima nyingi zaidi ya zinazotumika kwa data). Fungua faili, futa (delete) safu wima zisizo na data baada ya safu ya mwisho, hifadhi, kisha pakia tena.');
             }
 
             $userId = Session::get('userId');
