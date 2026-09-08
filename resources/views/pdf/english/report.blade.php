@@ -287,7 +287,7 @@
         </div>
 
 
-        <hr style="margin-top: 3rem; border-style: dashed">
+        <p style="margin-top: 3rem; text-align: center; font-weight: bold; letter-spacing: 1px;">Cut Here {{ str_repeat('X ', 45) }}Cut Here</p>
         <div style="text-align: center">
             <p><strong>Designed by:</strong> rmstechnology.co.tz +255 786 283 282 / +255 736 102 030</p>
             <p><strong>Printed Date:</strong> {{ date('F j, Y') }}</p>
