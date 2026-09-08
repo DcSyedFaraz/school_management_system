@@ -287,7 +287,13 @@
         </div>
 
 
-        <p style="margin-top: 3rem; text-align: center; font-weight: bold; letter-spacing: 1px;">Cut Here {{ str_repeat('X ', 45) }}Cut Here</p>
+        <table style="margin-top: 3rem; width: 100%;">
+            <tr>
+                <td style="border: none; padding: 0; white-space: nowrap; font-weight: bold;">Cut Here</td>
+                <td style="border: none; border-top: 1px dashed #000;">&nbsp;</td>
+                <td style="border: none; padding: 0; white-space: nowrap; font-weight: bold;">Cut Here</td>
+            </tr>
+        </table>
         <div style="text-align: center">
             <p><strong>Designed by:</strong> rmstechnology.co.tz +255 786 283 282 / +255 736 102 030</p>
             <p><strong>Printed Date:</strong> {{ date('F j, Y') }}</p>
