@@ -164,7 +164,7 @@
             </p>
         </div>
 
-        <p style="margin-top: 0.5rem; text-align: center; font-weight: bold;">Kata hapa {{ str_repeat('X ', 26) }}Kata hapa</p>
+        <p style="margin-top: 0.5rem; text-align: center; font-weight: bold; font-size: 6px;">Kata hapa {{ str_repeat('X ', 85) }}Kata hapa</p>
 
         <div class="footer">
             <p><strong>Jina la Mzazi:</strong> ___________________________________________________ <strong>Tarehe:</strong>_____________________</p>

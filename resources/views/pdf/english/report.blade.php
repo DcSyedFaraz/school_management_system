@@ -269,7 +269,7 @@
             </p>
         </div>
 
-        <p style="margin-top: 0.5rem; text-align: center; font-weight: bold;">Cut Here {{ str_repeat('X ', 26) }}Cut Here</p>
+        <p style="margin-top: 0.5rem; text-align: center; font-weight: bold; font-size: 6px;">Cut Here {{ str_repeat('X ', 85) }}Cut Here</p>
 
         <div class="footer">
             <p><strong>Parent Name:</strong> ___________________________________________________
