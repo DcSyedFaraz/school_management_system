@@ -164,6 +164,8 @@
             </p>
         </div>
 
+        <p style="margin-top: 0.5rem; text-align: center; font-weight: bold;">Kata hapa {{ str_repeat('X ', 26) }}Kata hapa</p>
+
         <div class="footer">
             <p><strong>Jina la Mzazi:</strong> ___________________________________________________ <strong>Tarehe:</strong>_____________________</p>
             <p><strong>Jina la Mwanafunzi:</strong> ______________________________________________ <strong>Darasa:</strong>_____________________</p>
@@ -177,13 +179,6 @@
         </div>
 
 
-        <table style="margin-top: 3rem; width: 100%;">
-            <tr>
-                <td style="border: none; padding: 0; white-space: nowrap; font-weight: bold;">Kata hapa</td>
-                <td style="border: none; border-top: 1px dashed #000;">&nbsp;</td>
-                <td style="border: none; padding: 0; white-space: nowrap; font-weight: bold;">Kata hapa</td>
-            </tr>
-        </table>
         <div style="text-align: center">
             <p><strong>Designed by:</strong> rmstechnology.co.tz +255 786 283 282 / +255 736 102 030</p>
             <p><strong>Printed Date:</strong> {{ date('F j, Y') }}</p>
