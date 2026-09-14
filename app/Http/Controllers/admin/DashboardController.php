@@ -23,8 +23,15 @@ use App;
 
 class DashboardController extends Controller
 {
+    // TEMPORARY maintenance redirect - set to false to restore normal login.
+    protected $maintenanceMode = true;
+
     public function signIn()
     {
+        if ($this->maintenanceMode) {
+            return view('admin.maintenance');
+        }
+
         return view('admin.index');
     }
 
@@ -155,6 +162,10 @@ class DashboardController extends Controller
     // Login with userName
     public function login(Request $req)
     {
+        if ($this->maintenanceMode) {
+            return view('admin.maintenance');
+        }
+
         // Validate input with more specific rules
         $validatedData = $req->validate([
             'email' => 'required',
